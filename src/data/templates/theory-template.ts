@@ -16,6 +16,13 @@ export const THEORY_BLOCKS = [
 export type TheoryDepth = "D1" | "D2" | "D3";
 export type TheoryBlockName = (typeof THEORY_BLOCKS)[number];
 export type EvidenceLevel = "L1" | "L2" | "L3";
+export type TraceableSourceKind =
+  | "doi"
+  | "publisher"
+  | "university"
+  | "library"
+  | "journal"
+  | "authoritative_web";
 
 export interface ConceptEntry {
   name: string;
@@ -57,18 +64,36 @@ export interface ContentSource {
   id: string;
   citation: string;
   url: string;
-  evidence_level: EvidenceLevel;
+  source_kind: TraceableSourceKind;
+  evidence_level: "L1";
   supports: string[];
 }
 
-export interface VerificationEntry {
+export interface L1VerificationEntry {
   claim: string;
-  evidence_level: EvidenceLevel;
-  source_id?: string;
-  status: "verified" | "editorial" | "proposed";
+  evidence_level: "L1";
+  source_id: string;
+  status: "verified";
 }
 
-export interface TheoryContent {
+export interface L2VerificationEntry {
+  claim: string;
+  evidence_level: "L2";
+  status: "editorial";
+}
+
+export interface L3VerificationEntry {
+  claim: string;
+  evidence_level: "L3";
+  status: "proposed";
+}
+
+export type VerificationEntry =
+  | L1VerificationEntry
+  | L2VerificationEntry
+  | L3VerificationEntry;
+
+export interface TheoryCoreContent {
   what_is_it: string;
   origins: string;
   core_concepts: ConceptEntry[];
@@ -76,36 +101,124 @@ export interface TheoryContent {
   applicable_topics: SuitabilityEntry[];
   inapplicable_topics: SuitabilityEntry[];
   misuse_risks: string[];
+}
+
+export interface TheoryExtendedContent {
   analysis_dimensions: string[];
   data_collection: OperationalizationEntry[];
   chapter_structure: ChapterEntry[];
   fit_writing: string[];
   sources: ContentSource[];
-  reading_path: ReadingPathEntry[];
-  verification: VerificationEntry[];
 }
+
+export type TheoryContent = TheoryCoreContent & Partial<TheoryExtendedContent> & {
+  reading_path?: ReadingPathEntry[];
+  verification?: VerificationEntry[];
+};
 
 export function requiredTheoryBlocks(depth: TheoryDepth): TheoryBlockName[] {
   return depth === "D1" ? THEORY_BLOCKS.slice(0, 7) : [...THEORY_BLOCKS];
 }
 
-function hasContent(value: unknown): boolean {
-  if (typeof value === "string") return value.trim().length > 0;
-  if (Array.isArray(value)) return value.length > 0;
-  return value !== null && typeof value === "object";
+export function isTheoryDepth(value: unknown): value is TheoryDepth {
+  return value === "D1" || value === "D2" || value === "D3";
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
+}
+
+function isNonEmptyString(value: unknown): value is string {
+  return typeof value === "string" && value.trim().length > 0;
+}
+
+function isNonEmptyStringArray(value: unknown): value is string[] {
+  return Array.isArray(value) && value.length > 0 && value.every(isNonEmptyString);
+}
+
+function isRecordArray(
+  value: unknown,
+  validator: (entry: Record<string, unknown>) => boolean,
+): boolean {
+  return Array.isArray(value) && value.length > 0 && value.every((entry) => isRecord(entry) && validator(entry));
+}
+
+function hasStrings(entry: Record<string, unknown>, keys: string[]): boolean {
+  return keys.every((key) => isNonEmptyString(entry[key]));
+}
+
+function isContentSource(value: unknown): value is ContentSource {
+  if (!isRecord(value)) return false;
+  return (
+    hasStrings(value, ["id", "citation", "url"]) &&
+    value.evidence_level === "L1" &&
+    ["doi", "publisher", "university", "library", "journal", "authoritative_web"].includes(
+      value.source_kind as string,
+    ) &&
+    isNonEmptyStringArray(value.supports)
+  );
+}
+
+function isVerificationEntry(value: unknown, sourceIds: Set<string>): value is VerificationEntry {
+  if (!isRecord(value) || !isNonEmptyString(value.claim)) return false;
+  if (value.evidence_level === "L1") {
+    return value.status === "verified" && isNonEmptyString(value.source_id) && sourceIds.has(value.source_id);
+  }
+  if (value.evidence_level === "L2") return value.status === "editorial";
+  return value.evidence_level === "L3" && value.status === "proposed";
+}
+
+function isTheoryBlock(key: TheoryBlockName, value: unknown): boolean {
+  switch (key) {
+    case "what_is_it":
+    case "origins":
+      return isNonEmptyString(value);
+    case "core_concepts":
+      return isRecordArray(value, (entry) => hasStrings(entry, ["name", "definition", "relevance"]));
+    case "genealogy":
+      return isRecordArray(value, (entry) => hasStrings(entry, ["related_theory", "relationship", "description"]));
+    case "applicable_topics":
+    case "inapplicable_topics":
+      return isRecordArray(value, (entry) => hasStrings(entry, ["topic", "rationale"]));
+    case "misuse_risks":
+    case "analysis_dimensions":
+    case "fit_writing":
+      return isNonEmptyStringArray(value);
+    case "data_collection":
+      return isRecordArray(value, (entry) =>
+        hasStrings(entry, ["dimension", "collection_prompt"]) && isNonEmptyStringArray(entry.indicators),
+      );
+    case "chapter_structure":
+      return isRecordArray(value, (entry) => hasStrings(entry, ["chapter", "purpose", "theory_use"]));
+    case "sources":
+      return Array.isArray(value) && value.length > 0 && value.every(isContentSource);
+  }
 }
 
 export function isTheoryContent(
   value: unknown,
-  depth: TheoryDepth,
+  depth: unknown,
 ): value is TheoryContent {
-  return (
-    value !== null &&
-    typeof value === "object" &&
-    requiredTheoryBlocks(depth).every((key) =>
-      hasContent((value as Record<string, unknown>)[key]),
-    )
+  if (!isTheoryDepth(depth) || !isRecord(value)) return false;
+  const blocks = requiredTheoryBlocks(depth);
+  if (!blocks.every((key) => isTheoryBlock(key, value[key]))) return false;
+
+  const optionalBlocks = THEORY_BLOCKS.filter((key) => !blocks.includes(key));
+  if (optionalBlocks.some((key) => key in value && !isTheoryBlock(key, value[key]))) return false;
+
+  const sourceIds = new Set(
+    Array.isArray(value.sources)
+      ? value.sources.filter(isContentSource).map((source) => source.id)
+      : [],
   );
+  if ("reading_path" in value && !isRecordArray(value.reading_path, (entry) =>
+    typeof entry.order === "number" && Number.isInteger(entry.order) && entry.order > 0 &&
+    hasStrings(entry, ["title", "purpose"]) &&
+    (entry.source_id === undefined || isNonEmptyString(entry.source_id)),
+  )) return false;
+  if ("verification" in value && (!Array.isArray(value.verification) || value.verification.length === 0 ||
+    !value.verification.every((entry) => isVerificationEntry(entry, sourceIds)))) return false;
+  return true;
 }
 
 export const LIFE_COURSE_D2_EXAMPLE: TheoryContent = {
@@ -193,6 +306,7 @@ export const LIFE_COURSE_D2_EXAMPLE: TheoryContent = {
       citation:
         "Elder, G. H., Jr. (1998). The life course as developmental theory. Child Development, 69(1), 1-12.",
       url: "https://doi.org/10.1111/j.1467-8624.1998.tb06128.x",
+      source_kind: "doi",
       evidence_level: "L1",
       supports: ["Bibliographic details", "Foundational framing of the life course"],
     },
