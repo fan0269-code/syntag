@@ -66,6 +66,24 @@ test("theory depth validation rejects unknown depths and malformed required bloc
   );
 });
 
+test("theory content rejects a reading-path source that is not listed on the page", () => {
+  assert.equal(
+    isTheoryContent(
+      {
+        ...LIFE_COURSE_D2_EXAMPLE,
+        reading_path: [
+          {
+            ...LIFE_COURSE_D2_EXAMPLE.reading_path![0],
+            source_id: "invented-source-id",
+          },
+        ],
+      },
+      "D2",
+    ),
+    false,
+  );
+});
+
 test("page templates provide their page-specific authoring blocks", () => {
   assert.deepEqual(GLEN_ELDER_COMPACT_EXAMPLE.academic_identity, {
     discipline: "Sociology",
@@ -79,6 +97,10 @@ test("page templates provide their page-specific authoring blocks", () => {
   );
   assert.ok(LIFE_COURSE_DEVELOPMENTAL_THEORY_COMPACT_EXAMPLE.content_guide.length > 0);
   assert.ok(LIFE_COURSE_DEVELOPMENTAL_THEORY_COMPACT_EXAMPLE.key_chapters.length > 0);
+  assert.match(
+    LIFE_COURSE_DEVELOPMENTAL_THEORY_COMPACT_EXAMPLE.key_chapters[0]?.chapter ?? "",
+    /article-level|verified section/i,
+  );
   assert.equal(
     LIFE_COURSE_DEVELOPMENTAL_THEORY_COMPACT_EXAMPLE.lawful_access[0]?.access_type,
     "doi",

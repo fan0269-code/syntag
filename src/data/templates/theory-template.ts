@@ -214,7 +214,8 @@ export function isTheoryContent(
   if ("reading_path" in value && !isRecordArray(value.reading_path, (entry) =>
     typeof entry.order === "number" && Number.isInteger(entry.order) && entry.order > 0 &&
     hasStrings(entry, ["title", "purpose"]) &&
-    (entry.source_id === undefined || isNonEmptyString(entry.source_id)),
+    (entry.source_id === undefined ||
+      (isNonEmptyString(entry.source_id) && sourceIds.has(entry.source_id))),
   )) return false;
   if ("verification" in value && (!Array.isArray(value.verification) || value.verification.length === 0 ||
     !value.verification.every((entry) => isVerificationEntry(entry, sourceIds)))) return false;

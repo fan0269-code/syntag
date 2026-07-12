@@ -39,8 +39,8 @@ export const LIFE_COURSE_DEVELOPMENTAL_THEORY_COMPACT_EXAMPLE: WorkContent = {
   ],
   key_chapters: [
     {
-      chapter: "The life course as developmental theory",
-      purpose: "Introduce the framework's principles and their relationship.",
+      chapter: "Article-level guide: conceptual framing and six principles",
+      purpose: "Use this article-level guide to trace the framework's principles and their relationship; it is not a chapter title.",
       theory_use: "Use as the conceptual foundation before adding a study-specific analytic design.",
     },
   ],
