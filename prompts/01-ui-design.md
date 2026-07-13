@@ -2,11 +2,11 @@
 
 ## Context
 
-你正在为 **Syntag**（一个面向全球硕博生的理论知识图谱平台）建立完整的 UI 设计系统。
+你正在为 **Syrtag**（一个面向全球硕博生的理论知识图谱平台）建立完整的 UI 设计系统。
 
-产品文档：`Syntag-产品设计文档.md`（请先通读第五章"视觉设计系统"和第4章"图谱交互模型"）
-当前项目：Next.js 15 + Tailwind CSS，代码在 `syntag/src/` 下
-设计令牌已在 `syntag/src/app/globals.css` 中定义为 CSS 变量
+产品文档：`Syrtag-产品设计文档.md`（请先通读第五章"视觉设计系统"和第4章"图谱交互模型"）
+当前项目：Next.js 15 + Tailwind CSS，代码在 `syrtag/src/` 下
+设计令牌已在 `syrtag/src/app/globals.css` 中定义为 CSS 变量
 
 ## 你的任务
 
@@ -16,7 +16,7 @@
 
 **Header.tsx**
 - 深色半透明背景 (#0a0a0f / 90% opacity) + 1px 底部分割线
-- 左侧：Syntag Logo（文字 Logo，字体 weight 700，颜色 #f0f0f5）
+- 左侧：Syrtag Logo（文字 Logo，字体 weight 700，颜色 #f0f0f5）
 - 导航链接：Disciplines | Theories | Scholars | Topics | Framework Builder
 - 右侧：搜索图标（点击展开搜索浮层）
 - 移动端：汉堡菜单
@@ -25,7 +25,7 @@
 **Footer.tsx**
 - 深色背景 + 顶部 1px 分割线
 - 三列结构：Brand（简介） / Quick Links（导航） / Legal（隐私/条款/编辑政策等链接）
-- 品牌名 Syntag + 定位短语
+- 品牌名 Syrtag + 定位短语
 - 极简风格，文字小号（14px），颜色 `--text-secondary`
 
 **Breadcrumbs.tsx**

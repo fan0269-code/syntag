@@ -2,9 +2,9 @@
 
 ## Context
 
-你正在为 **Syntag** 建立完整的后端基础设施。
+你正在为 **Syrtag** 建立完整的后端基础设施。
 
-产品文档：`Syntag-产品设计文档.md`（请先通读第三章"知识图谱数据模型"、第十一章"技术架构"）
+产品文档：`Syrtag-产品设计文档.md`（请先通读第三章"知识图谱数据模型"、第十一章"技术架构"）
 数据库 Schema：`prisma/schema.prisma` 已定义所有表和关系
 种子数据：`prisma/seed.ts` 包含完整的种子数据
 
@@ -187,7 +187,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=xxx
 SUPABASE_SERVICE_ROLE_KEY=xxx
 
 # Site
-NEXT_PUBLIC_SITE_URL=https://syntag.app
+NEXT_PUBLIC_SITE_URL=https://syrtag.app
 ```
 
 ### 7. API 错误处理与日志

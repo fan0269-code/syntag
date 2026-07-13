@@ -2,9 +2,9 @@
 
 ## Context
 
-你正在为 **Syntag** 创建所有前端页面和路由。
+你正在为 **Syrtag** 创建所有前端页面和路由。
 
-产品文档：`Syntag-产品设计文档.md`（请先通读第四章"图谱交互模型"、第六章"路由URL"、第十一章"技术架构"）
+产品文档：`Syrtag-产品设计文档.md`（请先通读第四章"图谱交互模型"、第六章"路由URL"、第十一章"技术架构"）
 UI 组件已在 `src/components/` 下就绪
 数据模型在 `prisma/schema.prisma` 中定义
 SEO 工具在 `src/lib/seo.ts` 中可用

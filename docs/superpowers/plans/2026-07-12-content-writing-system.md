@@ -1,8 +1,8 @@
-# Syntag Content Writing System Implementation Plan
+# Syrtag Content Writing System Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (\`- [ ]\`) syntax for tracking.
 
-**Goal:** Deliver typed, source-traceable English content templates, a complete idempotent Syntag seed corpus, content retrieval functions, and automated structural validation.
+**Goal:** Deliver typed, source-traceable English content templates, a complete idempotent Syrtag seed corpus, content retrieval functions, and automated structural validation.
 
 **Architecture:** Keep JSONB contracts and source-backed corpus data under \`src/data\`; keep \`prisma/seed.ts\` as an idempotent persistence adapter. Use a client-injected content repository for unit tests and production wrappers that obtain the existing Prisma client from \`getDb()\`.
 
@@ -219,13 +219,13 @@ Expected: PASS.
 
 Run: \`test -n "$DATABASE_URL" && npx prisma db seed || echo "DATABASE_URL absent; static preflight passed"\`
 
-Expected: \`Syntag seed completed.\` or the explicit pending message.
+Expected: \`Syrtag seed completed.\` or the explicit pending message.
 
 - [ ] **Step 6: Commit only Task 3 files.**
 
 \`\`\`bash
 git add prisma/seed.ts tests/content-validation.test.ts
-git commit -m "feat: seed full Syntag content graph"
+git commit -m "feat: seed full Syrtag content graph"
 \`\`\`
 
 ### Task 4: Add the content query layer and final gates

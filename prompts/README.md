@@ -16,7 +16,7 @@
 
 Codex 需要能访问以下文件：
 
-- `Syntag-产品设计文档.md`（项目根目录）— 产品总纲
+- `Syrtag-产品设计文档.md`（项目根目录）— 产品总纲
 - `prisma/schema.prisma` — 数据模型
 - `src/app/globals.css` — 设计令牌
 - 对应提示词的 `prompts/0X-xxx.md`

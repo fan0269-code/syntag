@@ -2,7 +2,7 @@
 
 ## Project Structure & Module Organization
 
-Syntag is a Next.js 16 App Router application for research-theory knowledge graphs. Application code lives in `src/`: routes in `src/app/`, reusable UI in `src/components/`, data access and domain helpers in `src/lib/`, and typed content contracts in `src/data/`. Prisma schema, migrations, and seeding live in `prisma/`. Node test files are in `tests/` and use the matching `*.test.ts` suffix. Static assets belong in `public/`. Project notes are in `docs/`; execution prompts are in `prompts/`.
+Syrtag is a Next.js 16 App Router application for research-theory knowledge graphs. Application code lives in `src/`: routes in `src/app/`, reusable UI in `src/components/`, data access and domain helpers in `src/lib/`, and typed content contracts in `src/data/`. Prisma schema, migrations, and seeding live in `prisma/`. Node test files are in `tests/` and use the matching `*.test.ts` suffix. Static assets belong in `public/`. Project notes are in `docs/`; execution prompts are in `prompts/`.
 
 ## Build, Test, and Development Commands
 

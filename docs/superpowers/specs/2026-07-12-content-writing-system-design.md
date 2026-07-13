@@ -1,8 +1,8 @@
-# Syntag Content Writing System — Design
+# Syrtag Content Writing System — Design
 
 ## Scope and outcome
 
-This delivery turns the initial metadata-only seed into an English-first, source-traceable content system for Syntag. It covers typed JSON content templates, idempotent Prisma seeding, relation-aware content queries, and validation. Existing uncommitted application changes remain outside scope.
+This delivery turns the initial metadata-only seed into an English-first, source-traceable content system for Syrtag. It covers typed JSON content templates, idempotent Prisma seeding, relation-aware content queries, and validation. Existing uncommitted application changes remain outside scope.
 
 The primary corpus is the twelve theories in the product document, with the stated D3/D2/D1 depth distribution. To preserve every relationship defined in Chapter 10, referenced theories that are outside that twelve-theory list are seeded as supporting graph entities. Supporting entities carry non-empty English content and source metadata; they are not represented as a substitute for the twelve primary, depth-scoped pages.
 

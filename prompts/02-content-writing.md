@@ -2,9 +2,9 @@
 
 ## Context
 
-你正在为 **Syntag** 建立内容创作模板和第一批种子数据。
+你正在为 **Syrtag** 建立内容创作模板和第一批种子数据。
 
-产品文档：`Syntag-产品设计文档.md`（请先通读第七、八、九、十章）
+产品文档：`Syrtag-产品设计文档.md`（请先通读第七、八、九、十章）
 数据库 Schema：`prisma/schema.prisma` 已定义所有表和字段
 内容存储在 PostgreSQL，长文内容以结构化 JSONB 字段（`content_jsonb`）存储
 

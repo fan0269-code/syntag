@@ -7,7 +7,7 @@ import { validateSeedCorpus } from "../src/lib/content-validation.ts";
 const { PrismaClient } = prismaClientPackage;
 
 const connectionString = process.env.DATABASE_URL;
-if (!connectionString) throw new Error("DATABASE_URL is required to seed Syntag");
+if (!connectionString) throw new Error("DATABASE_URL is required to seed Syrtag");
 
 const preflight = validateSeedCorpus(seedCorpus);
 if (preflight.errors.length > 0) {
@@ -217,5 +217,5 @@ async function main() {
 }
 
 main()
-  .then(() => console.log("Syntag seed completed."))
+  .then(() => console.log("Syrtag seed completed."))
   .finally(() => db.$disconnect());

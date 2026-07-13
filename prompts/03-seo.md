@@ -2,9 +2,9 @@
 
 ## Context
 
-你正在为 **Syntag** 建立完整的 SEO 基础设施。
+你正在为 **Syrtag** 建立完整的 SEO 基础设施。
 
-产品文档：`Syntag-产品设计文档.md`（请先通读第六章"页面路由与URL结构"和第七章"内容质量标准"）
+产品文档：`Syrtag-产品设计文档.md`（请先通读第六章"页面路由与URL结构"和第七章"内容质量标准"）
 技术栈：Next.js 15 App Router，内容通过 Server Components + ISR 渲染
 受众：全球英文硕博生，Google 搜索为主（Phase 1 不做百度）
 
@@ -26,9 +26,9 @@ generateHomeMeta() → Metadata
 ```
 
 每个函数必须生成：
-- **title**：实体名称 + 核心关键词（如 `Life Course Theory — Theoretical Framework Guide | Syntag`）
+- **title**：实体名称 + 核心关键词（如 `Life Course Theory — Theoretical Framework Guide | Syrtag`）
 - **description**：150-160 字符，包含核心关键词的自然语句，不要 keyword stuffing
-- **canonical URL**：`https://syntag.app/theories/life-course-theory`
+- **canonical URL**：`https://syrtag.app/theories/life-course-theory`
 - **Open Graph**：`og:title`, `og:description`, `og:image`（生成 OG 图片 URL，尺寸 1200×630）
 - **Twitter Card**：`twitter:card = 'summary_large_image'`
 - **robots**：`index, follow`（默认），`noindex` 用于后台/框架生成器等页面
@@ -44,10 +44,10 @@ generateHomeMeta() → Metadata
   "@type": "Article",
   "headline": "...",
   "description": "...",
-  "author": { "@type": "Organization", "name": "Syntag" },
+  "author": { "@type": "Organization", "name": "Syrtag" },
   "datePublished": "2026-07-...",
   "dateModified": "2026-07-...",
-  "publisher": { "@type": "Organization", "name": "Syntag" }
+  "publisher": { "@type": "Organization", "name": "Syrtag" }
 }
 ```
 
@@ -57,7 +57,7 @@ generateHomeMeta() → Metadata
   "@context": "https://schema.org",
   "@type": "BreadcrumbList",
   "itemListElement": [
-    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://syntag.app" },
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://syrtag.app" },
     ...
   ]
 }
@@ -68,7 +68,7 @@ generateHomeMeta() → Metadata
 {
   "@context": "https://schema.org",
   "@type": "CollectionPage",
-  "name": "Syntag — Research Theory Knowledge Graph",
+  "name": "Syrtag — Research Theory Knowledge Graph",
   "description": "...",
   "mainEntity": {
     "@type": "ItemList",
@@ -111,7 +111,7 @@ generateHomeMeta() → Metadata
 **robots.ts** (`src/app/robots.ts`)：
 - 使用 Next.js 内置 `robots` 导出
 - 允许所有爬虫
-- Sitemap 指向 `https://syntag.app/sitemap.xml`
+- Sitemap 指向 `https://syrtag.app/sitemap.xml`
 - 禁止 `/api/` 路径
 
 ### 4. 内链策略实现（`src/lib/internal-links.ts`）

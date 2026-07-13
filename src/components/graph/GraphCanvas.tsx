@@ -7,11 +7,11 @@ type GraphStatus = "loading" | "ready" | "empty" | "error";
 type Transform = { x: number; y: number; scale: number };
 
 const edgeStyle: Record<string, { color: string; dash?: number[]; arrow?: boolean; double?: boolean }> = {
-  precursor_of: { color: "--edge-precursor", arrow: true },
-  branched_from: { color: "--edge-branched", dash: [6, 5], arrow: true },
-  extended_by: { color: "--edge-extended" },
-  critiqued_by: { color: "--edge-critique", dash: [6, 5] },
-  integrated_with: { color: "--edge-integrated", double: true },
+  precursor_of: { color: "--edge-precursor", dash: [10, 12], arrow: true },
+  branched_from: { color: "--edge-branched", dash: [8, 10], arrow: true },
+  extended_by: { color: "--edge-extended", dash: [12, 14] },
+  critiqued_by: { color: "--edge-critique", dash: [8, 10] },
+  integrated_with: { color: "--edge-integrated", dash: [12, 10], double: true },
   founder: { color: "--edge-integrated" },
   key_contributor: { color: "--edge-extended" },
   extender: { color: "--edge-extended" },
@@ -21,10 +21,10 @@ const edgeStyle: Record<string, { color: string; dash?: number[]; arrow?: boolea
 };
 
 function nodeRadius(node: GraphNodeModel) {
-  if (node.type === "theory") return node.depth === "D3" ? 28 : node.depth === "D2" ? 24 : 20;
-  if (node.type === "work") return 12;
+  if (node.type === "theory") return node.depth === "D3" ? 18 : node.depth === "D2" ? 16 : 14;
+  if (node.type === "work") return 13;
   if (node.type === "concept") return 14;
-  return 20;
+  return 15;
 }
 
 function placeNodes(nodes: GraphNodeModel[]): PositionedGraphNode[] {
@@ -37,6 +37,12 @@ function placeNodes(nodes: GraphNodeModel[]): PositionedGraphNode[] {
 
 function formatRelation(type: string) { return type.replaceAll("_", " "); }
 function shortLabel(label: string) { return label.length > 25 ? `${label.slice(0, 24)}…` : label; }
+function controlPoint(start: { x: number; y: number }, end: { x: number; y: number }, bend = 0.16) {
+  const midpoint = { x: (start.x + end.x) / 2, y: (start.y + end.y) / 2 };
+  const dx = end.x - start.x;
+  const dy = end.y - start.y;
+  return { x: midpoint.x - dy * bend, y: midpoint.y + dx * bend };
+}
 
 type GraphCanvasProps = { nodes: GraphNodeModel[]; edges: GraphEdgeModel[]; status?: GraphStatus; onRetry?: () => void; onNodeSelect?: (node: GraphNodeModel) => void; focusId?: string | null; mode?: string; disciplineLabel?: string };
 
@@ -98,34 +104,104 @@ function GraphCanvasInstance({ nodes, edges, status = "ready", onRetry, onNodeSe
     canvas.height = viewport.height * ratio;
     const context = canvas.getContext("2d");
     if (!context) return;
-    context.setTransform(ratio, 0, 0, ratio, 0, 0);
-    context.clearRect(0, 0, viewport.width, viewport.height);
-    context.lineCap = "round";
-    edges.forEach((edge) => {
-      const source = nodeById.get(edge.source); const target = nodeById.get(edge.target);
-      if (!source || !target) return;
-      const start = toScreen(source); const end = toScreen(target); const style = edgeStyle[edge.type] ?? { color: "--edge-precursor" };
-      context.strokeStyle = cssColor(style.color); context.lineWidth = 1.2; context.setLineDash(style.dash ?? []);
-      context.beginPath(); context.moveTo(start.x, start.y); context.lineTo(end.x, end.y); context.stroke();
-      if (style.double) { context.beginPath(); context.moveTo(start.x + 3, start.y + 3); context.lineTo(end.x + 3, end.y + 3); context.stroke(); }
-      if (style.arrow) { const angle = Math.atan2(end.y - start.y, end.x - start.x); context.setLineDash([]); context.fillStyle = cssColor(style.color); context.beginPath(); context.moveTo(end.x, end.y); context.lineTo(end.x - 8 * Math.cos(angle - .45), end.y - 8 * Math.sin(angle - .45)); context.lineTo(end.x - 8 * Math.cos(angle + .45), end.y - 8 * Math.sin(angle + .45)); context.closePath(); context.fill(); }
-    });
-    context.setLineDash([]);
-    points.forEach((node) => {
-      const point = toScreen(node); const radius = nodeRadius(node) * transform.current.scale; const selectedNode = selected?.id === node.id;
-      const colorName = node.type === "theory"
-        ? `--node-theory-${node.depth === "D3" ? "primary" : "branch"}`
-        : node.type === "work" ? "--node-work" : `--node-${node.type}`;
-      context.fillStyle = cssColor(colorName); context.strokeStyle = selectedNode ? cssColor("--accent-primary") : "transparent"; context.lineWidth = 2;
-      context.beginPath();
-      if (node.type === "theory") context.roundRect(point.x - radius, point.y - radius * .62, radius * 2, radius * 1.24, 6);
-      else if (node.type === "scholar") context.arc(point.x, point.y, radius, 0, Math.PI * 2);
-      else if (node.type === "concept") { context.moveTo(point.x, point.y - radius); context.lineTo(point.x + radius, point.y); context.lineTo(point.x, point.y + radius); context.lineTo(point.x - radius, point.y); context.closePath(); }
-      else if (node.type === "work") context.roundRect(point.x - radius, point.y - radius, radius * 2, radius * 2, 2);
-      else { for (let step = 0; step < 6; step += 1) { const angle = Math.PI / 3 * step - Math.PI / 2; const x = point.x + Math.cos(angle) * radius; const y = point.y + Math.sin(angle) * radius; if (step) context.lineTo(x, y); else context.moveTo(x, y); } context.closePath(); }
-      context.fill(); context.stroke();
-      if (transform.current.scale > .55) { context.fillStyle = cssColor("--text-secondary"); context.font = "12px Inter, system-ui, sans-serif"; context.textAlign = "center"; context.fillText(shortLabel(node.label), point.x, point.y + radius + 17); }
-    });
+
+    let animationFrame = 0;
+    const draw = (time: number) => {
+      context.setTransform(ratio, 0, 0, ratio, 0, 0);
+      context.clearRect(0, 0, viewport.width, viewport.height);
+      context.lineCap = "round";
+      context.lineJoin = "round";
+
+      edges.forEach((edge, index) => {
+        const source = nodeById.get(edge.source); const target = nodeById.get(edge.target);
+        if (!source || !target) return;
+        const start = toScreen(source); const end = toScreen(target); const style = edgeStyle[edge.type] ?? { color: "--edge-precursor", dash: [10, 12] };
+        const control = controlPoint(start, end, index % 2 ? -0.14 : 0.14);
+        const color = cssColor(style.color);
+        context.save();
+        context.strokeStyle = color;
+        context.globalAlpha = .52;
+        context.lineWidth = 1.9;
+        context.setLineDash(style.dash ?? [12, 12]);
+        context.lineDashOffset = -time / 90 - index * 8;
+        context.beginPath();
+        context.moveTo(start.x, start.y);
+        context.quadraticCurveTo(control.x, control.y, end.x, end.y);
+        context.stroke();
+        if (style.double) {
+          context.globalAlpha = .32;
+          context.lineWidth = 1.2;
+          context.setLineDash([4, 12]);
+          context.lineDashOffset = time / 110 + index * 6;
+          context.beginPath();
+          context.moveTo(start.x + 3, start.y + 3);
+          context.quadraticCurveTo(control.x + 3, control.y + 3, end.x + 3, end.y + 3);
+          context.stroke();
+        }
+        if (style.arrow) {
+          const angle = Math.atan2(end.y - control.y, end.x - control.x);
+          context.globalAlpha = .65;
+          context.setLineDash([]);
+          context.fillStyle = color;
+          context.beginPath();
+          context.moveTo(end.x, end.y);
+          context.lineTo(end.x - 8 * Math.cos(angle - .42), end.y - 8 * Math.sin(angle - .42));
+          context.lineTo(end.x - 8 * Math.cos(angle + .42), end.y - 8 * Math.sin(angle + .42));
+          context.closePath();
+          context.fill();
+        }
+        context.restore();
+      });
+
+      points.forEach((node, index) => {
+        const basePoint = toScreen(node);
+        const floatY = Math.sin(time / 1200 + index * .9) * 4;
+        const point = { x: basePoint.x, y: basePoint.y + floatY };
+        const radius = nodeRadius(node) * transform.current.scale; const selectedNode = selected?.id === node.id;
+        const colorName = node.type === "theory"
+          ? `--node-theory-${node.depth === "D3" ? "primary" : "branch"}`
+          : node.type === "work" ? "--node-work" : `--node-${node.type}`;
+        const color = cssColor(colorName);
+        context.save();
+        context.shadowColor = "rgba(44, 39, 34, 0.16)";
+        context.shadowBlur = selectedNode ? 20 : 14;
+        context.shadowOffsetY = 8;
+        context.fillStyle = cssColor("--bg-surface");
+        context.strokeStyle = selectedNode ? cssColor("--accent-primary") : color;
+        context.lineWidth = selectedNode ? 3 : 2;
+        context.beginPath();
+        context.arc(point.x, point.y, radius, 0, Math.PI * 2);
+        context.fill();
+        context.stroke();
+        context.shadowColor = "transparent";
+        context.fillStyle = color;
+        context.globalAlpha = selectedNode ? .92 : .74;
+        context.beginPath();
+        context.arc(point.x, point.y, Math.max(4, radius * .34), 0, Math.PI * 2);
+        context.fill();
+        if (selectedNode) {
+          context.globalAlpha = .18 + Math.sin(time / 260) * .04;
+          context.strokeStyle = cssColor("--accent-primary");
+          context.lineWidth = 2;
+          context.beginPath();
+          context.arc(point.x, point.y, radius + 9 + Math.sin(time / 420) * 3, 0, Math.PI * 2);
+          context.stroke();
+        }
+        context.globalAlpha = 1;
+        if (transform.current.scale > .55) {
+          context.fillStyle = cssColor("--text-secondary");
+          context.font = "13px Inter, system-ui, sans-serif";
+          context.textAlign = "center";
+          context.fillText(shortLabel(node.label), point.x, point.y + radius + 20);
+        }
+        context.restore();
+      });
+
+      animationFrame = window.requestAnimationFrame(draw);
+    };
+
+    animationFrame = window.requestAnimationFrame(draw);
+    return () => window.cancelAnimationFrame(animationFrame);
   }, [cssColor, edges, nodeById, points, selected, toScreen, viewport]);
 
   const locateNode = (x: number, y: number) => points.find((node) => { const point = toScreen(node); return Math.hypot(point.x - x, point.y - y) <= nodeRadius(node) * transform.current.scale + 8; });

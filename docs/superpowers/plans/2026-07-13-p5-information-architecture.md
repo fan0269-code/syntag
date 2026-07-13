@@ -2,7 +2,7 @@
 
 > **For agentic workers:** Execute inline in the current workspace. Do not commit, reset, format unrelated files, or use a subagent.
 
-**Goal:** Make every published Syntag entity reachable from a real index route and eliminate public navigation dead links.
+**Goal:** Make every published Syrtag entity reachable from a real index route and eliminate public navigation dead links.
 
 **Architecture:** Define a small canonical entity-route map shared by navigation, cards, graph details, and list pages. Add bounded, database-backed index queries and reuse one index-page component for the seven entity types. Preserve P3 distinctions: missing content is 404 and database unavailability remains a recoverable site error.
 
