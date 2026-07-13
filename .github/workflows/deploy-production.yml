@@ -30,4 +30,7 @@ jobs:
         env:
           DEPLOY_HOST: ${{ secrets.SYRTAG_DEPLOY_HOST }}
           DEPLOY_USER: ${{ secrets.SYRTAG_DEPLOY_USER }}
-        run: ssh -o BatchMode=yes -o ConnectTimeout=20 "$DEPLOY_USER@$DEPLOY_HOST" "sudo /var/www/syrtag.com/deploy-production.sh"
+        run: |
+          ssh -o BatchMode=yes -o ConnectTimeout=20 "$DEPLOY_USER@$DEPLOY_HOST" "sudo /var/www/syrtag.com/deploy-production.sh"
+          ssh -o BatchMode=yes -o ConnectTimeout=20 "$DEPLOY_USER@$DEPLOY_HOST" "sudo -H bash -lc 'cd /var/www/syrtag.com && npm run db:seed'"
+          ssh -o BatchMode=yes -o ConnectTimeout=20 "$DEPLOY_USER@$DEPLOY_HOST" "sudo /var/www/syrtag.com/deploy-production.sh"
