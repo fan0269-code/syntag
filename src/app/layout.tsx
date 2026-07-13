@@ -4,8 +4,8 @@ import { generateHomeMeta } from "@/lib/seo";
 
 export const metadata: Metadata = {
   ...generateHomeMeta(),
-  metadataBase: new URL("https://syntag.app"),
-  openGraph: { ...generateHomeMeta().openGraph, siteName: "Syntag" },
+  metadataBase: new URL("https://syrtag.com"),
+  openGraph: { ...generateHomeMeta().openGraph, siteName: "Syrtag" },
 };
 
 export default function RootLayout({

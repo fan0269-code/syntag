@@ -1,3 +1,3 @@
 import { StaticPage } from "@/components/content/StaticPage"; import { entityMetadata } from "@/lib/seo";
-export const metadata = entityMetadata({ title: "Framework Builder", description: "A guided research-framework tool is planned for a future Syntag phase.", path: "/framework-builder", type: "website", noindex: true });
+export const metadata = entityMetadata({ title: "Framework Builder", description: "A guided research-framework tool is planned for a future Syrtag phase.", path: "/framework-builder", type: "website", noindex: true });
 export default function FrameworkBuilderPage() { return <StaticPage title="Framework Builder"><p>The Framework Builder is planned for Phase 2. Phase 1 focuses on an open theory graph and source-aware, dissertation-ready theory pages.</p><p>For now, begin from a research topic or theory in the graph and use the linked concepts, works, and fit guidance to form a defensible pathway.</p></StaticPage>; }

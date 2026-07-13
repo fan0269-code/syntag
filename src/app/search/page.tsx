@@ -5,7 +5,7 @@ import { isDatabaseUnavailableError } from "@/lib/db";
 import { searchEntities } from "@/lib/search";
 import { entityMetadata } from "@/lib/seo";
 
-export const metadata = entityMetadata({ title: "Search research theory pathways", description: "Search Syntag theories, scholars, works, research topics, concepts, and fields.", path: "/search", type: "website" });
+export const metadata = entityMetadata({ title: "Search research theory pathways", description: "Search Syrtag theories, scholars, works, research topics, concepts, and fields.", path: "/search", type: "website" });
 const groups = [
   { key: "theories", label: "Matching theories", intent: "Theory Name" },
   { key: "scholars", label: "Matching scholars", intent: "Scholar Name" },

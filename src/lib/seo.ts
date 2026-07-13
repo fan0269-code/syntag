@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-export const siteUrl = "https://syntag.app";
+export const siteUrl = "https://syrtag.com";
 
 type EntityMetaInput = {
   name: string;
@@ -70,7 +70,7 @@ function metadataFor({
       description,
       url: canonical,
       type,
-      images: [{ url: image, width: 1200, height: 630, alt: `Syntag: ${title}` }],
+      images: [{ url: image, width: 1200, height: 630, alt: `Syrtag: ${title}` }],
     },
     twitter: {
       card: "summary_large_image",
@@ -82,39 +82,39 @@ function metadataFor({
 }
 
 export function generateTheoryMeta(theory: Pick<TheorySeoEntity, "titleEn" | "summaryEn" | "slug">): Metadata {
-  const title = `${theory.titleEn} — Theoretical Framework Guide | Syntag`;
+  const title = `${theory.titleEn} — Theoretical Framework Guide | Syrtag`;
   return metadataFor({ title, description: createSeoDescription(theory.titleEn, "theoretical framework guide", theory.summaryEn), path: `/theories/${theory.slug}` });
 }
 
 export function generateScholarMeta(scholar: Pick<ScholarSeoEntity, "name" | "bioEn" | "slug">): Metadata {
-  const title = `${scholar.name} — Scholar Profile & Theoretical Contributions | Syntag`;
+  const title = `${scholar.name} — Scholar Profile & Theoretical Contributions | Syrtag`;
   return metadataFor({ title, description: createSeoDescription(scholar.name, "scholar profile", scholar.bioEn), path: `/scholars/${scholar.slug}` });
 }
 
 export function generateWorkMeta(work: Pick<WorkSeoEntity, "title" | "publisher" | "slug">): Metadata {
-  const title = `${work.title} — Foundational Research Work Guide | Syntag`;
+  const title = `${work.title} — Foundational Research Work Guide | Syrtag`;
   return metadataFor({ title, description: createSeoDescription(work.title, "foundational research work guide", work.publisher), path: `/works/${work.slug}` });
 }
 
 export function generateTopicMeta(topic: Pick<TopicSeoEntity, "questionEn" | "slug">): Metadata {
-  const title = `${topic.questionEn} — Research Theory Selection Guide | Syntag`;
+  const title = `${topic.questionEn} — Research Theory Selection Guide | Syrtag`;
   return metadataFor({ title, description: createSeoDescription(topic.questionEn, "research theory selection guide"), path: `/topics/${topic.slug}` });
 }
 
 export function generateDisciplineMeta(discipline: Pick<DisciplineSeoEntity, "titleEn" | "descriptionEn" | "slug">): Metadata {
-  const title = `${discipline.titleEn} Research Theories & Frameworks | Syntag`;
+  const title = `${discipline.titleEn} Research Theories & Frameworks | Syrtag`;
   return metadataFor({ title, description: createSeoDescription(discipline.titleEn, "discipline research theory guide", discipline.descriptionEn), path: `/disciplines/${discipline.slug}`, type: "website" });
 }
 
 export function generateFieldMeta(field: Pick<FieldSeoEntity, "titleEn" | "descriptionEn" | "slug">): Metadata {
-  const title = `${field.titleEn} Research Theories & Frameworks | Syntag`;
+  const title = `${field.titleEn} Research Theories & Frameworks | Syrtag`;
   return metadataFor({ title, description: createSeoDescription(field.titleEn, "research field theory guide", field.descriptionEn), path: `/fields/${field.slug}`, type: "website" });
 }
 
 export function generateHomeMeta(): Metadata {
   return metadataFor({
-    title: "Syntag — Research Theory Knowledge Graph",
-    description: "Explore research theories, scholars, foundational works, and dissertation-ready framework pathways in Syntag's source-aware knowledge graph.",
+    title: "Syrtag — Research Theory Knowledge Graph",
+    description: "Explore research theories, scholars, foundational works, and dissertation-ready framework pathways in Syrtag's source-aware knowledge graph.",
     path: "/",
     type: "website",
   });
@@ -134,7 +134,7 @@ export function entityMetadata({
   type?: "article" | "website";
   noindex?: boolean;
 }): Metadata {
-  const resolvedTitle = title.includes("| Syntag") ? title : `${title} | Syntag`;
+  const resolvedTitle = title.includes("| Syrtag") ? title : `${title} | Syrtag`;
   return metadataFor({
     title: resolvedTitle,
     description: createSeoDescription(title, type === "article" ? "research guide" : "research knowledge resource", description),

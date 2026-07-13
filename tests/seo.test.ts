@@ -17,7 +17,7 @@ test("theory metadata has a canonical URL, social image, and crawler directives"
   assert.match(String(metadata.title), /Life Course Theory/);
   assert.ok((metadata.description?.length ?? 0) >= 150);
   assert.ok((metadata.description?.length ?? 0) <= 160);
-  assert.equal(metadata.alternates?.canonical, "https://syntag.app/theories/life-course-theory");
+  assert.equal(metadata.alternates?.canonical, "https://syrtag.com/theories/life-course-theory");
   assert.equal(metadata.openGraph?.images?.[0]?.width, 1200);
   assert.equal(metadata.openGraph?.images?.[0]?.height, 630);
   assert.equal(metadata.twitter?.card, "summary_large_image");
@@ -25,8 +25,8 @@ test("theory metadata has a canonical URL, social image, and crawler directives"
   assert.equal(metadata.robots?.follow, true);
 });
 
-test("home metadata and OG URLs resolve to Syntag's production domain", () => {
+test("home metadata and OG URLs resolve to Syrtag's production domain", () => {
   const metadata = generateHomeMeta();
-  assert.equal(metadata.alternates?.canonical, "https://syntag.app/");
-  assert.match(ogImageUrl("Life Course Theory", "Research guide"), /^https:\/\/syntag\.app\/api\/og\?/);
+  assert.equal(metadata.alternates?.canonical, "https://syrtag.com/");
+  assert.match(ogImageUrl("Life Course Theory", "Research guide"), /^https:\/\/syrtag\.com\/api\/og\?/);
 });

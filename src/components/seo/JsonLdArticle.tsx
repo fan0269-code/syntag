@@ -8,8 +8,8 @@ export function JsonLdArticle({ headline, description, path, datePublished, date
     headline,
     description,
     mainEntityOfPage: absoluteUrl(path),
-    author: { "@type": "Organization", name: "Syntag" },
-    publisher: { "@type": "Organization", name: "Syntag", url: absoluteUrl("/") },
+    author: { "@type": "Organization", name: "Syrtag" },
+    publisher: { "@type": "Organization", name: "Syrtag", url: absoluteUrl("/") },
     ...(datePublished ? { datePublished: new Date(datePublished).toISOString() } : {}),
     ...(dateModified ? { dateModified: new Date(dateModified).toISOString() } : {}),
   }} />;

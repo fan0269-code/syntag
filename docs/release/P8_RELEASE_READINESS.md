@@ -1,4 +1,4 @@
-# Syntag P8 Release Readiness
+# Syrtag P8 Release Readiness
 
 ## Current Status
 
@@ -27,7 +27,7 @@ Do not print or share real values in release notes, logs, tickets, or screenshot
 | Variable | Required | Purpose | Current usage note |
 | --- | --- | --- | --- |
 | `DATABASE_URL` | Yes | PostgreSQL connection string for Prisma runtime, migrations, seed, search, graph, and entity pages. | Used by Prisma config, `prisma/seed.ts`, and `src/lib/db.ts`. Missing value makes DB-backed runtime data unavailable. |
-| `NEXT_PUBLIC_SITE_URL` | Should confirm before launch | Intended public site origin for canonical URLs and public metadata. | Present in `.env.example`, but current `src/lib/seo.ts` uses hardcoded `https://syntag.app`; confirm whether production domain matches or update in a later scoped change. |
+| `NEXT_PUBLIC_SITE_URL` | Yes | Intended public site origin for canonical URLs and public metadata. | Current public domain is `https://syrtag.com`; `.env.example` and `src/lib/seo.ts` are aligned. |
 | `NEXT_PUBLIC_SUPABASE_URL` | Not confirmed for current runtime | Future/public Supabase client URL if Supabase is used. | Present in `.env.example`; no current source usage found in `src/` or `prisma/`. |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Not confirmed for current runtime | Future/public Supabase anonymous key if Supabase is used. | Present in `.env.example`; no current source usage found in `src/` or `prisma/`. |
 | `SUPABASE_SERVICE_ROLE_KEY` | Not confirmed for current runtime | Future private Supabase service role key if server-side Supabase admin access is used. | Present in `.env.example`; no current source usage found in `src/` or `prisma/`. Treat as secret if ever configured. |
@@ -124,7 +124,7 @@ Database rollback:
 - `/api/og` Edge runtime build warning/tip may appear; track separately unless image generation breaks production metadata.
 - `works` and `concepts` public index routes are accessible, but no published work/concept entries are currently seeded.
 - Legal page text is lightweight and should be reviewed by a human before launch.
-- `.env.example` includes `NEXT_PUBLIC_SITE_URL`, but current canonical/metadata code uses hardcoded `https://syntag.app`; confirm the intended production domain before deployment.
+- `.env.example` includes `NEXT_PUBLIC_SITE_URL`, and current canonical/metadata code is aligned to `https://syrtag.com`.
 - `.env.example` includes Supabase variables that are not confirmed as used by the current runtime.
 
 ## Out Of Scope For This Phase

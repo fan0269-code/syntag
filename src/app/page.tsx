@@ -23,7 +23,7 @@ export default async function Home() {
     return <PageFrame><DataUnavailableState /></PageFrame>;
   }
   if (state.kind === "empty") {
-    return <PageFrame><DataUnavailableState title="The knowledge graph is not published yet" description="Published graph data is not available yet. Please return later or read about Syntag." /></PageFrame>;
+    return <PageFrame><DataUnavailableState title="The knowledge graph is not published yet" description="Published graph data is not available yet. Please return later or read about Syrtag." /></PageFrame>;
   }
 
   const isDemo = state.kind === "demo";

@@ -18,7 +18,7 @@ export function Header() {
   return (
     <header className="site-header">
       <div className="site-header__inner">
-        <Link href="/" className="site-header__logo">Syntag</Link>
+        <Link href="/" className="site-header__logo">Syrtag</Link>
         <nav className="site-header__nav" aria-label="Primary navigation">{navigation.map(([label, href]) => <Link key={href} href={href}>{label}</Link>)}</nav>
         <div className="site-header__actions">
           <SearchBox compact />
