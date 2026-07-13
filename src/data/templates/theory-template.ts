@@ -13,8 +13,23 @@ export const THEORY_BLOCKS = [
   "sources",
 ] as const;
 
+export const D3_THEORY_BLOCKS = [
+  "core_question",
+  "historical_development",
+  "key_scholars",
+  "adjacent_theories",
+  "criticisms",
+] as const;
+
+export const D2_THEORY_BLOCKS = [
+  "explanatory_mechanisms",
+  "analysis_unit",
+  "theory_comparisons",
+  "boundary_conditions",
+] as const;
+
 export type TheoryDepth = "D1" | "D2" | "D3";
-export type TheoryBlockName = (typeof THEORY_BLOCKS)[number];
+export type TheoryBlockName = (typeof THEORY_BLOCKS)[number] | (typeof D2_THEORY_BLOCKS)[number] | (typeof D3_THEORY_BLOCKS)[number];
 export type EvidenceLevel = "L1" | "L2" | "L3";
 export type TraceableSourceKind =
   | "doi"
@@ -34,6 +49,14 @@ export interface GenealogyEntry {
   related_theory: string;
   relationship: string;
   description: string;
+  source_ids?: string[];
+}
+
+export interface TheoryNatureEntry {
+  kind: "theory" | "framework" | "research_tradition" | "editorial_umbrella";
+  label: string;
+  explanation: string;
+  source_ids: string[];
 }
 
 export interface SuitabilityEntry {
@@ -49,6 +72,7 @@ export interface OperationalizationEntry {
 
 export interface ReadingPathEntry {
   order: number;
+  level?: string;
   title: string;
   purpose: string;
   source_id?: string;
@@ -58,6 +82,55 @@ export interface ChapterEntry {
   chapter: string;
   purpose: string;
   theory_use: string;
+}
+
+export interface HistoricalDevelopmentEntry {
+  period: string;
+  development: string;
+  significance: string;
+  source_ids: string[];
+}
+
+export interface ScholarContributionEntry {
+  name: string;
+  contribution: string;
+  representative_work: string;
+  source_ids: string[];
+}
+
+export interface AdjacentTheoryEntry {
+  theory: string;
+  shared_focus: string;
+  difference: string;
+  source_ids: string[];
+}
+
+export interface CriticismBoundaryEntry {
+  criticism: string;
+  boundary: string;
+  source_ids: string[];
+}
+
+export interface ExplanatoryMechanismEntry {
+  mechanism: string;
+  process: string;
+  evidence_focus: string;
+  source_ids: string[];
+}
+
+export interface TheoryComparisonEntry {
+  theory: string;
+  role: "main_candidate" | "alternative";
+  shared_focus: string;
+  difference: string;
+  when_prefer: string;
+  source_ids: string[];
+}
+
+export interface BoundaryConditionEntry {
+  condition: string;
+  implication: string;
+  source_ids: string[];
 }
 
 export interface ContentSource {
@@ -111,13 +184,31 @@ export interface TheoryExtendedContent {
   sources: ContentSource[];
 }
 
-export type TheoryContent = TheoryCoreContent & Partial<TheoryExtendedContent> & {
+export interface TheoryDeepContent {
+  core_question: string;
+  historical_development: HistoricalDevelopmentEntry[];
+  key_scholars: ScholarContributionEntry[];
+  adjacent_theories: AdjacentTheoryEntry[];
+  criticisms: CriticismBoundaryEntry[];
+}
+
+export interface TheoryDesignContent {
+  explanatory_mechanisms: ExplanatoryMechanismEntry[];
+  analysis_unit: string;
+  theory_comparisons: TheoryComparisonEntry[];
+  boundary_conditions: BoundaryConditionEntry[];
+}
+
+export type TheoryContent = TheoryCoreContent & Partial<TheoryExtendedContent> & Partial<TheoryDesignContent> & Partial<TheoryDeepContent> & {
+  theory_nature?: TheoryNatureEntry;
   reading_path?: ReadingPathEntry[];
   verification?: VerificationEntry[];
 };
 
 export function requiredTheoryBlocks(depth: TheoryDepth): TheoryBlockName[] {
-  return depth === "D1" ? THEORY_BLOCKS.slice(0, 7) : [...THEORY_BLOCKS];
+  if (depth === "D1") return THEORY_BLOCKS.slice(0, 7);
+  if (depth === "D3") return [...THEORY_BLOCKS, ...D3_THEORY_BLOCKS];
+  return [...THEORY_BLOCKS, ...D2_THEORY_BLOCKS];
 }
 
 export function isTheoryDepth(value: unknown): value is TheoryDepth {
@@ -172,11 +263,15 @@ function isTheoryBlock(key: TheoryBlockName, value: unknown): boolean {
   switch (key) {
     case "what_is_it":
     case "origins":
+    case "core_question":
       return isNonEmptyString(value);
     case "core_concepts":
       return isRecordArray(value, (entry) => hasStrings(entry, ["name", "definition", "relevance"]));
     case "genealogy":
-      return isRecordArray(value, (entry) => hasStrings(entry, ["related_theory", "relationship", "description"]));
+      return isRecordArray(value, (entry) =>
+        hasStrings(entry, ["related_theory", "relationship", "description"]) &&
+        (entry.source_ids === undefined || isNonEmptyStringArray(entry.source_ids)),
+      );
     case "applicable_topics":
     case "inapplicable_topics":
       return isRecordArray(value, (entry) => hasStrings(entry, ["topic", "rationale"]));
@@ -190,6 +285,37 @@ function isTheoryBlock(key: TheoryBlockName, value: unknown): boolean {
       );
     case "chapter_structure":
       return isRecordArray(value, (entry) => hasStrings(entry, ["chapter", "purpose", "theory_use"]));
+    case "historical_development":
+      return isRecordArray(value, (entry) =>
+        hasStrings(entry, ["period", "development", "significance"]) && isNonEmptyStringArray(entry.source_ids),
+      );
+    case "key_scholars":
+      return isRecordArray(value, (entry) =>
+        hasStrings(entry, ["name", "contribution", "representative_work"]) && isNonEmptyStringArray(entry.source_ids),
+      );
+    case "adjacent_theories":
+      return isRecordArray(value, (entry) =>
+        hasStrings(entry, ["theory", "shared_focus", "difference"]) && isNonEmptyStringArray(entry.source_ids),
+      );
+    case "criticisms":
+      return isRecordArray(value, (entry) =>
+        hasStrings(entry, ["criticism", "boundary"]) && isNonEmptyStringArray(entry.source_ids),
+      );
+    case "explanatory_mechanisms":
+      return isRecordArray(value, (entry) =>
+        hasStrings(entry, ["mechanism", "process", "evidence_focus"]) && isNonEmptyStringArray(entry.source_ids),
+      );
+    case "analysis_unit":
+      return isNonEmptyString(value);
+    case "theory_comparisons":
+      return isRecordArray(value, (entry) =>
+        hasStrings(entry, ["theory", "shared_focus", "difference", "when_prefer"]) &&
+        (entry.role === "main_candidate" || entry.role === "alternative") && isNonEmptyStringArray(entry.source_ids),
+      );
+    case "boundary_conditions":
+      return isRecordArray(value, (entry) =>
+        hasStrings(entry, ["condition", "implication"]) && isNonEmptyStringArray(entry.source_ids),
+      );
     case "sources":
       return Array.isArray(value) && value.length > 0 && value.every(isContentSource);
   }
@@ -203,7 +329,8 @@ export function isTheoryContent(
   const blocks = requiredTheoryBlocks(depth);
   if (!blocks.every((key) => isTheoryBlock(key, value[key]))) return false;
 
-  const optionalBlocks = THEORY_BLOCKS.filter((key) => !blocks.includes(key));
+  const optionalBlocks: TheoryBlockName[] = [...THEORY_BLOCKS, ...D2_THEORY_BLOCKS, ...D3_THEORY_BLOCKS]
+    .filter((key) => !blocks.includes(key));
   if (optionalBlocks.some((key) => key in value && !isTheoryBlock(key, value[key]))) return false;
 
   const sourceIds = new Set(
@@ -211,15 +338,44 @@ export function isTheoryContent(
       ? value.sources.filter(isContentSource).map((source) => source.id)
       : [],
   );
-  if ("reading_path" in value && !isRecordArray(value.reading_path, (entry) =>
+  if ("theory_nature" in value) {
+    const nature = value.theory_nature;
+    if (!isRecord(nature) ||
+      !["theory", "framework", "research_tradition", "editorial_umbrella"].includes(nature.kind as string) ||
+      !hasStrings(nature, ["label", "explanation"]) ||
+      !isNonEmptyStringArray(nature.source_ids) ||
+      nature.source_ids.some((sourceId) => !sourceIds.has(sourceId))) return false;
+  }
+  for (const key of ["genealogy", "historical_development", "key_scholars", "adjacent_theories", "criticisms", "explanatory_mechanisms", "theory_comparisons", "boundary_conditions"] as const) {
+    if (key in value && objectSourceIds(value[key]).some((sourceId) => !sourceIds.has(sourceId))) return false;
+  }
+  const validReadingPath = isRecordArray(value.reading_path, (entry) =>
     typeof entry.order === "number" && Number.isInteger(entry.order) && entry.order > 0 &&
     hasStrings(entry, ["title", "purpose"]) &&
     (entry.source_id === undefined ||
-      (isNonEmptyString(entry.source_id) && sourceIds.has(entry.source_id))),
-  )) return false;
-  if ("verification" in value && (!Array.isArray(value.verification) || value.verification.length === 0 ||
-    !value.verification.every((entry) => isVerificationEntry(entry, sourceIds)))) return false;
+      (isNonEmptyString(entry.source_id) && sourceIds.has(entry.source_id))));
+  if ((depth !== "D1" || "reading_path" in value) && !validReadingPath) return false;
+
+  const verification = Array.isArray(value.verification) ? value.verification : [];
+  const validVerification = verification.length > 0 &&
+    verification.every((entry) => isVerificationEntry(entry, sourceIds));
+  if ((depth !== "D1" || "verification" in value) && !validVerification) return false;
+  if (depth !== "D1") {
+    const levels = new Set(verification.flatMap((entry) => {
+      if (!isRecord(entry)) return [];
+      const level = entry.evidence_level;
+      return level === "L1" || level === "L2" || level === "L3" ? [level] : [];
+    }));
+    if (!["L1", "L2", "L3"].every((level) => levels.has(level))) return false;
+  }
   return true;
+}
+
+function objectSourceIds(value: unknown): string[] {
+  if (!Array.isArray(value)) return [];
+  return value.flatMap((entry) => isRecord(entry) && Array.isArray(entry.source_ids)
+    ? entry.source_ids.filter(isNonEmptyString)
+    : []);
 }
 
 export const LIFE_COURSE_D2_EXAMPLE: TheoryContent = {
@@ -312,6 +468,40 @@ export const LIFE_COURSE_D2_EXAMPLE: TheoryContent = {
       supports: ["Bibliographic details", "Foundational framing of the life course"],
     },
   ],
+  explanatory_mechanisms: [
+    {
+      mechanism: "Transition timing",
+      process: "The timing and sequence of transitions can shape later pathways within historical and relational conditions.",
+      evidence_focus: "Dated transitions and contextual evidence.",
+      source_ids: ["elder-1998-life-course"],
+    },
+  ],
+  analysis_unit: "A trajectory in historical and relational context.",
+  theory_comparisons: [
+    {
+      theory: "Narrative inquiry",
+      role: "main_candidate",
+      shared_focus: "Biography and change over time.",
+      difference: "Narrative inquiry centres meaning-making while life-course analysis also foregrounds social pathways and timing.",
+      when_prefer: "Prefer narrative inquiry when remembered meaning is the primary object.",
+      source_ids: ["elder-1998-life-course"],
+    },
+    {
+      theory: "Event-history analysis",
+      role: "alternative",
+      shared_focus: "Transitions and timing.",
+      difference: "Event-history analysis is a method rather than a complete theory of pathways.",
+      when_prefer: "Prefer it when modelling event timing is the central task.",
+      source_ids: ["elder-1998-life-course"],
+    },
+  ],
+  boundary_conditions: [
+    {
+      condition: "A question has no temporal or relational component.",
+      implication: "Life-course analysis is unlikely to be a primary framework.",
+      source_ids: ["elder-1998-life-course"],
+    },
+  ],
   reading_path: [
     {
       order: 1,
@@ -326,6 +516,11 @@ export const LIFE_COURSE_D2_EXAMPLE: TheoryContent = {
       evidence_level: "L1",
       source_id: "elder-1998-life-course",
       status: "verified",
+    },
+    {
+      claim: "The fit and boundary statements are an editorial interpretation for research use.",
+      evidence_level: "L2",
+      status: "editorial",
     },
     {
       claim: "The proposed chapter structure is an editorial adaptation for dissertation writing.",

@@ -30,8 +30,8 @@ async function main() {
   for (const record of seedCorpus.disciplines) {
     const item = await db.discipline.upsert({
       where: { slug: record.slug },
-      update: { titleEn: record.titleEn, descriptionEn: record.descriptionEn, ...published },
-      create: { slug: record.slug, titleEn: record.titleEn, descriptionEn: record.descriptionEn, ...published },
+      update: { titleEn: record.titleEn, descriptionEn: record.descriptionEn, overviewEn: record.overviewEn, contentJsonb: JSON.parse(JSON.stringify(record.content)), ...published },
+      create: { slug: record.slug, titleEn: record.titleEn, descriptionEn: record.descriptionEn, overviewEn: record.overviewEn, contentJsonb: JSON.parse(JSON.stringify(record.content)), ...published },
     });
     disciplineBySlug.set(record.slug, item.id);
   }
@@ -42,8 +42,8 @@ async function main() {
     if (!disciplineId) throw new Error(`Missing discipline for field ${record.slug}`);
     const item = await db.field.upsert({
       where: { slug: record.slug },
-      update: { titleEn: record.titleEn, disciplineId, ...published },
-      create: { slug: record.slug, titleEn: record.titleEn, disciplineId, ...published },
+      update: { titleEn: record.titleEn, descriptionEn: record.descriptionEn, contentJsonb: JSON.parse(JSON.stringify(record.content)), disciplineId, ...published },
+      create: { slug: record.slug, titleEn: record.titleEn, descriptionEn: record.descriptionEn, contentJsonb: JSON.parse(JSON.stringify(record.content)), disciplineId, ...published },
     });
     fieldBySlug.set(record.slug, item.id);
   }
@@ -94,6 +94,78 @@ async function main() {
     });
   }
 
+  const workBySlug = new Map<string, string>();
+  for (const record of seedCorpus.works) {
+    const item = await db.work.upsert({
+      where: { slug: record.slug },
+      update: {
+        title: record.title,
+        authors: JSON.parse(JSON.stringify(record.authors)),
+        year: record.year,
+        publisher: record.publisher ?? null,
+        doi: record.doi ?? null,
+        isbn: record.isbn ?? null,
+        contentJsonb: JSON.parse(JSON.stringify(record.content)),
+        ...published,
+      },
+      create: {
+        slug: record.slug,
+        title: record.title,
+        authors: JSON.parse(JSON.stringify(record.authors)),
+        year: record.year,
+        publisher: record.publisher ?? null,
+        doi: record.doi ?? null,
+        isbn: record.isbn ?? null,
+        contentJsonb: JSON.parse(JSON.stringify(record.content)),
+        ...published,
+      },
+    });
+    workBySlug.set(record.slug, item.id);
+  }
+
+  for (const relation of seedCorpus.theoryWorks) {
+    const theoryId = theoryBySlug.get(relation.theorySlug);
+    const workId = workBySlug.get(relation.workSlug);
+    if (!theoryId || !workId) throw new Error("Validated theory-work relation could not be resolved");
+    await db.theoryWork.upsert({
+      where: { theoryId_workId: { theoryId, workId } },
+      update: { relationship: relation.relationship },
+      create: { theoryId, workId, relationship: relation.relationship },
+    });
+  }
+
+  const conceptBySlug = new Map<string, string>();
+  for (const record of seedCorpus.concepts) {
+    const item = await db.concept.upsert({
+      where: { slug: record.slug },
+      update: {
+        termEn: record.termEn,
+        definitionEn: record.definitionEn,
+        contentJsonb: JSON.parse(JSON.stringify(record.content)),
+        ...published,
+      },
+      create: {
+        slug: record.slug,
+        termEn: record.termEn,
+        definitionEn: record.definitionEn,
+        contentJsonb: JSON.parse(JSON.stringify(record.content)),
+        ...published,
+      },
+    });
+    conceptBySlug.set(record.slug, item.id);
+  }
+
+  for (const relation of seedCorpus.theoryConcepts) {
+    const theoryId = theoryBySlug.get(relation.theorySlug);
+    const conceptId = conceptBySlug.get(relation.conceptSlug);
+    if (!theoryId || !conceptId) throw new Error("Validated theory-concept relation could not be resolved");
+    await db.theoryConcept.upsert({
+      where: { theoryId_conceptId: { theoryId, conceptId } },
+      update: { importance: relation.importance },
+      create: { theoryId, conceptId, importance: relation.importance },
+    });
+  }
+
   for (const edge of seedCorpus.genealogy) {
     const sourceTheoryId = theoryBySlug.get(edge.sourceSlug);
     const targetTheoryId = theoryBySlug.get(edge.targetSlug);
@@ -125,12 +197,14 @@ async function main() {
       update: {
         name: record.name,
         bioEn: record.bioEn,
+        contentJsonb: JSON.parse(JSON.stringify(record.content)),
         ...publication(record),
       },
       create: {
         slug: record.slug,
         name: record.name,
         bioEn: record.bioEn,
+        contentJsonb: JSON.parse(JSON.stringify(record.content)),
         ...publication(record),
       },
     });
@@ -154,11 +228,13 @@ async function main() {
       where: { slug: record.slug },
       update: {
         questionEn: record.questionEn,
+        contentJsonb: JSON.parse(JSON.stringify(record.content)),
         ...publication(record),
       },
       create: {
         slug: record.slug,
         questionEn: record.questionEn,
+        contentJsonb: JSON.parse(JSON.stringify(record.content)),
         ...publication(record),
       },
     });

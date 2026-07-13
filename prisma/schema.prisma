@@ -17,6 +17,7 @@ model Discipline {
   descriptionZh String? @map("description_zh")
   overviewEn  String?  @map("overview_en")
   overviewZh  String?  @map("overview_zh")
+  contentJsonb Json     @default("{}") @map("content_jsonb")
   status      String   @default("draft") // draft | published | archived
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
@@ -35,6 +36,7 @@ model Field {
   titleZh     String?  @map("title_zh")
   descriptionEn String? @map("description_en")
   descriptionZh String? @map("description_zh")
+  contentJsonb Json     @default("{}") @map("content_jsonb")
   status      String   @default("draft")
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
@@ -260,7 +262,7 @@ model TheoryScholar {
 model TheoryWork {
   theoryId     String @map("theory_id")
   workId       String @map("work_id")
-  relationship String // founding_text | major_development | critique | synthesis | textbook
+  relationship String // founding_text | major_development | critique | synthesis | core_work | core_concept_source | tradition_source | adjacent_theory_source | institutional_context_source | normative_resource
 
   theory Theory @relation(fields: [theoryId], references: [id])
   work   Work   @relation(fields: [workId], references: [id])
