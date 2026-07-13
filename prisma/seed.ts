@@ -1,8 +1,10 @@
 import { PrismaPg } from "@prisma/adapter-pg";
-import { PrismaClient } from "@prisma/client";
+import prismaClientPackage from "@prisma/client";
 
 import { seedCorpus } from "../src/data/seed-content.ts";
 import { validateSeedCorpus } from "../src/lib/content-validation.ts";
+
+const { PrismaClient } = prismaClientPackage;
 
 const connectionString = process.env.DATABASE_URL;
 if (!connectionString) throw new Error("DATABASE_URL is required to seed Syntag");
