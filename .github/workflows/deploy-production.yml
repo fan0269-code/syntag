@@ -32,5 +32,5 @@ jobs:
           DEPLOY_USER: ${{ secrets.SYRTAG_DEPLOY_USER }}
         run: |
           ssh -o BatchMode=yes -o ConnectTimeout=20 "$DEPLOY_USER@$DEPLOY_HOST" "sudo /var/www/syrtag.com/deploy-production.sh"
-          ssh -o BatchMode=yes -o ConnectTimeout=20 "$DEPLOY_USER@$DEPLOY_HOST" "sudo -H bash -lc 'cd /var/www/syrtag.com && npm run db:seed'"
+          ssh -o BatchMode=yes -o ConnectTimeout=20 "$DEPLOY_USER@$DEPLOY_HOST" "APP_DIR=\$(sudo find /var/www/syrtag.com -maxdepth 4 -type f -name package.json -not -path '*/node_modules/*' -printf '%h\\n' | head -n 1); test -n \"\$APP_DIR\"; cd \"\$APP_DIR\"; sudo -H npm run db:seed"
           ssh -o BatchMode=yes -o ConnectTimeout=20 "$DEPLOY_USER@$DEPLOY_HOST" "sudo /var/www/syrtag.com/deploy-production.sh"
