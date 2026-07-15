@@ -16,6 +16,8 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+
       - name: Configure SSH
         env:
           DEPLOY_KNOWN_HOSTS: ${{ secrets.SYRTAG_DEPLOY_KNOWN_HOSTS }}
@@ -26,10 +28,18 @@ jobs:
           printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > ~/.ssh/known_hosts
           chmod 600 ~/.ssh/id_ed25519 ~/.ssh/known_hosts
 
+      - name: Install tracked deployment script
+        env:
+          DEPLOY_HOST: ${{ secrets.SYRTAG_DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.SYRTAG_DEPLOY_USER }}
+        run: |
+          scp -o BatchMode=yes -o ConnectTimeout=20 ops/deploy-production.sh "$DEPLOY_USER@$DEPLOY_HOST:/tmp/syrtag-deploy-production.sh"
+          ssh -o BatchMode=yes -o ConnectTimeout=20 "$DEPLOY_USER@$DEPLOY_HOST" "sudo install -m 755 /tmp/syrtag-deploy-production.sh /var/www/syrtag.com/deploy-production.sh"
+          ssh -o BatchMode=yes -o ConnectTimeout=20 "$DEPLOY_USER@$DEPLOY_HOST" "rm /tmp/syrtag-deploy-production.sh"
+
       - name: Deploy
         env:
           DEPLOY_HOST: ${{ secrets.SYRTAG_DEPLOY_HOST }}
           DEPLOY_USER: ${{ secrets.SYRTAG_DEPLOY_USER }}
         run: |
-          ssh -o BatchMode=yes -o ConnectTimeout=20 "$DEPLOY_USER@$DEPLOY_HOST" "sudo grep -q 'npm run db:seed' /var/www/syrtag.com/deploy-production.sh || sudo sed -i '/npx prisma migrate deploy/a npm run db:seed' /var/www/syrtag.com/deploy-production.sh"
           ssh -o BatchMode=yes -o ConnectTimeout=20 "$DEPLOY_USER@$DEPLOY_HOST" "sudo /var/www/syrtag.com/deploy-production.sh"
