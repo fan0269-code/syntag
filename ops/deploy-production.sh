@@ -39,6 +39,7 @@ git -C "${APP_DIR}" reset --hard "${target_commit}"
 cd "${APP_DIR}"
 npm ci
 npx prisma migrate deploy
+npm run db:seed
 npm run build
 chown -R ubuntu:ubuntu "${APP_DIR}"
 
