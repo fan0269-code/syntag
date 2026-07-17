@@ -12,6 +12,7 @@ Syrtag is a Next.js 16 App Router application for research-theory knowledge grap
 - `npm run start` — serve a completed production build.
 - `npm run lint` — run ESLint with Next.js Core Web Vitals and TypeScript rules.
 - `npm test` — run the Node test suite with TypeScript stripping.
+- `npm run test:e2e` — after a fresh production build, run Chromium Playwright + axe checks; set `PLAYWRIGHT_PORT` when port 3000 is occupied.
 - `node --env-file-if-exists=.env --experimental-strip-types --test tests/build-output-smoke.test.ts` — after `npm run build`, verify the core `.next` route artifacts.
 - `npm run content:check` — validate the seed corpus and local content-onboarding publication rules.
 - `npm run db:migrate` / `npm run db:seed` — apply local Prisma migrations and seed data; require `DATABASE_URL`.
@@ -26,7 +27,7 @@ This project uses a newer Next.js release. Before modifying framework-sensitive 
 
 ## Testing Guidelines
 
-Add focused `*.test.ts` coverage for changed parsing, content contracts, API behavior, and SEO metadata. Tests use `node:test` and `node:assert/strict`; avoid network and live-database dependencies unless explicitly running an integration check. Run `npm test`, `npm run lint`, and `npm run build` before handing off changes. Do not weaken, skip, or delete a failing test to claim completion.
+Add focused `*.test.ts` coverage for changed parsing, content contracts, API behavior, and SEO metadata. Tests use `node:test` and `node:assert/strict`; avoid network and live-database dependencies unless explicitly running an integration check. UI changes also use the Chromium-only Playwright + axe suite under `tests/e2e/`; run it only after migrate/seed/build have produced a fresh production build. Run `npm test`, `npm run lint`, `npm run build`, and the relevant E2E checks before handing off changes. Do not weaken, skip, or delete a failing test to claim completion.
 
 ## Content Sources and Citation Rules
 
