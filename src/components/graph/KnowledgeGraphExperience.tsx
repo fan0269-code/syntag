@@ -67,7 +67,7 @@ function GraphExperience({ initialGraph }: { initialGraph: GraphData }) {
   const relationLabelText = graph?.meta.relationLabels?.length ? graph.meta.relationLabels.join(", ") : "no published relationships";
 
   return <section className="knowledge-graph-experience" aria-label="Research theory knowledge graph">
-    <div className="graph-mobile-controls"><GraphControls discipline={discipline} disciplines={availableDisciplines} mode={mode} setDiscipline={changeDiscipline} setMode={changeMode} /></div>
+    <details className="graph-mobile-controls"><summary>Explore graph · {modeLabel}</summary><div><GraphControls discipline={discipline} disciplines={availableDisciplines} mode={mode} setDiscipline={changeDiscipline} setMode={changeMode} /></div></details>
     <aside className="graph-discipline-rail"><span>Disciplines</span>{availableDisciplines.map((entry) => <button key={entry.slug} type="button" className={entry.slug === discipline ? "is-active" : ""} onClick={() => changeDiscipline(entry.slug)}>{entry.label}</button>)}</aside>
     <div className="graph-workspace"><div className="graph-toolbar"><GraphControls discipline={discipline} disciplines={availableDisciplines} mode={mode} setDiscipline={changeDiscipline} setMode={changeMode} /><p>{graph?.meta.nodeCount ?? 0} nodes · {graph?.meta.edgeCount ?? 0} relationships · {relationLabelText}</p></div>
     {graph?.meta.emptyReason && <p className="graph-focus-feedback" role="status">{graph.meta.emptyReason}</p>}
