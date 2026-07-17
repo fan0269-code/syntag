@@ -18,8 +18,8 @@ export function Footer() {
     <footer className="site-footer">
       <div className="site-footer__grid">
         <div><strong>Syrtag</strong><p>A knowledge graph for research theories and dissertation-ready frameworks.</p></div>
-        <div><h2>Quick links</h2>{links.map(([label, href]) => <Link href={href} key={href}>{label}</Link>)}</div>
-        <div><h2>Legal</h2>{legal.map(([label, href]) => <Link href={href} key={href}>{label}</Link>)}</div>
+        <nav aria-label="Explore Syrtag"><h2>Quick links</h2>{links.map(([label, href]) => <Link href={href} key={href}>{label}</Link>)}</nav>
+        <nav aria-label="Legal information"><h2>Legal</h2>{legal.map(([label, href]) => <Link href={href} key={href}>{label}</Link>)}</nav>
       </div>
     </footer>
   );

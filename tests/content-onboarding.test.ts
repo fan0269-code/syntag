@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { publicStaticParamSlugs, validateNewBatch, type NewContentBatch } from "../src/lib/content-onboarding.ts";
+import { seedCorpus } from "../src/data/seed-content.ts";
+import { onboardingBatchFromSeedCorpus, publicStaticParamSlugs, validateNewBatch, type NewContentBatch } from "../src/lib/content-onboarding.ts";
 
 function validBatch(): NewContentBatch {
   return {
@@ -61,4 +62,37 @@ test("published entities missing required identity are forced to draft and exclu
   assert.ok(result.errors.some((error) => error.includes("missing slug")));
   assert.ok(result.errors.some((error) => error.includes("missing titleEn")));
   assert.deepEqual(publicStaticParamSlugs(batch, "discipline"), []);
+});
+
+test("onboardingBatchFromSeedCorpus preserves authored status for every entity type", () => {
+  const corpus = structuredClone(seedCorpus);
+  corpus.disciplines[0].status = "archived";
+  corpus.disciplines[0].publishedAt = undefined;
+  corpus.fields[0].status = "draft";
+  corpus.fields[0].publishedAt = undefined;
+  corpus.theories[0].status = "archived";
+  corpus.theories[0].publishedAt = undefined;
+  corpus.works[0].status = "draft";
+  corpus.works[0].publishedAt = undefined;
+  corpus.concepts[0].status = "archived";
+  corpus.concepts[0].publishedAt = undefined;
+  corpus.scholars[0].status = "draft";
+  corpus.scholars[0].publishedAt = undefined;
+  corpus.topics[0].status = "archived";
+  corpus.topics[0].publishedAt = undefined;
+
+  const batch = onboardingBatchFromSeedCorpus(corpus);
+  assert.deepEqual(batch.entities.slice(0, 7).map(({ status }) => status), ["archived", "published", "draft", "published", "published", "published", "published"]);
+  assert.ok(batch.entities.some((entity) => entity.entityType === "theory" && entity.slug === corpus.theories[0].slug && entity.status === "archived"));
+  assert.ok(batch.entities.some((entity) => entity.entityType === "work" && entity.slug === corpus.works[0].slug && entity.status === "draft"));
+  assert.ok(batch.entities.some((entity) => entity.entityType === "concept" && entity.slug === corpus.concepts[0].slug && entity.status === "archived"));
+  assert.ok(batch.entities.some((entity) => entity.entityType === "scholar" && entity.slug === corpus.scholars[0].slug && entity.status === "draft"));
+  assert.ok(batch.entities.some((entity) => entity.entityType === "topic" && entity.slug === corpus.topics[0].slug && entity.status === "archived"));
+});
+
+test("archived entities are excluded from publicStaticParamSlugs", () => {
+  const batch = validBatch();
+  batch.entities.push({ entityType: "theory", slug: "archived-theory", titleEn: "Archived Theory", status: "archived", depth: "D1", sources: [{ url: "https://example.edu/archive", type: "university" }] });
+
+  assert.deepEqual(publicStaticParamSlugs(batch, "theory"), [{ slug: "developmental-systems-theory" }]);
 });

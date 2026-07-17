@@ -10,6 +10,7 @@ export interface SeedCorpusValidationResult {
 
 export function validateSeedCorpus(corpus: SeedCorpus): SeedCorpusValidationResult {
   const errors: string[] = [];
+  const publicDisciplineSlugs = new Set(["education", "sociology"]);
   const theorySlugs = new Set(corpus.theories.map((theory) => theory.slug));
   const disciplineSlugs = new Set(corpus.disciplines.map((discipline) => discipline.slug));
   const fieldSlugs = new Set(corpus.fields.map((field) => field.slug));
@@ -22,6 +23,15 @@ export function validateSeedCorpus(corpus: SeedCorpus): SeedCorpusValidationResu
   const topicTheoryKeys = new Set<string>();
   const theoryWorkKeys = new Set<string>();
   const theoryConceptKeys = new Set<string>();
+
+  function validatePublication(record: { status: "draft" | "published" | "archived"; publishedAt?: string }, label: string) {
+    if (record.status === "published" && (!record.publishedAt || Number.isNaN(Date.parse(record.publishedAt)))) {
+      errors.push(`${label}: published entity requires a valid ISO publishedAt`);
+    }
+    if (record.status !== "published" && record.publishedAt !== undefined) {
+      errors.push(`${label}: draft or archived entity must not author publishedAt`);
+    }
+  }
 
   function validatePathway(slug: string, content: unknown) {
     if (!isPathwayContent(content)) {
@@ -52,6 +62,7 @@ export function validateSeedCorpus(corpus: SeedCorpus): SeedCorpusValidationResu
   }
 
   for (const theory of corpus.theories) {
+    validatePublication(theory, theory.slug);
     if (!isTheoryContent(theory.content.en, theory.depth)) {
       errors.push(`${theory.slug}: does not satisfy ${theory.depth} content contract`);
     }
@@ -69,10 +80,12 @@ export function validateSeedCorpus(corpus: SeedCorpus): SeedCorpusValidationResu
   }
 
   for (const work of corpus.works) {
+    validatePublication(work, work.slug);
     if (!work.slug.trim() || !work.title.trim() || work.authors.length === 0 || work.year < 1) errors.push(`${work.slug}: incomplete bibliographic record`);
     if (!isWorkContent(work.content.en)) errors.push(`${work.slug}: does not satisfy the work content contract`);
   }
   for (const concept of corpus.concepts) {
+    validatePublication(concept, concept.slug);
     if (!concept.slug.trim() || !concept.termEn.trim() || !concept.definitionEn.trim()) errors.push(`${concept.slug}: incomplete concept record`);
     if (!isConceptContent(concept.content.en)) {
       errors.push(`${concept.slug}: does not satisfy the concept content contract`);
@@ -94,6 +107,8 @@ export function validateSeedCorpus(corpus: SeedCorpus): SeedCorpusValidationResu
   }
 
   for (const field of corpus.fields) {
+    validatePublication(field, field.slug);
+    if (field.status === "published" && !publicDisciplineSlugs.has(field.disciplineSlug)) errors.push(`${field.slug}: published field is outside the current public discipline scope`);
     if (!disciplineSlugs.has(field.disciplineSlug)) {
       errors.push(`${field.slug}: references unknown discipline ${field.disciplineSlug}`);
     }
@@ -104,6 +119,8 @@ export function validateSeedCorpus(corpus: SeedCorpus): SeedCorpusValidationResu
     }
   }
   for (const discipline of corpus.disciplines) {
+    validatePublication(discipline, discipline.slug);
+    if (discipline.status === "published" && !publicDisciplineSlugs.has(discipline.slug)) errors.push(`${discipline.slug}: published discipline is outside the current public scope`);
     if (!discipline.descriptionEn.trim() || !discipline.overviewEn.trim()) errors.push(`${discipline.slug}: discipline description or overview is empty`);
     validatePathway(discipline.slug, discipline.content.en);
     if (!["topic", "theory", "scholar", "work", "concept"].every((type) => discipline.content.en.entry_points.some((entry) => entry.entity_type === type))) {
@@ -149,9 +166,9 @@ export function validateSeedCorpus(corpus: SeedCorpus): SeedCorpusValidationResu
     if (!edge.descriptionEn.trim()) errors.push(`${edge.id}: genealogy description is empty`);
   }
   for (const scholar of corpus.scholars) {
+    validatePublication(scholar, scholar.slug);
     if (!scholar.slug.trim()) errors.push("scholar: slug is empty");
     if (!scholar.name.trim()) errors.push(`${scholar.slug}: scholar name is empty`);
-    if (scholar.status === "published" && !scholar.publishedAt.trim()) errors.push(`${scholar.slug}: published scholar is missing publishedAt`);
     if (scholar.status === "published" && !scholar.bioEn.trim()) errors.push(`${scholar.slug}: published scholar bio is empty`);
     if (!isScholarContent(scholar.content.en)) {
       errors.push(`${scholar.slug}: does not satisfy the scholar content contract`);
@@ -177,9 +194,9 @@ export function validateSeedCorpus(corpus: SeedCorpus): SeedCorpusValidationResu
     }
   }
   for (const topic of corpus.topics) {
+    validatePublication(topic, topic.slug);
     if (!topic.slug.trim()) errors.push("topic: slug is empty");
     if (!topic.questionEn.trim()) errors.push(`${topic.slug}: topic question is empty`);
-    if (topic.status === "published" && !topic.publishedAt.trim()) errors.push(`${topic.slug}: published topic is missing publishedAt`);
     validatePathway(topic.slug, topic.content.en);
   }
   for (const relation of corpus.topicTheories) {
@@ -208,6 +225,13 @@ export function validateSeedCorpus(corpus: SeedCorpus): SeedCorpusValidationResu
         errors.push(`verification for ${item.entitySlug}: L1 source is not listed in page metadata`);
       }
     }
+  }
+
+  const publishedPublicTheorySlugs = new Set(corpus.disciplineTheories
+    .filter((relation) => publicDisciplineSlugs.has(relation.disciplineSlug) && corpus.disciplines.some((discipline) => discipline.slug === relation.disciplineSlug && discipline.status === "published"))
+    .map((relation) => relation.theorySlug));
+  for (const theory of corpus.theories) {
+    if (theory.status === "published" && !publishedPublicTheorySlugs.has(theory.slug)) errors.push(`${theory.slug}: published theory is outside Education/Sociology scope`);
   }
 
   return { errors };

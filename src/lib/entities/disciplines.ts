@@ -7,7 +7,7 @@ export function getDisciplineBySlug(slug: string) {
     where: { slug, status: published },
     include: {
       fields: { where: { status: published } },
-      theories: { include: { theory: true } },
+      theories: { where: { theory: { status: published } }, include: { theory: true } },
     },
   });
 }
@@ -23,6 +23,6 @@ export function getAllDisciplines() {
 export function getFieldBySlug(slug: string) {
   return getDb().field.findFirst({
     where: { slug, status: published },
-    include: { discipline: true, theories: { include: { theory: true } } },
+    include: { discipline: true, theories: { where: { theory: { status: published } }, include: { theory: true } } },
   });
 }

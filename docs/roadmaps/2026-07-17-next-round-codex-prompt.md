@@ -1,5 +1,10 @@
 # Syrtag 下一轮 Codex 实施提示词（v2.0：收口部署 + 补完内容/UI）
 
+> **状态：已废止（superseded）— 2026-07-17。**
+> 本文件仅保留历史审计价值，不再作为 Codex 执行入口。后续工作必须以 `docs/SITE_CONSTRUCTION_PLAYBOOK.md` 当前基线、`docs/roadmaps/2026-07-17-five-angle-content-operations-plan.md` 和最新批准的实施计划为准。
+>
+> 线上 C1–C7 同步、Graphify 修复、2A–2C、3A–3D 已完成。4A/4B 以本轮实时浏览器验收为准；4C–4E 与任何扩学科工作必须重新立项并获得授权。
+
 > 日期：2026-07-17
 > 版本：v2.0（承接 v1.0 `2026-07-17-overhaul-and-operations-codex-prompt.md`）
 > 用途：v1.0 的 3A/3B/3C/3D/2A/2B/2C 已在本地落地但**未提交、未合并、未部署**；1A/1B/1C/4A–4E 未做。本文件是下一轮交给 Codex 的实施提示词，按"先堵 P0、再补内容、再做 UI"排序。

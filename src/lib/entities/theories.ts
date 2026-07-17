@@ -6,15 +6,17 @@ export function getTheoryBySlug(slug: string) {
   return getDb().theory.findFirst({
     where: { slug, status: published },
     include: {
-      scholars: { include: { scholar: true } },
-      works: { include: { work: true } },
-      concepts: { include: { concept: true } },
-      fields: { include: { field: { include: { discipline: true } } } },
-      topics: { include: { topic: true } },
+      scholars: { where: { scholar: { status: published } }, include: { scholar: true } },
+      works: { where: { work: { status: published } }, include: { work: true } },
+      concepts: { where: { concept: { status: published } }, include: { concept: true } },
+      fields: { where: { field: { status: published, discipline: { status: published } } }, include: { field: { include: { discipline: true } } } },
+      topics: { where: { topic: { status: published } }, include: { topic: true } },
       sourceRelations: {
+        where: { targetTheory: { status: published } },
         include: { targetTheory: true, keyScholar: true, keyWork: true },
       },
       targetRelations: {
+        where: { sourceTheory: { status: published } },
         include: { sourceTheory: true, keyScholar: true, keyWork: true },
       },
     },
@@ -29,7 +31,7 @@ export function getTheoriesByDiscipline(disciplineSlug: string) {
         some: { discipline: { slug: disciplineSlug, status: published } },
       },
     },
-    include: { scholars: { include: { scholar: true } } },
+    include: { scholars: { where: { scholar: { status: published } }, include: { scholar: true } } },
     orderBy: { titleEn: "asc" },
   });
 }
@@ -40,7 +42,7 @@ export function getTheoriesByField(fieldSlug: string) {
       status: published,
       fields: { some: { field: { slug: fieldSlug, status: published } } },
     },
-    include: { scholars: { include: { scholar: true } } },
+    include: { scholars: { where: { scholar: { status: published } }, include: { scholar: true } } },
     orderBy: { titleEn: "asc" },
   });
 }

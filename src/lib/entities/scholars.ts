@@ -6,9 +6,9 @@ export function getScholarBySlug(slug: string) {
   return getDb().scholar.findFirst({
     where: { slug, status: published },
     include: {
-      theories: { include: { theory: true } },
-      sourceRelations: { include: { targetScholar: true } },
-      targetRelations: { include: { sourceScholar: true } },
+      theories: { where: { theory: { status: published } }, include: { theory: true } },
+      sourceRelations: { where: { targetScholar: { status: published } }, include: { targetScholar: true } },
+      targetRelations: { where: { sourceScholar: { status: published } }, include: { sourceScholar: true } },
     },
   });
 }
@@ -19,7 +19,7 @@ export function getScholarsByTheory(theorySlug: string) {
       status: published,
       theories: { some: { theory: { slug: theorySlug, status: published } } },
     },
-    include: { theories: { include: { theory: true } } },
+    include: { theories: { where: { theory: { status: published } }, include: { theory: true } } },
     orderBy: { name: "asc" },
   });
 }

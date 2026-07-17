@@ -48,11 +48,11 @@ test("all twelve theory records produce presentable structured content without p
     assert.ok(presentation.inapplicableTopics.length > 0, `${theory.slug} has boundaries`);
     assert.ok(presentation.misuseRisks.length > 0, `${theory.slug} has misuse risks`);
     assert.ok(presentation.readingPath.length > 0, `${theory.slug} has a reading path`);
-    assert.ok(presentation.sourceItems.some((item) => item.level === "L1_verified" && item.url), `${theory.slug} exposes its L1 source`);
+    assert.ok(presentation.sourceItems.some((item) => item.level === "L3_pending" && item.url), `${theory.slug} exposes its legacy source without claiming verification`);
     assert.deepEqual(
       new Set(presentation.sourceItems.map((item) => item.level)),
-      new Set(["L1_verified", "L2_reviewed", "L3_pending"]),
-      `${theory.slug} exposes L1, L2, and L3 records`,
+      new Set(["L2_reviewed", "L3_pending"]),
+      `${theory.slug} distinguishes editorial synthesis from pending claim review`,
     );
     assert.doesNotMatch(JSON.stringify(presentation), /being prepared|Verification pending/i);
   }
@@ -109,6 +109,16 @@ test("malformed verification records never become public verified badges", () =>
 
   assert.ok(presentation.sourceItems.every((item) => !item.text.startsWith("Broken")));
   assert.ok(presentation.sourceItems.every((item) => item.url));
+});
+
+test("legacy L1 reports source metadata without claiming whole-page verification", () => {
+  const theory = seedCorpus.theories[0];
+  const presentation = buildTheoryPresentation(theory.content.en as unknown as ContentRecord, theory.depth);
+
+  assert.equal(presentation.verificationSummary, "Sources listed · claim-level review pending");
+  assert.ok(presentation.sourceItems.every((item) => item.level !== "L1_verified"));
+  assert.ok(presentation.sourceItems.some((item) => item.level === "L2_reviewed"));
+  assert.ok(presentation.sourceItems.some((item) => item.level === "L3_pending"));
 });
 
 test("D3 pages expose reading levels, item evidence, and every listed source", () => {

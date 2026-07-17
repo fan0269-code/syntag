@@ -1,6 +1,6 @@
 import { pathToFileURL } from "node:url";
 
-import type { SeedCorpus } from "../data/seed-content.ts";
+import type { PublicationStatus, SeedCorpus } from "../data/seed-content.ts";
 import { seedCorpus } from "../data/seed-content.ts";
 import type { TheoryDepth, TraceableSourceKind } from "../data/templates/theory-template.ts";
 import { validateSeedCorpus } from "./content-validation.ts";
@@ -16,7 +16,7 @@ interface OnboardingEntity {
   entityType: OnboardingEntityType;
   slug: string;
   titleEn: string;
-  status: "published" | "draft";
+  status: PublicationStatus;
   depth?: TheoryDepth;
   sources: OnboardingSource[];
 }
@@ -81,12 +81,12 @@ export function onboardingBatchFromSeedCorpus(corpus: SeedCorpus): NewContentBat
   return {
     corpus,
     entities: [
-      ...corpus.disciplines.map((entity) => ({ entityType: "discipline" as const, slug: entity.slug, titleEn: entity.titleEn, status: "published" as const, sources: sourceList(entity.content.en) })),
-      ...corpus.fields.map((entity) => ({ entityType: "field" as const, slug: entity.slug, titleEn: entity.titleEn, status: "published" as const, sources: sourceList(entity.content.en) })),
-      ...corpus.theories.map((entity) => ({ entityType: "theory" as const, slug: entity.slug, titleEn: entity.titleEn, status: "published" as const, depth: entity.depth, sources: sourceList(entity.content.en) })),
+      ...corpus.disciplines.map((entity) => ({ entityType: "discipline" as const, slug: entity.slug, titleEn: entity.titleEn, status: entity.status, sources: sourceList(entity.content.en) })),
+      ...corpus.fields.map((entity) => ({ entityType: "field" as const, slug: entity.slug, titleEn: entity.titleEn, status: entity.status, sources: sourceList(entity.content.en) })),
+      ...corpus.theories.map((entity) => ({ entityType: "theory" as const, slug: entity.slug, titleEn: entity.titleEn, status: entity.status, depth: entity.depth, sources: sourceList(entity.content.en) })),
       ...corpus.scholars.map((entity) => ({ entityType: "scholar" as const, slug: entity.slug, titleEn: entity.name, status: entity.status, sources: sourceList(entity.content.en) })),
-      ...corpus.works.map((entity) => ({ entityType: "work" as const, slug: entity.slug, titleEn: entity.title, status: "published" as const, sources: sourceList(entity.content.en) })),
-      ...corpus.concepts.map((entity) => ({ entityType: "concept" as const, slug: entity.slug, titleEn: entity.termEn, status: "published" as const, sources: sourceList(entity.content.en) })),
+      ...corpus.works.map((entity) => ({ entityType: "work" as const, slug: entity.slug, titleEn: entity.title, status: entity.status, sources: sourceList(entity.content.en) })),
+      ...corpus.concepts.map((entity) => ({ entityType: "concept" as const, slug: entity.slug, titleEn: entity.termEn, status: entity.status, sources: sourceList(entity.content.en) })),
       ...corpus.topics.map((entity) => ({ entityType: "topic" as const, slug: entity.slug, titleEn: entity.questionEn, status: entity.status, sources: sourceList(entity.content.en) })),
     ],
     genealogy: corpus.genealogy.map((edge) => ({ sourceSlug: edge.sourceSlug, targetSlug: edge.targetSlug })),

@@ -16,6 +16,4 @@ export type {
   SeedTopicTheory,
   SeedVerification,
   SeedWork,
-} from "./corpus/shared/entities.ts";
-
-export { seedCorpus } from "./corpus/shared/entities.ts";
+} from "./shared/entities.ts";

@@ -1,7 +1,7 @@
 import { KnowledgeGraphExperience, type GraphData } from "@/components/graph/KnowledgeGraphExperience";
 import { DataUnavailableState } from "@/components/common/DataUnavailableState";
 import { PageFrame } from "@/components/common/PageFrame";
-import { Header } from "@/components/layout/Header";
+import Link from "next/link";
 import { getGraphData } from "@/lib/graph-data";
 import { sampleGraph } from "@/lib/graph-sample";
 import { resolveHomeGraph } from "@/lib/home-graph";
@@ -30,36 +30,37 @@ export default async function Home() {
   const graph = state.graph;
 
   return (
-    <>
-      <Header />
-      <main className="home-main">
-        {isDemo && <p className="route-error" role="status">Demo graph: local development sample data only. It is not published content.</p>}
-        {!isDemo && <JsonLdGraph items={graph.nodes.map((node) => ({ name: node.label, href: node.data?.articleHref ?? (node.data?.slug && isEntityType(node.type) ? entityDetailHref(node.type, node.data.slug) : undefined), description: node.data?.summary }))} />}
-        <section className="home-hero" aria-label="Syrtag 首页知识图谱">
-          <header className="home-hero__intro">
+    <PageFrame mainClassName="home-main">
+      {isDemo && <p className="route-error" role="status">Demo graph: local development sample data only. It is not published content.</p>}
+      {!isDemo && <JsonLdGraph items={graph.nodes.map((node) => ({ name: node.label, href: node.data?.articleHref ?? (node.data?.slug && isEntityType(node.type) ? entityDetailHref(node.type, node.data.slug) : undefined), description: node.data?.summary }))} />}
+      <section className="home-hero" aria-label="Syrtag theory pathways">
+        <header className="home-hero__intro">
+          <div>
+            <span className="eyebrow">Research theory pathways</span>
+            <h1>Make a defensible theory choice.</h1>
+            <p className="lead">Start with a research question, explore connected theories, and follow the sources behind each pathway.</p>
+            <div className="home-hero__actions">
+              <Link className="btn btn-primary" href="/topics">Start with a research question</Link>
+              <Link className="btn" href="#graph">Explore the theory graph</Link>
+            </div>
+          </div>
+          <div className="home-hero__meta" aria-label="Graph summary">
+            <div><strong>{graph.meta.availableDisciplines?.length ?? 2}</strong><span>Discipline entrances</span></div>
+            <div><strong>Two-way</strong><span>Trace topics and theories in both directions</span></div>
+            <div><strong>Sources</strong><span>Follow the evidence behind each pathway</span></div>
+          </div>
+        </header>
+        <section id="graph" tabIndex={-1} aria-label="Interactive theory graph" className="home-graph-shell">
+          <div className="home-graph-card__toolbar">
             <div>
-              <span className="eyebrow">Theory pathway</span>
-              <h1>从研究主题进入理论知识图谱。</h1>
-              <p className="lead">选择学科与图谱模式，查看主题、理论、学者、经典作品和概念之间的真实关系。</p>
+              <h2>Explore the theory graph</h2>
+              <p>Choose a discipline and explore relationships among research topics, theories, scholars, works, and concepts.</p>
             </div>
-            <div className="home-hero__meta" aria-label="图谱摘要">
-              <div><strong>{graph.meta.availableDisciplines?.length ?? 2}</strong><span>学科入口</span></div>
-              <div><strong>双向</strong><span>主题与理论互相追溯</span></div>
-              <div><strong>L1-L3</strong><span>保留编辑核验状态</span></div>
-            </div>
-          </header>
-          <section className="home-graph-shell" id="graph" aria-label="可筛选动态图谱">
-            <div className="home-graph-card__toolbar">
-              <div>
-                <h2>理论关系图谱</h2>
-                <p>选择学科与图谱模式，聚焦主题、理论、学者和作品之间的真实关系。</p>
-              </div>
-              <div className="home-graph-card__status">{graph.meta.nodeCount} 个节点 · {graph.meta.edgeCount} 条链接</div>
-            </div>
-            <KnowledgeGraphExperience initialGraph={graph} />
-          </section>
+            <div className="home-graph-card__status">{graph.meta.nodeCount} nodes · {graph.meta.edgeCount} relationships</div>
+          </div>
+          <KnowledgeGraphExperience initialGraph={graph} />
         </section>
-      </main>
-    </>
+      </section>
+    </PageFrame>
   );
 }
