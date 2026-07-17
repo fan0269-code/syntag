@@ -1,9 +1,9 @@
 type VerificationLevel = "L1_verified" | "L2_reviewed" | "L3_pending";
 
 const labels: Record<VerificationLevel, string> = {
-  L1_verified: "Verified",
-  L2_reviewed: "Editorially Reviewed",
-  L3_pending: "Research Guidance",
+  L1_verified: "Source verified",
+  L2_reviewed: "Editorial synthesis",
+  L3_pending: "Sources listed · claim-level review pending",
 };
 
 export function VerificationBadge({ level }: { level: VerificationLevel }) {

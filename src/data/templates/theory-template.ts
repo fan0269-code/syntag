@@ -1,3 +1,5 @@
+import type { ContentNature, EvidenceStatus, ReviewDecision, ReviewerRole } from "./evidence-template.ts";
+
 export const THEORY_BLOCKS = [
   "what_is_it",
   "origins",
@@ -161,10 +163,22 @@ export interface L3VerificationEntry {
   status: "proposed";
 }
 
-export type VerificationEntry =
+export type VerificationEntry = (
   | L1VerificationEntry
   | L2VerificationEntry
-  | L3VerificationEntry;
+  | L3VerificationEntry
+) & ClaimReviewMetadata;
+
+export type ClaimReviewMetadata = {
+  claimId?: string;
+  fieldPath?: string;
+  locator?: string;
+  evidenceStatus?: EvidenceStatus;
+  contentNature?: ContentNature;
+  verifiedAt?: string;
+  reviewerRole?: ReviewerRole;
+  reviewDecision?: ReviewDecision;
+};
 
 export interface TheoryCoreContent {
   what_is_it: string;
