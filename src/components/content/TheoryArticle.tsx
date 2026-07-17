@@ -31,10 +31,14 @@ export function TheoryArticle({ theory, internalLinks = [] }: { theory: TheoryAr
   const depth = isTheoryDepth(theory.depth) ? theory.depth : "D1";
   const presentation = buildTheoryPresentation(theory.content, depth);
   const field = theory.fields[0]?.field;
-  const relationshipLinks = [
-    ...theory.sourceRelations.map(({ targetTheory }) => targetTheory),
-    ...theory.targetRelations.map(({ sourceTheory }) => sourceTheory),
-  ];
+  const relationshipLinks = Array.from(new Map([
+    ...theory.sourceRelations.map(({ targetTheory }) => [targetTheory.slug, targetTheory] as const),
+    ...theory.targetRelations.map(({ sourceTheory }) => [sourceTheory.slug, sourceTheory] as const),
+  ]).values());
+  const browseLinks = Array.from(new Map<string, { label: string; href: string; description?: string }>([
+    ...relationshipLinks.map((item) => [`/theories/${item.slug}`, { label: item.titleEn, href: `/theories/${item.slug}` }] as const),
+    ...internalLinks.filter(({ href }) => href.startsWith("/theories/")).map(({ label, href, reason }) => [href, { label, href, description: reason }] as const),
+  ]).values());
   const hasResearchDesign = presentation.sectionKeys.includes("analysis_dimensions");
   const hasD2Design = presentation.sectionKeys.includes("explanatory_mechanisms");
   const hasDepthCoverage = presentation.sectionKeys.includes("depth_coverage");
@@ -51,13 +55,16 @@ export function TheoryArticle({ theory, internalLinks = [] }: { theory: TheoryAr
       { label: theory.titleEn },
     ]} />
     <header className="entity-page__hero">
+      <span className="entity-page__eyebrow">Theory guide</span>
       <h1>{theory.titleEn}</h1>
       {theory.subtitleEn && <p>{theory.subtitleEn}</p>}
       <div className="entity-page__meta">
-        <span>{readingTime(theory.summaryEn, presentation.summary)}</span>
-        <span>{presentation.depthLabel}</span>
-        <span>{presentation.verificationSummary}</span><VerificationBadge level={presentation.sourceItems[0]?.level ?? "L3_pending"} />
+        <span><b>Depth</b>{presentation.depthLabel}</span>
+        <span><b>Reading time</b>{readingTime(theory.summaryEn, presentation.summary)}</span>
+        <span>{presentation.verificationSummary}</span>
+        <VerificationBadge level="L3_pending" scope="page" />
       </div>
+      <p className="page-level-source-note">This guide lists registered sources and editorial synthesis; claim-level review remains pending unless a source entry states otherwise.</p>
       <Link className="text-link" href={`/?discipline=${field?.discipline?.slug ?? "education"}&mode=genealogy&focus=${theory.slug}`}>View in graph →</Link>
     </header>
 
@@ -67,7 +74,7 @@ export function TheoryArticle({ theory, internalLinks = [] }: { theory: TheoryAr
     <ProseSection title="1. Origins & Intellectual History">{presentation.origins}</ProseSection>
 
     {presentation.theoryNature && <section className="prose-section">
-      <h2>D1 Page Scope &amp; Status</h2>
+      <h2>Theory scope for your study</h2>
       <div className="responsive-table"><article>
         <strong>{presentation.theoryNature.label}</strong>
         <span>{presentation.theoryNature.explanation}</span>
@@ -77,7 +84,7 @@ export function TheoryArticle({ theory, internalLinks = [] }: { theory: TheoryAr
 
     {hasD2Design && <>
       <section className="prose-section">
-        <h2>D2 Explanatory Mechanisms</h2>
+        <h2>How the theory explains the phenomenon</h2>
         <div className="responsive-table">
           {presentation.explanatoryMechanisms.map((item) => <article key={item.mechanism}>
             <strong>{item.mechanism}</strong>
@@ -87,9 +94,9 @@ export function TheoryArticle({ theory, internalLinks = [] }: { theory: TheoryAr
           </article>)}
         </div>
       </section>
-      <ProseSection title="D2 Analysis Unit">{presentation.analysisUnit}</ProseSection>
+      <ProseSection title="Unit of analysis">{presentation.analysisUnit}</ProseSection>
       <section className="prose-section">
-        <h2>D2 Candidate and Alternative Theory Comparison</h2>
+        <h2>Selecting and comparing theoretical lenses</h2>
         <div className="responsive-table">
           {presentation.theoryComparisons.map((item) => <article key={`${item.role}-${item.theory}`}>
             <strong>{item.theory}</strong>
@@ -102,7 +109,7 @@ export function TheoryArticle({ theory, internalLinks = [] }: { theory: TheoryAr
         </div>
       </section>
       <section className="prose-section">
-        <h2>D2 Boundary Conditions</h2>
+        <h2>Conditions and limits of use</h2>
         <div className="responsive-table">
           {presentation.boundaryConditions.map((item) => <article key={item.condition}>
             <strong>{item.condition}</strong>
@@ -114,7 +121,7 @@ export function TheoryArticle({ theory, internalLinks = [] }: { theory: TheoryAr
     </>}
 
     {hasD3Details && <>
-      <ProseSection title="D3 Core Question">{presentation.coreQuestion}</ProseSection>
+      <ProseSection title="Core research question">{presentation.coreQuestion}</ProseSection>
       <section className="prose-section">
         <h2>Historical Development</h2>
         <div className="responsive-table">
@@ -174,20 +181,6 @@ export function TheoryArticle({ theory, internalLinks = [] }: { theory: TheoryAr
       </div>
     </section>}
 
-    {relationshipLinks.length > 0 && <section className="prose-section">
-      <h2>Connected theories</h2>
-      <p className="relation-card__intro">Each relation is sourced when source-level data is available. Open a theory to trace its pathway.</p>
-      <div className="relation-card-list">
-        {relationshipLinks.map((item) => <Link key={item.slug} className="rel-card" href={`/theories/${item.slug}`}>
-          <span className="rel-type rel-type--connected">connected</span>
-          <div><strong className="rel-card__title">{item.titleEn}</strong><span className="rel-card__desc">Explore this theoretical relationship</span></div>
-          <span className="rel-card__arrow" aria-hidden="true">→</span>
-        </Link>)}
-      </div>
-    </section>}
-
-    <RelatedLinks heading="Explore connected research" links={internalLinks.map(({ label, href, reason }) => ({ label, href, description: reason }))} />
-
     <SuitabilitySection title="4. Suitable Research Topics" entries={presentation.applicableTopics} />
     <SuitabilitySection title="5. When NOT to Use This Theory" entries={presentation.inapplicableTopics} />
     <StringListSection title="6. Common Misapplications" items={presentation.misuseRisks} />
@@ -229,7 +222,7 @@ export function TheoryArticle({ theory, internalLinks = [] }: { theory: TheoryAr
       <StringListSection title="10. Writing the Theoretical Fit Section" items={presentation.fitWriting} />
     </>}
 
-    {hasDepthCoverage && <StringListSection title="D3 depth coverage" items={presentation.depthCoverage} />}
+    {hasDepthCoverage && <StringListSection title="What this guide covers in depth" items={presentation.depthCoverage} />}
 
     <section className="prose-section">
       <h2>{readingPathNumber}. Reading Path</h2>
@@ -243,7 +236,7 @@ export function TheoryArticle({ theory, internalLinks = [] }: { theory: TheoryAr
       </div>
     </section>
 
-    <RelatedLinks heading="Related theories" links={relationshipLinks.map((item) => ({ label: item.titleEn, href: `/theories/${item.slug}` }))} />
+    <RelatedLinks heading="Browse related theories" links={browseLinks} />
     <ContentAd placement="bottom" />
     <SourceBlock sources={presentation.sourceItems} />
     <RelatedLinks heading="Related scholars" links={theory.scholars.map(({ scholar }) => ({ label: scholar.name, href: `/scholars/${scholar.slug}` }))} />

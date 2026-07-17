@@ -34,6 +34,27 @@ export function ArticleToc() {
   }, []);
 
   if (items.length < 2) return null;
-  const links = items.map((item) => <a key={item.id} href={`#${item.id}`} aria-current={activeId === item.id ? "location" : undefined}>{item.label}</a>);
-  return <nav className="article-toc" aria-label="On this page"><strong>On this page</strong><div>{links}</div><details><summary>On this page</summary><div>{links}</div></details></nav>;
+  return <ArticleTocMarkup items={items} activeId={activeId} />;
+}
+
+export function ArticleTocMarkup({ items, activeId }: { items: TocItem[]; activeId: string }) {
+  const activeItem = items.find((item) => item.id === activeId) ?? items[0];
+
+  return (
+    <nav className="article-toc article-toc--responsive" aria-label="On this page" data-current-section={activeItem?.id ?? ""}>
+      <details className="article-toc__details">
+        <summary className="article-toc__trigger" aria-controls="article-toc-list">
+          <span className="article-toc__label">On this page</span>
+          <span className="article-toc__current">{activeItem?.label ?? "Section"}</span>
+        </summary>
+        <ol id="article-toc-list" className="article-toc__list">
+          {items.map((item) => (
+            <li key={item.id} className="article-toc__item">
+              <a className="article-toc__link" href={`#${item.id}`} aria-current={activeId === item.id ? "location" : undefined}>{item.label}</a>
+            </li>
+          ))}
+        </ol>
+      </details>
+    </nav>
+  );
 }
