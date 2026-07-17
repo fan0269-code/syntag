@@ -3,6 +3,8 @@ import { Disclaimer } from "@/components/common/Disclaimer";
 import { SourceBlock } from "@/components/common/SourceBlock";
 import type { Source } from "@/components/common/SourceBlock";
 import { ContentAd, ProseSection, RelatedLinks } from "./ContentBlocks";
+import { ArticleToc } from "./ArticleToc";
+import { VerificationBadge } from "@/components/common/VerificationBadge";
 
 function initialsForTitle(title: string) {
   return title
@@ -16,5 +18,6 @@ function initialsForTitle(title: string) {
 
 export function EntityArticle({ kind, title, summary, breadcrumb, overview, links, sources, children }: { kind: string; title: string; summary?: string | null; breadcrumb: Array<{ label: string; href?: string }>; overview?: string | null; links?: Array<{ label: string; href: string; description?: string | null }>; sources?: Source[]; children?: React.ReactNode }) {
   const isScholar = kind.toLowerCase() === "scholar";
-  return <article className="entity-page content-layout"><Breadcrumbs path={[{ label: "Home", href: "/" }, ...breadcrumb, { label: title }]} /><header className="entity-page__hero">{isScholar ? <div className="entity-page__identity"><div className="monogram" aria-label={`${title} monogram`}>{initialsForTitle(title)}</div><div><span>{kind}</span><h1>{title}</h1>{summary && <p>{summary}</p>}</div></div> : <><span>{kind}</span><h1>{title}</h1>{summary && <p>{summary}</p>}</>}</header><ProseSection title="Overview">{overview || summary || "Editorial content for this entry is being prepared."}</ProseSection>{children}<ContentAd placement="in-article" /><RelatedLinks heading={`Related ${kind.toLowerCase()} entries`} links={links || []} /><ContentAd placement="bottom" /><SourceBlock sources={sources || [{ text: "Source-level editorial verification is pending for this entry.", level: "L3_pending" }]} /><Disclaimer /></article>;
+  const sourceItems = sources || [{ text: "Source-level editorial verification is pending for this entry.", level: "L3_pending" as const }];
+  return <article className="entity-page content-layout"><Breadcrumbs path={[{ label: "Home", href: "/" }, ...breadcrumb, { label: title }]} /><header className="entity-page__hero">{isScholar ? <div className="entity-page__identity"><div className="monogram" aria-label={`${title} monogram`}>{initialsForTitle(title)}</div><div><span>{kind}</span><h1>{title}</h1>{summary && <p>{summary}</p>}<VerificationBadge level={sourceItems[0]?.level ?? "L3_pending"} /></div></div> : <><span>{kind}</span><h1>{title}</h1>{summary && <p>{summary}</p>}<VerificationBadge level={sourceItems[0]?.level ?? "L3_pending"} /></>}</header><ArticleToc /><ProseSection title="Overview">{overview || summary || "Editorial content for this entry is being prepared."}</ProseSection>{children}<ContentAd placement="in-article" /><RelatedLinks heading={`Related ${kind.toLowerCase()} entries`} links={links || []} /><ContentAd placement="bottom" /><SourceBlock sources={sourceItems} /><Disclaimer /></article>;
 }
