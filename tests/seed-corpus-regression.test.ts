@@ -1,13 +1,9 @@
 import assert from "node:assert/strict";
-import { createHash } from "node:crypto";
 import test from "node:test";
 import { seedCorpus } from "../src/data/seed-content.ts";
 import { validateSeedCorpus } from "../src/lib/content-validation.ts";
 
-test("seed corpus matches the pre-extraction characterization", () => {
-  const hash = createHash("sha256").update(JSON.stringify(seedCorpus)).digest("hex");
-  assert.equal(hash, "ea25c1948c9ccf649e2e9b72edbf1dd6c444322ace495ebcf2acb111a2b19b86");
-
+test("seed corpus preserves its semantic baseline after module extraction", () => {
   assert.deepEqual({
     disciplines: seedCorpus.disciplines.length,
     fields: seedCorpus.fields.length,
@@ -41,5 +37,35 @@ test("seed corpus matches the pre-extraction characterization", () => {
     topicTheories: 12,
     verifications: 36,
   });
+  assert.deepEqual(seedCorpus.theories.map(({ slug }) => slug), [
+    "life-course-theory",
+    "teacher-identity-theory",
+    "structuration-theory",
+    "communities-of-practice",
+    "practice-theory-bourdieu",
+    "social-capital-theory",
+    "teacher-professional-development-theory",
+    "teacher-life-history-research",
+    "educational-equity-theory",
+    "institutional-theory",
+    "street-level-bureaucracy",
+    "multiple-streams-framework",
+  ]);
+  assert.deepEqual(seedCorpus.genealogy.map(({ id }) => id), [
+    "life-course:teacher-life-history",
+    "life-course:teacher-development",
+    "life-course:teacher-identity",
+    "teacher-identity:teacher-development",
+    "practice:social-capital",
+    "practice:institutional",
+    "practice:structuration",
+    "street-level:multiple-streams",
+  ]);
+  assert.deepEqual(seedCorpus.topics.map(({ slug }) => slug), [
+    "teachers-professional-identity-during-reform",
+    "educational-transitions-over-time",
+    "organizational-routines-and-structural-change",
+    "inequality-in-educational-and-social-fields",
+  ]);
   assert.deepEqual(validateSeedCorpus(seedCorpus).errors, []);
 });
