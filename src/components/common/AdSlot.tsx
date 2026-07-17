@@ -6,7 +6,9 @@ const heights: Record<AdPlacement, string> = {
   "home-banner": "min(40vh, 180px)",
 };
 
-export function AdSlot({ placement }: { placement: AdPlacement }) {
+export function AdSlot({ placement, enabled = false }: { placement: AdPlacement; enabled?: boolean }) {
+  if (!enabled) return null;
+
   return (
     <aside className={`ad-slot ad-slot--${placement}`} aria-label="Advertisement">
       <span className="ad-slot__label">Advertisement</span>

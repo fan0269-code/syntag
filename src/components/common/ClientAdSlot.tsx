@@ -1,11 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
 import { AdSlot, type AdPlacement } from "./AdSlot";
 
-export function ClientAdSlot({ placement }: { placement: AdPlacement }) {
-  useEffect(() => {
-    // Phase 1 intentionally reserves the placement without loading AdSense.
-  }, []);
-  return <AdSlot placement={placement} />;
+export function ClientAdSlot({ placement, enabled = false }: { placement: AdPlacement; enabled?: boolean }) {
+  return <AdSlot placement={placement} enabled={enabled} />;
 }

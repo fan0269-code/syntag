@@ -1,11 +1,23 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type MutableRefObject } from "react";
 import { DataUnavailableState } from "@/components/common/DataUnavailableState";
 import type { GraphEdgeModel, GraphNodeModel, PositionedGraphNode } from "./types";
 
 type GraphStatus = "loading" | "ready" | "empty" | "error";
 type Transform = { x: number; y: number; scale: number };
+
+type GraphCanvasProps = {
+  nodes: GraphNodeModel[];
+  edges: GraphEdgeModel[];
+  status?: GraphStatus;
+  onRetry?: () => void;
+  onNodeSelect?: (node: GraphNodeModel) => void;
+  focusId?: string | null;
+  mode?: string;
+  disciplineLabel?: string;
+  focusTargetRef?: MutableRefObject<HTMLElement | null>;
+};
 
 const edgeStyle: Record<string, { color: string; dash?: number[]; arrow?: boolean; double?: boolean }> = {
   precursor_of: { color: "--edge-precursor", dash: [10, 12], arrow: true },
@@ -46,29 +58,42 @@ function controlPoint(start: { x: number; y: number }, end: { x: number; y: numb
   return { x: midpoint.x - dy * bend, y: midpoint.y + dx * bend };
 }
 
-type GraphCanvasProps = { nodes: GraphNodeModel[]; edges: GraphEdgeModel[]; status?: GraphStatus; onRetry?: () => void; onNodeSelect?: (node: GraphNodeModel) => void; focusId?: string | null; mode?: string; disciplineLabel?: string };
-
 export function GraphCanvas(props: GraphCanvasProps) {
   const graphKey = props.nodes.map((node) => node.id).join(":");
   return <GraphCanvasInstance key={graphKey} {...props} />;
 }
 
-function GraphCanvasInstance({ nodes, edges, status = "ready", onRetry, onNodeSelect, focusId, mode = "genealogy", disciplineLabel = "this discipline" }: GraphCanvasProps) {
+function GraphCanvasInstance({ nodes, edges, status = "ready", onRetry, onNodeSelect, focusId, mode = "genealogy", disciplineLabel = "this discipline", focusTargetRef }: GraphCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const transform = useRef<Transform>({ x: 0, y: 0, scale: 1 });
-  const action = useRef<{ kind: "pan" | "node"; startX: number; startY: number; nodeId?: string } | null>(null);
+  const action = useRef<{ kind: "pan" | "node"; originX: number; originY: number; lastX: number; lastY: number; nodeId?: string; moved: boolean } | null>(null);
   const [points, setPoints] = useState<PositionedGraphNode[]>(() => placeNodes(nodes));
   const [selected, setSelected] = useState<GraphNodeModel | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [hovered, setHovered] = useState<{ node?: GraphNodeModel; edge?: GraphEdgeModel; x: number; y: number } | null>(null);
   const [viewport, setViewport] = useState({ width: 1, height: 1 });
+  const [reducedMotion, setReducedMotion] = useState(false);
 
   const selectNode = useCallback((node: GraphNodeModel) => {
     setSelected(node);
     setActiveIndex(Math.max(points.findIndex((entry) => entry.id === node.id), 0));
     onNodeSelect?.(node);
   }, [onNodeSelect, points]);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const updateMotionPreference = () => setReducedMotion(mediaQuery.matches);
+    updateMotionPreference();
+    mediaQuery.addEventListener("change", updateMotionPreference);
+    return () => mediaQuery.removeEventListener("change", updateMotionPreference);
+  }, []);
+
+  useEffect(() => {
+    if (!focusTargetRef) return;
+    focusTargetRef.current = canvasRef.current;
+    return () => { focusTargetRef.current = null; };
+  }, [focusTargetRef]);
 
   useEffect(() => {
     const element = wrapperRef.current;
@@ -86,12 +111,17 @@ function GraphCanvasInstance({ nodes, edges, status = "ready", onRetry, onNodeSe
     if (!node) return;
     const scale = Math.max(transform.current.scale, 1.25);
     transform.current = { x: -node.x * scale, y: -node.y * scale, scale };
-    const frame = window.requestAnimationFrame(() => {
+    const selectFocusedNode = () => {
       selectNode(node);
       setViewport((current) => ({ ...current }));
-    });
+    };
+    if (reducedMotion) {
+      selectFocusedNode();
+      return;
+    }
+    const frame = window.requestAnimationFrame(selectFocusedNode);
     return () => window.cancelAnimationFrame(frame);
-  }, [focusId, points, selectNode, viewport.height, viewport.width]);
+  }, [focusId, points, reducedMotion, selectNode, viewport.height, viewport.width]);
 
   const nodeById = useMemo(() => new Map(points.map((node) => [node.id, node])), [points]);
   const hoveredNodeId = hovered?.node?.id;
@@ -119,6 +149,7 @@ function GraphCanvasInstance({ nodes, edges, status = "ready", onRetry, onNodeSe
 
     let animationFrame = 0;
     const draw = (time: number) => {
+      const motionTime = reducedMotion ? 0 : time;
       context.setTransform(ratio, 0, 0, ratio, 0, 0);
       context.clearRect(0, 0, viewport.width, viewport.height);
       context.lineCap = "round";
@@ -136,7 +167,7 @@ function GraphCanvasInstance({ nodes, edges, status = "ready", onRetry, onNodeSe
         context.globalAlpha = hoveredNodeId ? (connectedToHover ? .95 : .3) : .52;
         context.lineWidth = connectedToHover ? 3.4 : 1.9;
         context.setLineDash(style.dash ?? [12, 12]);
-        context.lineDashOffset = -time / 90 - index * 8;
+        context.lineDashOffset = reducedMotion ? 0 : -motionTime / 90 - index * 8;
         context.beginPath();
         context.moveTo(start.x, start.y);
         context.quadraticCurveTo(control.x, control.y, end.x, end.y);
@@ -145,7 +176,7 @@ function GraphCanvasInstance({ nodes, edges, status = "ready", onRetry, onNodeSe
           context.globalAlpha = .32;
           context.lineWidth = 1.2;
           context.setLineDash([4, 12]);
-          context.lineDashOffset = time / 110 + index * 6;
+          context.lineDashOffset = reducedMotion ? 0 : motionTime / 110 + index * 6;
           context.beginPath();
           context.moveTo(start.x + 3, start.y + 3);
           context.quadraticCurveTo(control.x + 3, control.y + 3, end.x + 3, end.y + 3);
@@ -168,7 +199,7 @@ function GraphCanvasInstance({ nodes, edges, status = "ready", onRetry, onNodeSe
 
       points.forEach((node, index) => {
         const basePoint = toScreen(node);
-        const floatY = Math.sin(time / 1200 + index * .9) * 4;
+        const floatY = reducedMotion ? 0 : Math.sin(motionTime / 1200 + index * .9) * 4;
         const point = { x: basePoint.x, y: basePoint.y + floatY };
         const radius = nodeRadius(node) * transform.current.scale; const selectedNode = selected?.id === node.id;
         const relatedToHover = !hoveredNodeId || adjacentNodeIds.has(node.id);
@@ -195,11 +226,11 @@ function GraphCanvasInstance({ nodes, edges, status = "ready", onRetry, onNodeSe
         context.arc(point.x, point.y, Math.max(4, radius * .34), 0, Math.PI * 2);
         context.fill();
         if (selectedNode) {
-          context.globalAlpha = .18 + Math.sin(time / 260) * .04;
+          context.globalAlpha = reducedMotion ? .18 : .18 + Math.sin(motionTime / 260) * .04;
           context.strokeStyle = cssColor("--accent-primary");
           context.lineWidth = 2;
           context.beginPath();
-          context.arc(point.x, point.y, radius + 9 + Math.sin(time / 420) * 3, 0, Math.PI * 2);
+          context.arc(point.x, point.y, reducedMotion ? radius + 9 : radius + 9 + Math.sin(motionTime / 420) * 3, 0, Math.PI * 2);
           context.stroke();
         }
         context.globalAlpha = relatedToHover ? 1 : .3;
@@ -212,12 +243,13 @@ function GraphCanvasInstance({ nodes, edges, status = "ready", onRetry, onNodeSe
         context.restore();
       });
 
-      animationFrame = window.requestAnimationFrame(draw);
+      if (!reducedMotion) animationFrame = window.requestAnimationFrame(draw);
     };
 
-    animationFrame = window.requestAnimationFrame(draw);
+    if (reducedMotion) draw(0);
+    else animationFrame = window.requestAnimationFrame(draw);
     return () => window.cancelAnimationFrame(animationFrame);
-  }, [adjacentNodeIds, cssColor, edges, hoveredNodeId, nodeById, points, selected, toScreen, viewport]);
+  }, [adjacentNodeIds, cssColor, edges, hoveredNodeId, nodeById, points, reducedMotion, selected, toScreen, viewport]);
 
   const locateNode = (x: number, y: number) => points.find((node) => { const point = toScreen(node); return Math.hypot(point.x - x, point.y - y) <= nodeRadius(node) * transform.current.scale + 8; });
   const locateEdge = (x: number, y: number) => edges.find((edge) => { const source = nodeById.get(edge.source); const target = nodeById.get(edge.target); if (!source || !target) return false; const a = toScreen(source); const b = toScreen(target); const length = Math.hypot(b.x - a.x, b.y - a.y); if (!length) return false; const distance = Math.abs((b.y - a.y) * x - (b.x - a.x) * y + b.x * a.y - b.y * a.x) / length; const within = x >= Math.min(a.x, b.x) - 8 && x <= Math.max(a.x, b.x) + 8 && y >= Math.min(a.y, b.y) - 8 && y <= Math.max(a.y, b.y) + 8; return distance <= 7 && within; });
@@ -227,12 +259,16 @@ function GraphCanvasInstance({ nodes, edges, status = "ready", onRetry, onNodeSe
   };
 
   return <div className="graph-canvas" ref={wrapperRef}>
-    <canvas ref={canvasRef} role="img" tabIndex={0} aria-label="Interactive research theory graph" aria-describedby="graph-canvas-description" onKeyDown={(event) => { if (!points.length) return; if (event.key === "ArrowRight" || event.key === "ArrowDown") { event.preventDefault(); selectByIndex(activeIndex + 1); } if (event.key === "ArrowLeft" || event.key === "ArrowUp") { event.preventDefault(); selectByIndex(activeIndex - 1); } if (event.key === "Enter" || event.key === " ") { event.preventDefault(); selectByIndex(activeIndex); } }} onWheel={(event) => { event.preventDefault(); const factor = event.deltaY < 0 ? 1.12 : .89; transform.current.scale = Math.min(2.5, Math.max(.45, transform.current.scale * factor)); setViewport((current) => ({ ...current })); }} onPointerDown={(event) => { const bounds = event.currentTarget.getBoundingClientRect(); const x = event.clientX - bounds.left; const y = event.clientY - bounds.top; const node = locateNode(x, y); action.current = { kind: node ? "node" : "pan", startX: x, startY: y, nodeId: node?.id }; event.currentTarget.setPointerCapture(event.pointerId); if (node) selectNode(node); }} onPointerMove={(event) => { const bounds = event.currentTarget.getBoundingClientRect(); const x = event.clientX - bounds.left; const y = event.clientY - bounds.top; const active = action.current; if (active?.kind === "pan") { transform.current.x += x - active.startX; transform.current.y += y - active.startY; action.current = { ...active, startX: x, startY: y }; setViewport((current) => ({ ...current })); return; } if (active?.kind === "node" && active.nodeId) { const point = toWorld(x, y); setPoints((current) => current.map((node) => node.id === active.nodeId ? { ...node, x: point.x, y: point.y } : node)); return; } const node = locateNode(x, y); const edge = node ? undefined : locateEdge(x, y); setHovered(node ? { node, x, y } : edge ? { edge, x, y } : null); }} onPointerUp={(event) => { action.current = null; event.currentTarget.releasePointerCapture(event.pointerId); }} />
+    <p className="graph-canvas__instructions" id="graph-canvas-description">Use Arrow keys to move between nodes and Enter to select one. You can pan the canvas by dragging empty space, or choose a node from the list below.</p>
+    <canvas ref={canvasRef} role="img" tabIndex={0} aria-label="Interactive research theory graph" aria-describedby="graph-canvas-description" onKeyDown={(event) => { if (!points.length) return; if (event.key === "ArrowRight" || event.key === "ArrowDown") { event.preventDefault(); selectByIndex(activeIndex + 1); } if (event.key === "ArrowLeft" || event.key === "ArrowUp") { event.preventDefault(); selectByIndex(activeIndex - 1); } if (event.key === "Enter" || event.key === " ") { event.preventDefault(); selectByIndex(activeIndex); } }} onWheel={(event) => { event.preventDefault(); const factor = event.deltaY < 0 ? 1.12 : .89; transform.current.scale = Math.min(2.5, Math.max(.45, transform.current.scale * factor)); setViewport((current) => ({ ...current })); }} onPointerDown={(event) => { const bounds = event.currentTarget.getBoundingClientRect(); const x = event.clientX - bounds.left; const y = event.clientY - bounds.top; const node = locateNode(x, y); action.current = { kind: node ? "node" : "pan", originX: x, originY: y, lastX: x, lastY: y, nodeId: node?.id, moved: false }; event.currentTarget.setPointerCapture(event.pointerId); }} onPointerMove={(event) => { const bounds = event.currentTarget.getBoundingClientRect(); const x = event.clientX - bounds.left; const y = event.clientY - bounds.top; const active = action.current; if (active?.kind === "pan") { transform.current.x += x - active.lastX; transform.current.y += y - active.lastY; action.current = { ...active, lastX: x, lastY: y, moved: active.moved || Math.hypot(x - active.originX, y - active.originY) > 6 }; setViewport((current) => ({ ...current })); return; } if (active?.kind === "node" && active.nodeId) { const point = toWorld(x, y); action.current = { ...active, lastX: x, lastY: y, moved: active.moved || Math.hypot(x - active.originX, y - active.originY) > 6 }; setPoints((current) => current.map((node) => node.id === active.nodeId ? { ...node, x: point.x, y: point.y } : node)); return; } const node = locateNode(x, y); const edge = node ? undefined : locateEdge(x, y); setHovered(node ? { node, x, y } : edge ? { edge, x, y } : null); }} onPointerUp={(event) => { const active = action.current; action.current = null; if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId); if (active?.kind !== "node" || active.moved || !active.nodeId) return; const bounds = event.currentTarget.getBoundingClientRect(); const node = locateNode(event.clientX - bounds.left, event.clientY - bounds.top); if (node?.id === active.nodeId) selectNode(node); }} onPointerCancel={() => { action.current = null; }} />
+    <p className="graph-canvas__selection-status" role="status" aria-live="polite">{selected ? `${selected.label} selected. Details are available in the selected node panel.` : "No node selected."}</p>
+    <div className="graph-canvas__node-picker" role="group" aria-label="Available graph nodes">
+      {points.map((node) => <button type="button" key={node.id} aria-pressed={selected?.id === node.id} aria-expanded={selected?.id === node.id} aria-controls="graph-theory-detail" onClick={() => selectNode(node)}>{node.label}</button>)}
+    </div>
     {status === "loading" && <div className="graph-canvas__state graph-canvas__state--loading"><span /><p>Loading theory graph</p></div>}
     {status === "empty" && <div className="graph-canvas__state"><DataUnavailableState title={`No published ${mode} graph yet`} description={`No published ${mode} graph nodes are available for ${disciplineLabel} yet.`} /></div>}
     {status === "error" && <div className="graph-canvas__state"><DataUnavailableState title="The graph is temporarily unavailable" description="We could not load this graph. Try again shortly or continue with the theory index." /><button type="button" onClick={onRetry}>Try again</button></div>}
     {hovered && <div className="graph-canvas__tooltip" style={{ left: hovered.x + 16, top: hovered.y + 16 }}>{hovered.node ? <><strong>{hovered.node.label}</strong><span>{hovered.node.data?.summary || "Explore this graph node"}</span></> : <span>{hovered.edge?.label || formatRelation(hovered.edge?.type ?? "")}</span>}</div>}
-    <div className="sr-only"><p id="graph-canvas-description">Interactive graph of research theories and their relationships. Use the following buttons to select an available node.</p>{points.map((node) => <button type="button" key={node.id} onClick={() => selectNode(node)}>{node.label}</button>)}</div>
   </div>;
 }
 

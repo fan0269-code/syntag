@@ -7,6 +7,7 @@ import { sampleGraph } from "@/lib/graph-sample";
 import { resolveHomeGraph } from "@/lib/home-graph";
 import { entityDetailHref, isEntityType } from "@/lib/entity-routes";
 import { JsonLdGraph } from "@/components/seo/JsonLdGraph";
+import { SearchBox } from "@/components/search/SearchBox";
 import { generateHomeMeta } from "@/lib/seo";
 
 export const revalidate = 600;
@@ -39,6 +40,13 @@ export default async function Home() {
             <span className="eyebrow">Research theory pathways</span>
             <h1>Make a defensible theory choice.</h1>
             <p className="lead">Start with a research question, explore connected theories, and follow the sources behind each pathway.</p>
+            <div className="home-hero__search">
+              <SearchBox
+                mode="inline"
+                label="Search for a theory, scholar, concept, or research topic"
+                placeholder="Try a theory, scholar, concept, or research topic"
+              />
+            </div>
             <div className="home-hero__actions">
               <Link className="btn btn-primary" href="/topics">Start with a research question</Link>
               <Link className="btn" href="#graph">Explore the theory graph</Link>

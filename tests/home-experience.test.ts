@@ -16,11 +16,23 @@ test("home uses the shared frame and exposes two English task entrances", () => 
   assert.match(frame, /id="main-content"/);
 });
 
+test("home hero composes inline search between the lead and primary task entrances", () => {
+  const home = readFileSync("src/app/page.tsx", "utf8");
+
+  assert.match(home, /import \{ SearchBox \} from "@\/components\/search\/SearchBox";/);
+  assert.match(home, /<p className="lead">[\s\S]*?<div className="home-hero__search">[\s\S]*?<SearchBox[\s\S]*?mode="inline"[\s\S]*?<\/div>[\s\S]*?<div className="home-hero__actions">/);
+  assert.match(home, /label="Search for a theory, scholar, concept, or research topic"/);
+  assert.match(home, /placeholder="Try a theory, scholar, concept, or research topic"/);
+});
+
 test("shared navigation and footer expose English accessible landmarks", () => {
   const header = readFileSync("src/components/layout/Header.tsx", "utf8");
   const footer = readFileSync("src/components/layout/Footer.tsx", "utf8");
   const links = readFileSync("src/lib/static-internal-links.ts", "utf8");
-  const styles = readFileSync("src/app/globals.css", "utf8");
+  const styles = [
+    "src/app/globals.css",
+    "src/app/styles/shell.css",
+  ].map((file) => readFileSync(file, "utf8")).join("\n");
 
   for (const label of ["Topics", "Theories", "Scholars", "Works", "Concepts", "Pricing"]) {
     assert.match(header, new RegExp(`"${label}"`));

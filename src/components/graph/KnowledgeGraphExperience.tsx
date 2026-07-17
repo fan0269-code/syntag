@@ -2,11 +2,11 @@
 
 import { QueryClient, QueryClientProvider, useQuery } from "@tanstack/react-query";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import type { GraphMode } from "@/lib/api";
 import { graphHasFocusTarget } from "@/lib/graph-focus";
 import { GraphCanvas } from "./GraphCanvas";
-import { TheoryDetail } from "./TheoryDetail";
+import { TheoryDetail, type GraphRelationship } from "./TheoryDetail";
 import type { GraphEdgeModel, GraphNodeModel } from "./types";
 
 type GraphDisciplineOption = { slug: string; label: string };
@@ -33,6 +33,7 @@ export function KnowledgeGraphExperience({ initialGraph }: { initialGraph: Graph
 
 function GraphExperience({ initialGraph }: { initialGraph: GraphData }) {
   const [selected, setSelected] = useState<GraphNodeModel | null>(null);
+  const canvasFocusRef = useRef<HTMLElement | null>(null);
   const router = useRouter(); const pathname = usePathname(); const searchParams = useSearchParams();
   const initialDisciplines = initialGraph.meta.availableDisciplines?.length ? initialGraph.meta.availableDisciplines : [{ slug: initialGraph.meta.disciplineSlug ?? "education", label: initialGraph.meta.discipline }];
   const requestedDiscipline = searchParams.get("discipline");
@@ -54,6 +55,17 @@ function GraphExperience({ initialGraph }: { initialGraph: GraphData }) {
 
   const canvasNodes = useMemo(() => graph?.nodes ?? [], [graph]);
   const canvasEdges = useMemo(() => graph?.edges ?? [], [graph]);
+  const nodeLabels = useMemo(() => new Map(canvasNodes.map((node) => [node.id, node.label])), [canvasNodes]);
+  const selectedRelationships = useMemo((): GraphRelationship[] => {
+    if (!selected) return [];
+    return canvasEdges.filter((edge) => edge.source === selected.id || edge.target === selected.id).map((edge) => ({
+      id: edge.id,
+      sourceLabel: nodeLabels.get(edge.source) ?? edge.source,
+      targetLabel: nodeLabels.get(edge.target) ?? edge.target,
+      type: edge.type,
+      label: edge.label,
+    }));
+  }, [canvasEdges, nodeLabels, selected]);
   const replaceGraphUrl = (nextDiscipline: string, nextMode: GraphMode) => {
     const params = new URLSearchParams();
     params.set("discipline", nextDiscipline);
@@ -67,16 +79,23 @@ function GraphExperience({ initialGraph }: { initialGraph: GraphData }) {
   const relationLabelText = graph?.meta.relationLabels?.length ? graph.meta.relationLabels.join(", ") : "no published relationships";
 
   return <section className="knowledge-graph-experience" aria-label="Research theory knowledge graph">
-    <details className="graph-mobile-controls"><summary>Explore graph · {modeLabel}</summary><div><GraphControls discipline={discipline} disciplines={availableDisciplines} mode={mode} setDiscipline={changeDiscipline} setMode={changeMode} /></div></details>
-    <aside className="graph-discipline-rail"><span>Disciplines</span>{availableDisciplines.map((entry) => <button key={entry.slug} type="button" className={entry.slug === discipline ? "is-active" : ""} onClick={() => changeDiscipline(entry.slug)}>{entry.label}</button>)}</aside>
-    <div className="graph-workspace"><div className="graph-toolbar"><GraphControls discipline={discipline} disciplines={availableDisciplines} mode={mode} setDiscipline={changeDiscipline} setMode={changeMode} /><p>{graph?.meta.nodeCount ?? 0} nodes · {graph?.meta.edgeCount ?? 0} relationships · {relationLabelText}</p></div>
+    <div className="graph-mobile-controls">
+      <GraphDisciplineSelect discipline={discipline} disciplines={availableDisciplines} setDiscipline={changeDiscipline} />
+      <GraphModeControls mode={mode} setMode={changeMode} />
+    </div>
+    <aside className="graph-discipline-rail" role="group" aria-label="Disciplines"><span>Disciplines</span>{availableDisciplines.map((entry) => <button key={entry.slug} type="button" className={entry.slug === discipline ? "is-active" : ""} aria-pressed={entry.slug === discipline} onClick={() => changeDiscipline(entry.slug)}>{entry.label}</button>)}</aside>
+    <div className="graph-workspace"><div className="graph-toolbar"><GraphModeControls mode={mode} setMode={changeMode} /><p>{graph?.meta.nodeCount ?? 0} nodes · {graph?.meta.edgeCount ?? 0} relationships · {relationLabelText}</p></div>
     {graph?.meta.emptyReason && <p className="graph-focus-feedback" role="status">{graph.meta.emptyReason}</p>}
     {focusMiss && <p className="graph-focus-feedback" role="status">Focused node is not available in {graph?.meta.discipline ?? discipline} / {modeLabel}. Choose the matching discipline or graph mode from the controls.</p>}
-    <GraphCanvas nodes={canvasNodes} edges={canvasEdges} status={status} mode={mode} disciplineLabel={graph?.meta.discipline ?? discipline} focusId={focusId} onRetry={() => query.refetch()} onNodeSelect={setSelected} /></div>
-    <TheoryDetail node={selected} onClose={() => setSelected(null)} />
+    <GraphCanvas nodes={canvasNodes} edges={canvasEdges} status={status} mode={mode} disciplineLabel={graph?.meta.discipline ?? discipline} focusId={focusId} focusTargetRef={canvasFocusRef} onRetry={() => query.refetch()} onNodeSelect={setSelected} /></div>
+    <TheoryDetail node={selected} relationships={selectedRelationships} onClose={() => setSelected(null)} returnFocusTarget={canvasFocusRef} />
   </section>;
 }
 
-function GraphControls({ discipline, disciplines, mode, setDiscipline, setMode }: { discipline: string; disciplines: GraphDisciplineOption[]; mode: GraphMode; setDiscipline: (value: string) => void; setMode: (value: GraphMode) => void }) {
-  return <><div className="graph-tabs" aria-label="Discipline"><select value={discipline} onChange={(event) => setDiscipline(event.target.value)}>{disciplines.map((entry) => <option key={entry.slug} value={entry.slug}>{entry.label}</option>)}</select></div><div className="graph-modes" aria-label="Graph view mode">{modes.map((entry) => <button type="button" key={entry.value} className={mode === entry.value ? "is-active" : ""} onClick={() => setMode(entry.value)}>{entry.label}</button>)}</div></>;
+function GraphDisciplineSelect({ discipline, disciplines, setDiscipline }: { discipline: string; disciplines: GraphDisciplineOption[]; setDiscipline: (value: string) => void }) {
+  return <div className="graph-tabs"><label><span className="sr-only">Discipline</span><select aria-label="Discipline" value={discipline} onChange={(event) => setDiscipline(event.target.value)}>{disciplines.map((entry) => <option key={entry.slug} value={entry.slug}>{entry.label}</option>)}</select></label></div>;
+}
+
+function GraphModeControls({ mode, setMode }: { mode: GraphMode; setMode: (value: GraphMode) => void }) {
+  return <div className="graph-modes" role="group" aria-label="Graph view mode">{modes.map((entry) => <button type="button" key={entry.value} className={mode === entry.value ? "is-active" : ""} aria-pressed={mode === entry.value} onClick={() => setMode(entry.value)}>{entry.label}</button>)}</div>;
 }
