@@ -5,7 +5,7 @@ const published = "published";
 export function getWorkBySlug(slug: string) {
   return getDb().work.findFirst({
     where: { slug, status: published },
-    include: { theories: { include: { theory: true } } },
+    include: { theories: { where: { theory: { status: published } }, include: { theory: true } } },
   });
 }
 
@@ -15,7 +15,7 @@ export function getWorksByTheory(theorySlug: string) {
       status: published,
       theories: { some: { theory: { slug: theorySlug, status: published } } },
     },
-    include: { theories: { include: { theory: true } } },
+    include: { theories: { where: { theory: { status: published } }, include: { theory: true } } },
     orderBy: [{ year: "desc" }, { title: "asc" }],
   });
 }

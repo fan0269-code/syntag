@@ -5,7 +5,7 @@ const published = "published";
 export function getTopicBySlug(slug: string) {
   return getDb().topic.findFirst({
     where: { slug, status: published },
-    include: { theories: { include: { theory: true } } },
+    include: { theories: { where: { theory: { status: published } }, include: { theory: true } } },
   });
 }
 
@@ -24,7 +24,7 @@ export function getTopicsByDiscipline(disciplineSlug: string) {
         },
       },
     },
-    include: { theories: { include: { theory: true } } },
+    include: { theories: { where: { theory: { status: published } }, include: { theory: true } } },
     orderBy: { questionEn: "asc" },
   });
 }
@@ -32,7 +32,7 @@ export function getTopicsByDiscipline(disciplineSlug: string) {
 export function getTheoryComparison(topicSlug: string) {
   return getDb().topicTheory.findMany({
     where: { topic: { slug: topicSlug, status: published }, theory: { status: published } },
-    include: { theory: { include: { scholars: { include: { scholar: true } } } }, topic: true },
+    include: { theory: { include: { scholars: { where: { scholar: { status: published } }, include: { scholar: true } } } }, topic: true },
     orderBy: { suitability: "asc" },
   });
 }

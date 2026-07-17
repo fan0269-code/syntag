@@ -72,7 +72,7 @@ export async function getGraphDataForDb(db: GraphDb, disciplineSlug: string, mod
   const theories = await db.theory.findMany({
     where: { status: published, disciplines: { some: { disciplineId: discipline.id } } },
     include: {
-      concepts: { include: { concept: true } },
+      concepts: { where: { concept: { status: published } }, include: { concept: true } },
       scholars: { where: { scholar: { status: published } }, include: { scholar: true } },
     },
     orderBy: { titleEn: "asc" },
