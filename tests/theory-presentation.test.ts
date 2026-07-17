@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 
 import { seedCorpus } from "../src/data/seed-content.ts";
+import type { ContentRecord } from "../src/lib/content.ts";
 import {
   buildTheoryPresentation,
   type TheorySectionKey,
@@ -37,7 +38,7 @@ test("all twelve theory records produce presentable structured content without p
   assert.equal(seedCorpus.theories.length, 12);
 
   for (const theory of seedCorpus.theories) {
-    const presentation = buildTheoryPresentation(theory.content.en, theory.depth);
+    const presentation = buildTheoryPresentation(theory.content.en as unknown as ContentRecord, theory.depth);
 
     assert.ok(presentation.summary, `${theory.slug} has a summary`);
     assert.ok(presentation.origins, `${theory.slug} has origins`);
@@ -59,7 +60,7 @@ test("all twelve theory records produce presentable structured content without p
 
 test("D1, D2, and D3 expose distinct depth-appropriate page sections", () => {
   for (const theory of seedCorpus.theories) {
-    const presentation = buildTheoryPresentation(theory.content.en, theory.depth);
+    const presentation = buildTheoryPresentation(theory.content.en as unknown as ContentRecord, theory.depth);
     assert.ok(sharedSections.every((section) => presentation.sectionKeys.includes(section)));
 
     if (theory.depth === "D1") {
@@ -112,7 +113,7 @@ test("malformed verification records never become public verified badges", () =>
 
 test("D3 pages expose reading levels, item evidence, and every listed source", () => {
   for (const theory of seedCorpus.theories.filter((entry) => entry.depth === "D3")) {
-    const presentation = buildTheoryPresentation(theory.content.en, theory.depth);
+    const presentation = buildTheoryPresentation(theory.content.en as unknown as ContentRecord, theory.depth);
     const listedUrls = new Set(theory.content.en.sources?.map((source) => source.url));
     const publicUrls = new Set(presentation.sourceItems.flatMap((item) => item.url ? [item.url] : []));
 

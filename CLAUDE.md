@@ -8,6 +8,12 @@ Syrtag is a Next.js 16 App Router application for doctoral-research theory knowl
 
 `README.md` is the default Create Next App README and does not reflect the application architecture or database workflow. Treat `package.json`, `AGENTS.md`, Prisma configuration, and source code as authoritative.
 
+Supplementary planning and content documents:
+
+- **`docs/SITE_CONSTRUCTION_PLAYBOOK.md`** — the working format for every new requirement, fix, or content batch (立项 → 实现 → 验收). Re-read its "当前基线" section before starting any iteration and after resume/compaction, since it records what is actually shipped vs. only present locally. Any plan or content release should be立项 in this format first.
+- **`prompts/README.md`** — Codex execution prompts with a dependency order (backend → content → UI → frontend → SEO).
+- The V2.0 product design doc (`Syntag-产品设计文档.md`) sits at the repo root above this directory and is **not tracked in this git repo**. If a decision needs to reference or persist it, follow the playbook's "决策记录" process and place a copy under `docs/product/`; until then, schema + content contracts + this playbook are authoritative.
+
 ## Commands
 
 ```bash
@@ -19,8 +25,15 @@ npm run dev
 
 # Quality gates
 npm run lint
+npm run typecheck
 npm test
 npm run build
+
+# After a production build, verify core route artifacts.
+node --env-file-if-exists=.env --experimental-strip-types --test tests/build-output-smoke.test.ts
+
+# Validate the authored corpus and local content-onboarding rules.
+npm run content:check
 
 # Run one test file directly (the npm test script always expands the full suite).
 node --env-file-if-exists=.env --experimental-strip-types --test tests/api-runtime.test.ts
@@ -38,7 +51,7 @@ npm run db:push
 npm run db:studio
 ```
 
-`npm run db:reset` executes `prisma migrate reset`; never use it against shared or production data. For a fresh database, apply migrations and seed published content **before** `npm run build`; static entity routes are derived from published slugs at build time. Production deployments use `npx prisma migrate deploy`, then `npm run db:seed`, then build. There is no separate type-check, coverage, or browser E2E script: `npm run build` performs the project’s Next.js type validation, and tests use Node’s built-in test runner. There is also no Prettier, Husky, `typecheck`, or coverage script in this repo — do not add them speculatively.
+`npm run db:reset` executes `prisma migrate reset`; never use it against shared or production data. For a fresh database, apply migrations and seed published content **before** `npm run build`; static entity routes are derived from published slugs at build time. Production deployments use `npx prisma migrate deploy`, then `npm run db:seed`, then build. `npm run typecheck` runs `tsc --noEmit`; `npm run build` remains the production compilation and Next.js validation gate. Browser automation is not installed, so the lightweight smoke test validates the generated `.next` route artifacts after build. There is no Prettier, Husky, coverage, or browser E2E dependency in this repo — do not add them speculatively.
 
 Tests live exclusively under `tests/` and use `node:test` + `node:assert/strict`. The npm script globs the full directory, so to run or filter a single file you must bypass npm and call `node --env-file-if-exists=.env --experimental-strip-types --test <file>` directly (examples above). Avoid network or live-database dependencies in unit tests; integration coverage uses fixtures or the documented seed corpus only.
 
@@ -72,3 +85,10 @@ SEO metadata is centralized in `src/lib/seo.ts`; route-level metadata helpers su
 - **Public-read invariant:** every public surface (graph, search, detail routes, sitemap, internal links, `generateStaticParams`) only exposes entities with `status: "published"`. When adding a new public entity type or path, add static params, sitemap entries, and SEO metadata in the same change.
 - **Build ordering:** static entity routes enumerate published slugs at build time, so locally and in production the order is always `db:migrate` → `db:seed` → `build`. Never build before seeding.
 - **Demo data boundary:** the homepage sample graph may render only in development, and only when explicitly marked as demo. Production with an empty or unavailable database must show an unavailable/empty state — never the local sample.
+- **Content scope:** published content and public `generateStaticParams` currently cover **Education and Sociology only**. Psychology and Management are deliberately excluded from public content commitments; do not add pages, static params, or sitemap entries for them until a content batch explicitly立项 to expand scope.
+
+## Deployment
+
+Production deploys from the `main` branch via GitHub Actions (`.github/workflows/deploy-production.yml`), which SCPs the tracked `ops/deploy-production.sh` to the server and runs it. The script, under a deploy lock, performs: `npm ci` → `npx prisma migrate deploy` → `npm run db:seed` → `npm run build` → `chown` → `sudo systemctl restart syrtag` → post-deploy health check against `127.0.0.1:3100`. The systemd service is `syrtag`; production URL is `https://syrtag.com`.
+
+`ops/deploy-production.sh` is the authoritative deployment script — the workflow installs it via `scp` + `sudo install`, never remote `sed`. `tests/deployment-workflow.test.ts` and the release-ordering tests guard its sequencing and tracked-script usage, so change the script and those tests together.

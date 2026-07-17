@@ -75,7 +75,6 @@ function fakeDb() {
 
 test("graph data exposes only published disciplines with visual data", async () => {
   const graph = await getGraphDataForDb(fakeDb() as never, "education", "genealogy");
-
   assert.deepEqual(graph?.meta.availableDisciplines, [
     { slug: "education", label: "Education" },
     { slug: "sociology", label: "Sociology" },
@@ -84,12 +83,13 @@ test("graph data exposes only published disciplines with visual data", async () 
 
 test("genealogy mode uses real theory nodes, relation labels, concepts, and canonical links", async () => {
   const graph = await getGraphDataForDb(fakeDb() as never, "education", "genealogy");
+  const theory = graph?.nodes.find((node) => node.type === "theory");
 
   assert.equal(graph?.meta.mode, "genealogy");
   assert.equal(graph?.meta.nodeCount, 2);
   assert.equal(graph?.edges[0].label, "Life-course analysis informs teacher identity work.");
-  assert.equal(graph?.nodes[0].data?.articleHref, "/theories/life-course-theory");
-  assert.deepEqual(graph?.nodes[0].data?.concepts, ["Linked lives"]);
+  assert.equal(theory?.data?.articleHref, "/theories/life-course-theory");
+  assert.deepEqual(theory?.data?.concepts, ["Linked lives"]);
 });
 
 test("scholars mode uses theory-scholar relations instead of reusing the genealogy graph", async () => {

@@ -3,6 +3,7 @@ import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 const deploymentScriptUrl = new URL("../ops/deploy-production.sh", import.meta.url);
+const rollbackScriptUrl = new URL("../ops/rollback-production.sh", import.meta.url);
 const deploymentWorkflowUrl = new URL("../.github/workflows/deploy-production.yml", import.meta.url);
 
 type WorkflowStep = {
@@ -196,4 +197,29 @@ test("production deployment workflow uses a tracked deployment script without se
       doesNotPatchWorkflowWithSed: true,
     },
   );
+});
+
+test("production deployment preserves a rollback snapshot and rolls back failed health checks", async () => {
+  const deploymentScript = await readFile(deploymentScriptUrl, "utf8");
+  const rollbackScript = await readFile(rollbackScriptUrl, "utf8");
+
+  assert.match(deploymentScript, /rollback-[^\n]*\.tar\.gz/);
+  assert.match(deploymentScript, /rollback-production\.sh/);
+  assert.match(deploymentScript, /health check failed/i);
+  assert.match(rollbackScript, /flock\s+-n/);
+  assert.match(rollbackScript, /systemctl stop syrtag/);
+  assert.match(rollbackScript, /git -C "\$\{APP_DIR\}" reset --hard "\$\{previous_commit\}"/);
+  assert.match(rollbackScript, /npm ci/);
+  assert.match(rollbackScript, /systemctl restart syrtag/);
+  assert.match(rollbackScript, /curl\s+--fail/);
+});
+
+test("production workflow installs rollback script and probes the public site three times", async () => {
+  const deploymentWorkflow = await readFile(deploymentWorkflowUrl, "utf8");
+
+  assert.match(deploymentWorkflow, /ops\/rollback-production\.sh/);
+  assert.match(deploymentWorkflow, /https:\/\/syrtag\.com/);
+  assert.match(deploymentWorkflow, /for attempt in \{1\.\.3\}/);
+  assert.match(deploymentWorkflow, /rollback-production\.sh/);
+  assert.match(deploymentWorkflow, /exit 1/);
 });

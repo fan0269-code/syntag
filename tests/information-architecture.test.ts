@@ -38,6 +38,8 @@ test("public navigation and recovery paths avoid search shortcuts and planned fe
 
   assert.doesNotMatch(header, /framework-builder|\/search\?q=/);
   assert.doesNotMatch(footer, /framework-builder/);
+  assert.match(header, /\/pricing/);
+  assert.match(footer, /STATIC_INTERNAL_LINKS/);
   assert.match(notFound, /\/theories/);
   assert.match(notFound, /\/disciplines/);
 });

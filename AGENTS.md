@@ -8,9 +8,12 @@ Syrtag is a Next.js 16 App Router application for research-theory knowledge grap
 
 - `npm run dev` — start the local development server.
 - `npm run build` — create a production build and run Next.js type validation.
+- `npm run typecheck` — run TypeScript with `tsc --noEmit`.
 - `npm run start` — serve a completed production build.
 - `npm run lint` — run ESLint with Next.js Core Web Vitals and TypeScript rules.
 - `npm test` — run the Node test suite with TypeScript stripping.
+- `node --env-file-if-exists=.env --experimental-strip-types --test tests/build-output-smoke.test.ts` — after `npm run build`, verify the core `.next` route artifacts.
+- `npm run content:check` — validate the seed corpus and local content-onboarding publication rules.
 - `npm run db:migrate` / `npm run db:seed` — apply local Prisma migrations and seed data; require `DATABASE_URL`.
 
 Never use `npm run db:reset` against shared or production data. Copy `.env.example` to a local `.env` and never commit credentials.

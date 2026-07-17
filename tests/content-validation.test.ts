@@ -65,7 +65,7 @@ test("the seed corpus includes published scholar and topic graph relations with 
 test("the teacher life-history ethics source resolves to its publisher DOI record", () => {
   const source = seedCorpus.theories
     .find((theory) => theory.slug === "teacher-life-history-research")
-    ?.content.en.sources.find((entry) => entry.id === "teacher-life-history-josselson-2007");
+    ?.content.en.sources?.find((entry) => entry.id === "teacher-life-history-josselson-2007");
 
   assert.equal(source?.url, "https://doi.org/10.4135/9781452226552.n21");
   assert.match(source?.citation || "", /Josselson, R\. \(2007\)/);
@@ -81,7 +81,7 @@ test("three flagship checks retain genealogy, fit boundaries, paths, operational
     assert.ok(theory.content.en.applicable_topics.length > 0, `${slug} has fit guidance`);
     assert.ok(theory.content.en.inapplicable_topics.length > 0, `${slug} sets fit boundaries`);
     assert.ok(theory.content.en.reading_path?.length, `${slug} has a reading path`);
-    assert.ok(theory.content.en.sources.length > 0, `${slug} has sources`);
+    assert.ok((theory.content.en.sources?.length ?? 0) > 0, `${slug} has sources`);
     if (theory.depth !== "D1") {
       assert.ok(theory.content.en.data_collection?.length, `${slug} has operationalization`);
     }

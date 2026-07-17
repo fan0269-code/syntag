@@ -28,14 +28,16 @@ jobs:
           printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > ~/.ssh/known_hosts
           chmod 600 ~/.ssh/id_ed25519 ~/.ssh/known_hosts
 
-      - name: Install tracked deployment script
+      - name: Install tracked deployment scripts
         env:
           DEPLOY_HOST: ${{ secrets.SYRTAG_DEPLOY_HOST }}
           DEPLOY_USER: ${{ secrets.SYRTAG_DEPLOY_USER }}
         run: |
           scp -o BatchMode=yes -o ConnectTimeout=20 ops/deploy-production.sh "$DEPLOY_USER@$DEPLOY_HOST:/tmp/syrtag-deploy-production.sh"
+          scp -o BatchMode=yes -o ConnectTimeout=20 ops/rollback-production.sh "$DEPLOY_USER@$DEPLOY_HOST:/tmp/syrtag-rollback-production.sh"
           ssh -o BatchMode=yes -o ConnectTimeout=20 "$DEPLOY_USER@$DEPLOY_HOST" "sudo install -m 755 /tmp/syrtag-deploy-production.sh /var/www/syrtag.com/deploy-production.sh"
-          ssh -o BatchMode=yes -o ConnectTimeout=20 "$DEPLOY_USER@$DEPLOY_HOST" "rm /tmp/syrtag-deploy-production.sh"
+          ssh -o BatchMode=yes -o ConnectTimeout=20 "$DEPLOY_USER@$DEPLOY_HOST" "sudo install -m 755 /tmp/syrtag-rollback-production.sh /var/www/syrtag.com/rollback-production.sh"
+          ssh -o BatchMode=yes -o ConnectTimeout=20 "$DEPLOY_USER@$DEPLOY_HOST" "rm /tmp/syrtag-deploy-production.sh /tmp/syrtag-rollback-production.sh"
 
       - name: Deploy
         env:
@@ -43,3 +45,17 @@ jobs:
           DEPLOY_USER: ${{ secrets.SYRTAG_DEPLOY_USER }}
         run: |
           ssh -o BatchMode=yes -o ConnectTimeout=20 "$DEPLOY_USER@$DEPLOY_HOST" "sudo /var/www/syrtag.com/deploy-production.sh"
+
+      - name: Probe public production health
+        env:
+          DEPLOY_HOST: ${{ secrets.SYRTAG_DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.SYRTAG_DEPLOY_USER }}
+        run: |
+          for attempt in {1..3}; do
+            if ! curl --fail --silent --show-error --max-time 10 https://syrtag.com/ >/dev/null; then
+              echo "Public health probe failed on attempt ${attempt}; triggering rollback." >&2
+              ssh -o BatchMode=yes -o ConnectTimeout=20 "$DEPLOY_USER@$DEPLOY_HOST" "sudo /var/www/syrtag.com/rollback-production.sh"
+              exit 1
+            fi
+            if [ "${attempt}" -lt 3 ]; then sleep 10; fi
+          done

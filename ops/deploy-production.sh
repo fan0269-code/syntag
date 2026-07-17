@@ -34,6 +34,13 @@ if [ "${target_commit}" = "${current_commit}" ]; then
   exit 0
 fi
 
+if [ -n "${current_commit}" ] && [ -d "${APP_DIR}/.next" ]; then
+  mkdir -p "${BACKUP_DIR}"
+  rollback_snapshot="${BACKUP_DIR}/rollback-${current_commit}-$(date +%Y%m%d%H%M%S).tar.gz"
+  tar -C "${APP_DIR}" -czf "${rollback_snapshot}" .next
+  echo "Rollback snapshot created: ${rollback_snapshot}"
+fi
+
 git -C "${APP_DIR}" reset --hard "${target_commit}"
 
 cd "${APP_DIR}"
@@ -53,5 +60,9 @@ for attempt in {1..12}; do
   sleep 2
 done
 
+echo "Deployment health check failed for ${target_commit}; starting automatic rollback." >&2
 sudo systemctl status syrtag --no-pager
+if ! SYRTAG_ROLLBACK_LOCK_HELD=1 "${BASE_DIR}/rollback-production.sh"; then
+  echo "Automatic rollback failed after deployment health check failure." >&2
+fi
 exit 1

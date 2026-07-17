@@ -1,7 +1,10 @@
 import { getDb } from "./db";
+import type { InternalLink } from "./static-internal-links";
+
+export { STATIC_INTERNAL_LINKS } from "./static-internal-links";
 
 export type InternalLinkEntityType = "theory" | "scholar" | "topic" | "work";
-export type InternalLink = { label: string; href: string; reason: string };
+export type { InternalLink } from "./static-internal-links";
 
 const published = "published";
 

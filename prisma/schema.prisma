@@ -1,3 +1,5 @@
+// Subscription skeleton — reserved for Phase 2/3, not wired to auth or payments in Phase 1.
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -9,73 +11,74 @@ datasource db {
 // ========== 核心实体 ==========
 
 model Discipline {
-  id          String   @id @default(uuid())
-  slug        String   @unique
-  titleEn     String   @map("title_en")
-  titleZh     String?  @map("title_zh")
-  descriptionEn String? @map("description_en")
-  descriptionZh String? @map("description_zh")
-  overviewEn  String?  @map("overview_en")
-  overviewZh  String?  @map("overview_zh")
-  contentJsonb Json     @default("{}") @map("content_jsonb")
-  status      String   @default("draft") // draft | published | archived
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
-  publishedAt DateTime? @map("published_at")
+  id            String    @id @default(uuid())
+  slug          String    @unique
+  titleEn       String    @map("title_en")
+  titleZh       String?   @map("title_zh")
+  descriptionEn String?   @map("description_en")
+  descriptionZh String?   @map("description_zh")
+  overviewEn    String?   @map("overview_en")
+  overviewZh    String?   @map("overview_zh")
+  contentJsonb  Json      @default("{}") @map("content_jsonb")
+  status        String    @default("draft") // draft | published | archived
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+  publishedAt   DateTime? @map("published_at")
 
-  fields      Field[]
-  theories    DisciplineTheory[]
+  fields   Field[]
+  theories DisciplineTheory[]
 
   @@map("disciplines")
 }
 
 model Field {
-  id          String   @id @default(uuid())
-  slug        String   @unique
-  titleEn     String   @map("title_en")
-  titleZh     String?  @map("title_zh")
-  descriptionEn String? @map("description_en")
-  descriptionZh String? @map("description_zh")
-  contentJsonb Json     @default("{}") @map("content_jsonb")
-  status      String   @default("draft")
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
-  publishedAt DateTime? @map("published_at")
+  id            String    @id @default(uuid())
+  slug          String    @unique
+  titleEn       String    @map("title_en")
+  titleZh       String?   @map("title_zh")
+  descriptionEn String?   @map("description_en")
+  descriptionZh String?   @map("description_zh")
+  contentJsonb  Json      @default("{}") @map("content_jsonb")
+  status        String    @default("draft")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+  publishedAt   DateTime? @map("published_at")
 
-  disciplineId String     @map("discipline_id")
-  discipline   Discipline @relation(fields: [disciplineId], references: [id])
+  disciplineId String        @map("discipline_id")
+  discipline   Discipline    @relation(fields: [disciplineId], references: [id])
   theories     FieldTheory[]
 
   @@map("fields")
 }
 
 model Theory {
-  id           String   @id @default(uuid())
-  slug         String   @unique
-  titleEn      String   @map("title_en")
-  titleZh      String?  @map("title_zh")
-  subtitleEn   String?  @map("subtitle_en")
-  subtitleZh   String?  @map("subtitle_zh")
-  summaryEn    String?  @map("summary_en")
-  summaryZh    String?  @map("summary_zh")
-  contentJsonb Json     @default("{}") @map("content_jsonb")
-  depth        String   @default("D1") // D1 | D2 | D3
-  status       String   @default("draft")
-  createdAt    DateTime @default(now()) @map("created_at")
-  updatedAt    DateTime @updatedAt @map("updated_at")
-  publishedAt  DateTime? @map("published_at")
+  id             String                   @id @default(uuid())
+  slug           String                   @unique
+  titleEn        String                   @map("title_en")
+  titleZh        String?                  @map("title_zh")
+  subtitleEn     String?                  @map("subtitle_en")
+  subtitleZh     String?                  @map("subtitle_zh")
+  summaryEn      String?                  @map("summary_en")
+  summaryZh      String?                  @map("summary_zh")
+  contentJsonb   Json                     @default("{}") @map("content_jsonb")
+  depth          String                   @default("D1") // D1 | D2 | D3
+  status         String                   @default("draft")
+  createdAt      DateTime                 @default(now()) @map("created_at")
+  updatedAt      DateTime                 @updatedAt @map("updated_at")
+  publishedAt    DateTime?                @map("published_at")
   searchVectorEn Unsupported("tsvector")? @default(dbgenerated("((setweight(to_tsvector('english'::regconfig, COALESCE(title_en, ''::text)), 'A'::\"char\") || setweight(to_tsvector('english'::regconfig, COALESCE(summary_en, ''::text)), 'B'::\"char\")) || setweight(to_tsvector('english'::regconfig, COALESCE((content_jsonb)::text, ''::text)), 'C'::\"char\"))")) @map("search_vector_en")
 
   // 理论谱系（有向边）
-  sourceRelations TheoryGenealogy[] @relation("SourceTheory")
-  targetRelations TheoryGenealogy[] @relation("TargetTheory")
+  sourceRelations  TheoryGenealogy[]       @relation("SourceTheory")
+  targetRelations  TheoryGenealogy[]       @relation("TargetTheory")
   // 关联
-  scholars        TheoryScholar[]
-  works           TheoryWork[]
-  concepts        TheoryConcept[]
-  fields          FieldTheory[]
-  topics          TopicTheory[]
-  disciplines     DisciplineTheory[]
+  scholars         TheoryScholar[]
+  works            TheoryWork[]
+  concepts         TheoryConcept[]
+  fields           FieldTheory[]
+  topics           TopicTheory[]
+  disciplines      DisciplineTheory[]
+  personalProjects PersonalProjectTheory[]
 
   @@index([searchVectorEn], map: "theories_search_idx", type: Gin)
   @@map("theories")
@@ -84,20 +87,20 @@ model Theory {
 // ========== 理论谱系（核心表） ==========
 
 model TheoryGenealogy {
-  id              String   @id @default(uuid())
-  sourceTheoryId  String   @map("source_theory_id")
-  targetTheoryId  String   @map("target_theory_id")
-  relationType    String   @map("relation_type") // precursor_of | branched_from | extended_by | critiqued_by | integrated_with
-  descriptionEn   String   @map("description_en")
-  descriptionZh   String?  @map("description_zh")
-  strength        Int      @default(3) // 1-5
-  keyScholarId    String?  @map("key_scholar_id")
-  keyWorkId       String?  @map("key_work_id")
-  createdAt       DateTime @default(now()) @map("created_at")
-  updatedAt       DateTime @updatedAt @map("updated_at")
+  id             String   @id @default(uuid())
+  sourceTheoryId String   @map("source_theory_id")
+  targetTheoryId String   @map("target_theory_id")
+  relationType   String   @map("relation_type") // precursor_of | branched_from | extended_by | critiqued_by | integrated_with
+  descriptionEn  String   @map("description_en")
+  descriptionZh  String?  @map("description_zh")
+  strength       Int      @default(3) // 1-5
+  keyScholarId   String?  @map("key_scholar_id")
+  keyWorkId      String?  @map("key_work_id")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
 
-  sourceTheory Theory  @relation("SourceTheory", fields: [sourceTheoryId], references: [id])
-  targetTheory Theory  @relation("TargetTheory", fields: [targetTheoryId], references: [id])
+  sourceTheory Theory   @relation("SourceTheory", fields: [sourceTheoryId], references: [id])
+  targetTheory Theory   @relation("TargetTheory", fields: [targetTheoryId], references: [id])
   keyScholar   Scholar? @relation(fields: [keyScholarId], references: [id])
   keyWork      Work?    @relation(fields: [keyWorkId], references: [id])
 
@@ -107,25 +110,25 @@ model TheoryGenealogy {
 // ========== 学者 ==========
 
 model Scholar {
-  id           String   @id @default(uuid())
-  slug         String   @unique
-  name         String
-  titleEn      String?  @map("title_en")
-  titleZh      String?  @map("title_zh")
-  bioEn        String?  @map("bio_en")
-  bioZh        String?  @map("bio_zh")
-  contentJsonb Json     @default("{}") @map("content_jsonb")
-  photoUrl     String?  @map("photo_url")
-  status       String   @default("draft")
-  createdAt    DateTime @default(now()) @map("created_at")
-  updatedAt    DateTime @updatedAt @map("updated_at")
-  publishedAt  DateTime? @map("published_at")
+  id             String                   @id @default(uuid())
+  slug           String                   @unique
+  name           String
+  titleEn        String?                  @map("title_en")
+  titleZh        String?                  @map("title_zh")
+  bioEn          String?                  @map("bio_en")
+  bioZh          String?                  @map("bio_zh")
+  contentJsonb   Json                     @default("{}") @map("content_jsonb")
+  photoUrl       String?                  @map("photo_url")
+  status         String                   @default("draft")
+  createdAt      DateTime                 @default(now()) @map("created_at")
+  updatedAt      DateTime                 @updatedAt @map("updated_at")
+  publishedAt    DateTime?                @map("published_at")
   searchVectorEn Unsupported("tsvector")? @default(dbgenerated("(((setweight(to_tsvector('english'::regconfig, COALESCE(name, ''::text)), 'A'::\"char\") || setweight(to_tsvector('english'::regconfig, COALESCE(title_en, ''::text)), 'A'::\"char\")) || setweight(to_tsvector('english'::regconfig, COALESCE(bio_en, ''::text)), 'B'::\"char\")) || setweight(to_tsvector('english'::regconfig, COALESCE((content_jsonb)::text, ''::text)), 'C'::\"char\"))")) @map("search_vector_en")
 
   theories           TheoryScholar[]
   genealogyRelations TheoryGenealogy[]
-  sourceRelations    ScholarScholar[] @relation("SourceScholar")
-  targetRelations    ScholarScholar[] @relation("TargetScholar")
+  sourceRelations    ScholarScholar[]  @relation("SourceScholar")
+  targetRelations    ScholarScholar[]  @relation("TargetScholar")
 
   @@index([searchVectorEn], map: "scholars_search_idx", type: Gin)
   @@map("scholars")
@@ -134,7 +137,7 @@ model Scholar {
 model ScholarScholar {
   sourceScholarId String  @map("source_scholar_id")
   targetScholarId String  @map("target_scholar_id")
-  relationship    String  // influenced_by | student_of | collaborator_of | critic_of | contemporary_of
+  relationship    String // influenced_by | student_of | collaborator_of | critic_of | contemporary_of
   descriptionEn   String? @map("description_en")
   descriptionZh   String? @map("description_zh")
 
@@ -148,20 +151,20 @@ model ScholarScholar {
 // ========== 原典 ==========
 
 model Work {
-  id           String   @id @default(uuid())
-  slug         String   @unique
-  title        String
-  titleZh      String?  @map("title_zh")
-  authors      Json     @default("[]") // [{name, role}]
-  year         Int?
-  publisher    String?
-  doi          String?
-  isbn         String?
-  contentJsonb Json     @default("{}") @map("content_jsonb")
-  status       String   @default("draft")
-  createdAt    DateTime @default(now()) @map("created_at")
-  updatedAt    DateTime @updatedAt @map("updated_at")
-  publishedAt  DateTime? @map("published_at")
+  id             String                   @id @default(uuid())
+  slug           String                   @unique
+  title          String
+  titleZh        String?                  @map("title_zh")
+  authors        Json                     @default("[]") // [{name, role}]
+  year           Int?
+  publisher      String?
+  doi            String?
+  isbn           String?
+  contentJsonb   Json                     @default("{}") @map("content_jsonb")
+  status         String                   @default("draft")
+  createdAt      DateTime                 @default(now()) @map("created_at")
+  updatedAt      DateTime                 @updatedAt @map("updated_at")
+  publishedAt    DateTime?                @map("published_at")
   searchVectorEn Unsupported("tsvector")? @default(dbgenerated("(setweight(to_tsvector('english'::regconfig, COALESCE(title, ''::text)), 'A'::\"char\") || setweight(to_tsvector('english'::regconfig, COALESCE((content_jsonb)::text, ''::text)), 'C'::\"char\"))")) @map("search_vector_en")
 
   theories           TheoryWork[]
@@ -174,16 +177,16 @@ model Work {
 // ========== 概念 ==========
 
 model Concept {
-  id           String   @id @default(uuid())
-  slug         String   @unique
-  termEn       String   @map("term_en")
-  termZh       String?  @map("term_zh")
-  definitionEn String?  @map("definition_en")
-  definitionZh String?  @map("definition_zh")
-  contentJsonb Json     @default("{}") @map("content_jsonb")
-  status       String   @default("draft")
-  createdAt    DateTime @default(now()) @map("created_at")
-  updatedAt    DateTime @updatedAt @map("updated_at")
+  id           String    @id @default(uuid())
+  slug         String    @unique
+  termEn       String    @map("term_en")
+  termZh       String?   @map("term_zh")
+  definitionEn String?   @map("definition_en")
+  definitionZh String?   @map("definition_zh")
+  contentJsonb Json      @default("{}") @map("content_jsonb")
+  status       String    @default("draft")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
   publishedAt  DateTime? @map("published_at")
 
   theories TheoryConcept[]
@@ -194,15 +197,15 @@ model Concept {
 // ========== 研究主题 ==========
 
 model Topic {
-  id           String   @id @default(uuid())
-  slug         String   @unique
-  questionEn   String   @map("question_en")
-  questionZh   String?  @map("question_zh")
-  contentJsonb Json     @default("{}") @map("content_jsonb")
-  status       String   @default("draft")
-  createdAt    DateTime @default(now()) @map("created_at")
-  updatedAt    DateTime @updatedAt @map("updated_at")
-  publishedAt  DateTime? @map("published_at")
+  id             String                   @id @default(uuid())
+  slug           String                   @unique
+  questionEn     String                   @map("question_en")
+  questionZh     String?                  @map("question_zh")
+  contentJsonb   Json                     @default("{}") @map("content_jsonb")
+  status         String                   @default("draft")
+  createdAt      DateTime                 @default(now()) @map("created_at")
+  updatedAt      DateTime                 @updatedAt @map("updated_at")
+  publishedAt    DateTime?                @map("published_at")
   searchVectorEn Unsupported("tsvector")? @default(dbgenerated("(setweight(to_tsvector('english'::regconfig, COALESCE(question_en, ''::text)), 'A'::\"char\") || setweight(to_tsvector('english'::regconfig, COALESCE((content_jsonb)::text, ''::text)), 'C'::\"char\"))")) @map("search_vector_en")
 
   theories TopicTheory[]
@@ -214,16 +217,16 @@ model Topic {
 // ========== 框架模板 ==========
 
 model Framework {
-  id            String   @id @default(uuid())
-  slug          String   @unique
-  titleEn       String   @map("title_en")
-  titleZh       String?  @map("title_zh")
-  descriptionEn String?  @map("description_en")
-  descriptionZh String?  @map("description_zh")
-  contentJsonb  Json     @default("{}") @map("content_jsonb")
-  status        String   @default("draft")
-  createdAt     DateTime @default(now()) @map("created_at")
-  updatedAt     DateTime @updatedAt @map("updated_at")
+  id            String    @id @default(uuid())
+  slug          String    @unique
+  titleEn       String    @map("title_en")
+  titleZh       String?   @map("title_zh")
+  descriptionEn String?   @map("description_en")
+  descriptionZh String?   @map("description_zh")
+  contentJsonb  Json      @default("{}") @map("content_jsonb")
+  status        String    @default("draft")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
   publishedAt   DateTime? @map("published_at")
 
   @@map("frameworks")
@@ -292,14 +295,14 @@ model TheoryConcept {
 }
 
 model TopicTheory {
-  topicId          String  @map("topic_id")
-  theoryId         String  @map("theory_id")
-  suitability      String  // high | medium | low
+  topicId            String  @map("topic_id")
+  theoryId           String  @map("theory_id")
+  suitability        String // high | medium | low
   suitabilityNotesEn String? @map("suitability_notes_en")
   suitabilityNotesZh String? @map("suitability_notes_zh")
-  riskNotesEn      String? @map("risk_notes_en")
-  riskNotesZh      String? @map("risk_notes_zh")
-  recommendation   String? // primary | supporting | not_recommended
+  riskNotesEn        String? @map("risk_notes_en")
+  riskNotesZh        String? @map("risk_notes_zh")
+  recommendation     String? // primary | supporting | not_recommended
 
   topic  Topic  @relation(fields: [topicId], references: [id])
   theory Theory @relation(fields: [theoryId], references: [id])
@@ -311,16 +314,85 @@ model TopicTheory {
 // ========== 核验追踪 ==========
 
 model Verification {
-  id         String   @id @default(uuid())
-  entityType String   @map("entity_type") // theory | scholar | work | concept | topic
-  entityId   String   @map("entity_id")
-  fieldPath  String   @map("field_path") // content_jsonb.en.origins
-  level      String   // L1_verified | L2_reviewed | L3_pending
-  sources    Json     @default("[]")
+  id         String    @id @default(uuid())
+  entityType String    @map("entity_type") // theory | scholar | work | concept | topic
+  entityId   String    @map("entity_id")
+  fieldPath  String    @map("field_path") // content_jsonb.en.origins
+  level      String // L1_verified | L2_reviewed | L3_pending
+  sources    Json      @default("[]")
   notes      String?
   verifiedAt DateTime? @map("verified_at")
-  createdAt  DateTime @default(now()) @map("created_at")
+  createdAt  DateTime  @default(now()) @map("created_at")
 
   @@unique([entityType, entityId, fieldPath])
   @@map("verifications")
+}
+
+// ========== 订阅与个人研究骨架（Phase 2/3） ==========
+
+// Phase 3 才启用认证；Phase 1 仅预留数据结构，不创建用户记录。
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String?
+  role      String   @default("draft") // draft | member | subscriber | admin
+  status    String   @default("draft") // draft | active | archived
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  subscriptions    Subscription[]
+  researchProjects PersonalResearchProject[]
+
+  @@map("users")
+}
+
+// 支付集成在 Phase 3；本模型不触发支付、续费或权限逻辑。
+model Subscription {
+  id               String   @id @default(uuid())
+  userId           String   @map("user_id")
+  plan             String   @default("free") // free | pro | scholar
+  status           String   @default("active") // active | canceled | past_due
+  currentPeriodEnd DateTime @map("current_period_end")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@map("subscriptions")
+}
+
+// Phase 3 个人研究图谱载体。
+model PersonalResearchProject {
+  id          String   @id @default(uuid())
+  userId      String   @map("user_id")
+  title       String
+  description String?
+  status      String   @default("draft") // draft | active | archived
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  user     User                    @relation(fields: [userId], references: [id])
+  theories PersonalProjectTheory[]
+
+  @@index([userId])
+  @@map("personal_research_projects")
+}
+
+// 用户把公开理论加入个人研究项目时使用；不改变 Theory 的公开访问状态。
+model PersonalProjectTheory {
+  id        String   @id @default(uuid())
+  projectId String   @map("project_id")
+  theoryId  String   @map("theory_id")
+  note      String?
+  status    String   @default("active") // active | archived
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  project PersonalResearchProject @relation(fields: [projectId], references: [id])
+  theory  Theory                  @relation(fields: [theoryId], references: [id])
+
+  @@unique([projectId, theoryId])
+  @@index([theoryId])
+  @@map("personal_project_theories")
 }
