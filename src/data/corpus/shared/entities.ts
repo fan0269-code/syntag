@@ -7,7 +7,14 @@ import type { ConceptContent, WorkContent } from "../../templates/knowledge-enti
 import type { ScholarContent } from "../../templates/scholar-template.ts";
 import type { PathwayContent } from "../../templates/pathway-template.ts";
 
-export interface SeedDiscipline {
+export type PublicationStatus = "draft" | "published" | "archived";
+
+interface SeedPublication {
+  status: PublicationStatus;
+  publishedAt?: string;
+}
+
+export interface SeedDiscipline extends SeedPublication {
   slug: string;
   titleEn: string;
   descriptionEn: string;
@@ -15,7 +22,7 @@ export interface SeedDiscipline {
   content: { en: PathwayContent };
 }
 
-export interface SeedField {
+export interface SeedField extends SeedPublication {
   slug: string;
   titleEn: string;
   descriptionEn: string;
@@ -23,7 +30,7 @@ export interface SeedField {
   content: { en: PathwayContent };
 }
 
-export interface SeedTheory {
+export interface SeedTheory extends SeedPublication {
   slug: string;
   primary: boolean;
   depth: TheoryDepth;
@@ -32,7 +39,7 @@ export interface SeedTheory {
   content: { en: TheoryContent };
 }
 
-export interface SeedWork {
+export interface SeedWork extends SeedPublication {
   slug: string;
   title: string;
   authors: Array<{ name: string; role?: string }>;
@@ -43,7 +50,7 @@ export interface SeedWork {
   content: { en: WorkContent };
 }
 
-export interface SeedConcept {
+export interface SeedConcept extends SeedPublication {
   slug: string;
   termEn: string;
   definitionEn: string;
@@ -84,13 +91,11 @@ export interface SeedGenealogy {
   strength: number;
 }
 
-export interface SeedScholar {
+export interface SeedScholar extends SeedPublication {
   slug: string;
   name: string;
   bioEn: string;
   content: { en: ScholarContent };
-  status: "published" | "draft";
-  publishedAt: string;
 }
 
 export interface SeedTheoryScholar {
@@ -101,12 +106,10 @@ export interface SeedTheoryScholar {
   evidenceNotesEn: string;
 }
 
-export interface SeedTopic {
+export interface SeedTopic extends SeedPublication {
   slug: string;
   questionEn: string;
   content: { en: PathwayContent };
-  status: "published" | "draft";
-  publishedAt: string;
 }
 
 export interface SeedTopicTheory {
@@ -243,6 +246,8 @@ function contentFor(draft: TheoryDraft): TheoryContent {
   };
 }
 
+const publishedAt = "2026-07-12T00:00:00.000Z";
+
 function theory(draft: TheoryDraft): SeedTheory {
   return {
     slug: draft.slug,
@@ -251,6 +256,8 @@ function theory(draft: TheoryDraft): SeedTheory {
     titleEn: draft.titleEn,
     summaryEn: draft.summaryEn,
     content: { en: draft.content ?? contentFor(draft) },
+    status: "published",
+    publishedAt,
   };
 }
 
@@ -1082,7 +1089,7 @@ const theories: SeedTheory[] = [
   }),
 ];
 
-const disciplines: SeedDiscipline[] = [
+const disciplines: Array<Omit<SeedDiscipline, "status" | "publishedAt">> = [
   {
     slug: "education", titleEn: "Education", descriptionEn: "A Syntag navigation route for questions about learning, teaching, institutions, policy, access, and educational inequality.", overviewEn: "This is a bounded Syntag navigation category, not an exhaustive definition of the discipline. Start by naming whether the question concerns teachers, pathways, equity, policy agenda, or frontline implementation before choosing a theory.",
     content: { en: pathwayContent({
@@ -1109,7 +1116,7 @@ const disciplines: SeedDiscipline[] = [
   },
 ];
 
-const fields: SeedField[] = [
+const fields: Array<Omit<SeedField, "status" | "publishedAt">> = [
   {
     slug: "teacher-education-professional-development", titleEn: "Teacher Education & Professional Development", descriptionEn: "A Syntag route for teacher professional learning, growth, and professional-self questions.", disciplineSlug: "education",
     content: { en: pathwayContent({ overview: "This field route distinguishes professional learning and change from professional self-understanding. It treats Communities of Practice as a conditional social-learning lens, not a label for every training group.", core_questions: ["Is the central process professional learning and change?", "Is the question about teachers' professional self-understanding?", "Is sustained shared practice evidenced?"], question_categories: [{ category: "Learning and growth", description: "Use a named growth model when change across domains or conditions is central.", theory_slugs: ["teacher-professional-development-theory"] }, { category: "Professional self", description: "Use an identity lens when interpretation of professional self and work is central.", theory_slugs: ["teacher-identity-theory"] }, { category: "Participation", description: "Require mutual engagement, joint enterprise, and shared repertoire before using CoP.", theory_slugs: ["communities-of-practice"] }], selection_path: [{ step: "Name the process", prompt: "Is the study explaining learning/change or professional self-understanding?", routing_rule: "Use development and identity as distinct starting lenses." }, { step: "Inspect participation", prompt: "Is there sustained shared practice rather than only a programme or team?", routing_rule: "Use CoP only where its practice conditions are evidenced." }, { step: "Specify materials", prompt: "What materials show the proposed process?", routing_rule: "Match accounts, practice evidence, documents, and observation to the selected mechanism." }], theory_pathways: [pathwayOption("teacher-professional-development-theory", "primary", "Professional learning, growth, and change across connected domains", "Teacher learning processes, practice, and conditions", "Learning histories, practice evidence, programme documents, and contextual accounts", "Supports a named, non-linear growth model", "Does not make attendance or satisfaction evidence of development", [sources.teacherDevelopmentClarke.id]), pathwayOption("teacher-identity-theory", "supporting", "Professional self-understanding and vulnerability in work context", "Teachers' interpreted professional selves", "Narratives, reflective materials, role expectations, and interactional accounts", "Clarifies how teachers make sense of professional work", "Does not by itself model learning or practice change", [sources.teacherIdentity.id]), pathwayOption("communities-of-practice", "not_recommended", "Learning through sustained participation in shared practice", "A community of practice", "Observation, participation episodes, artefacts, and boundary evidence", "Useful only when participation conditions are established", "Not a primary label for a formal training group without shared-practice evidence", [sources.communitiesWenger.id])], entry_points: [pathwayEntry("topic", "teachers-professional-identity-during-reform", "Teachers' professional identity during reform", "Compare identity with professional development."), pathwayEntry("theory", "teacher-professional-development-theory", "Teacher Professional Development Theory", "Primary learning-and-change route."), pathwayEntry("scholar", "geert-kelchtermans", "Geert Kelchtermans", "Existing scholar profile for the supporting professional-self lens."), pathwayEntry("work", "teacher-development-clarke-hollingsworth-2002", "Elaborating a Model of Teacher Professional Growth", "Source-backed work for the primary growth route."), pathwayEntry("concept", "professional-learning", "Professional Learning", "Core concept route.")], sources: [sources.teacherDevelopmentClarke, sources.teacherDevelopmentTimperley, sources.teacherIdentity, sources.communitiesWenger], l1Claim: "The linked records verify the bounded teacher-development, identity, and participation vocabularies cited on this route.", l1SourceId: sources.teacherDevelopmentClarke.id }) },
@@ -1162,8 +1169,6 @@ const genealogy: SeedGenealogy[] = [
   { id: "practice:structuration", sourceSlug: "practice-theory-bourdieu", targetSlug: "structuration-theory", relationType: "critiqued_by", descriptionEn: "They offer distinct accounts of how structure and agency relate in social practice.", strength: 3 },
   { id: "street-level:multiple-streams", sourceSlug: "street-level-bureaucracy", targetSlug: "multiple-streams-framework", relationType: "integrated_with", descriptionEn: "Together they connect agenda change with frontline enactment after policy adoption.", strength: 4 },
 ];
-
-const publishedAt = "2026-07-12T00:00:00.000Z";
 
 const scholars: SeedScholar[] = [
   {
@@ -1445,9 +1450,10 @@ const topicTheories: SeedTopicTheory[] = [
   },
 ];
 
-function workCandidate(draft: Omit<SeedWork, "content"> & { source: ContentSource; overview: string; coreQuestion: string; centralArgument: string; contribution: string; readingFocus: string[] }): SeedWork {
+function workCandidate(draft: Omit<SeedWork, "content" | "status" | "publishedAt"> & { source: ContentSource; overview: string; coreQuestion: string; centralArgument: string; contribution: string; readingFocus: string[] }): SeedWork {
   return {
     slug: draft.slug, title: draft.title, authors: draft.authors, year: draft.year, publisher: draft.publisher, doi: draft.doi,
+    status: "published", publishedAt,
     content: { en: {
       overview: draft.overview,
       core_question: draft.coreQuestion,
@@ -1486,6 +1492,7 @@ const works: SeedWork[] = [
 function conceptCandidate(draft: { slug: string; termEn: string; definition: string; source: ContentSource; theorySlug: string; meaning: string; observable: string; misuse: string; workSlug: string; workTitle: string; scholar: { name: string; scholarSlug?: string; relevance: string }; additionalSources?: ContentSource[]; variations?: ConceptContent["theory_variations"]; additionalWorks?: ConceptContent["related_works"] }): SeedConcept {
   return {
     slug: draft.slug, termEn: draft.termEn, definitionEn: draft.definition,
+    status: "published", publishedAt,
     content: { en: {
       overview: draft.definition,
       theory_variations: draft.variations ?? [{ theory_slug: draft.theorySlug, relationship: "Core concept source", meaning: draft.meaning, source_ids: [draft.source.id] }],
@@ -1546,8 +1553,8 @@ const verifications: SeedVerification[] = theories.flatMap((entry) => {
 });
 
 export const seedCorpus: SeedCorpus = {
-  disciplines,
-  fields,
+  disciplines: disciplines.map((record) => ({ ...record, status: "published", publishedAt })),
+  fields: fields.map((record) => ({ ...record, status: "published", publishedAt })),
   theories,
   works,
   concepts,

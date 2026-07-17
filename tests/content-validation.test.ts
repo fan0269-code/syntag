@@ -40,6 +40,33 @@ test("the seed corpus satisfies the structural content contract", () => {
   );
 });
 
+test("published Discipline, Field, and Theory reject scope outside Education and Sociology", () => {
+  const corpus = structuredClone(seedCorpus);
+  corpus.disciplines.push({ ...structuredClone(corpus.disciplines[0]), slug: "psychology", titleEn: "Psychology" });
+  corpus.fields.push({ ...structuredClone(corpus.fields[0]), slug: "psychology-field", disciplineSlug: "psychology" });
+  corpus.theories.push({ ...structuredClone(corpus.theories[0]), slug: "psychology-theory", titleEn: "Psychology Theory" });
+
+  const errors = validateSeedCorpus(corpus).errors;
+  assert.ok(errors.some((error) => error.includes("psychology") && error.includes("scope")));
+  assert.ok(errors.some((error) => error.includes("psychology-field") && error.includes("scope")));
+  assert.ok(errors.some((error) => error.includes("psychology-theory") && error.includes("outside Education/Sociology")));
+});
+
+test("Psychology and Management records may exist only as draft research candidates", () => {
+  const corpus = structuredClone(seedCorpus);
+  corpus.disciplines.push({ ...structuredClone(corpus.disciplines[0]), slug: "psychology", titleEn: "Psychology", status: "draft", publishedAt: undefined });
+  corpus.disciplines.push({ ...structuredClone(corpus.disciplines[0]), slug: "management", titleEn: "Management", status: "draft", publishedAt: undefined });
+
+  assert.deepEqual(validateSeedCorpus(corpus).errors, []);
+});
+
+test("published entity requires a valid ISO publishedAt", () => {
+  const corpus = structuredClone(seedCorpus);
+  corpus.works[0].publishedAt = "not-a-date";
+
+  assert.ok(validateSeedCorpus(corpus).errors.some((error) => error.includes(corpus.works[0].slug) && error.includes("valid ISO")));
+});
+
 test("the seed corpus includes published scholar and topic graph relations with evidence", () => {
   assert.ok(seedCorpus.scholars.some((scholar) => scholar.status === "published" && scholar.slug === "glen-h-elder-jr"));
   assert.ok(seedCorpus.topics.some((topic) => topic.status === "published" && topic.slug === "educational-transitions-over-time"));

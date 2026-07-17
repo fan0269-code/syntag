@@ -1,7 +1,7 @@
 import { PrismaPg } from "@prisma/adapter-pg";
 import prismaClientPackage from "@prisma/client";
 
-import { seedCorpus } from "../src/data/seed-content.ts";
+import { seedCorpus, type PublicationStatus } from "../src/data/seed-content.ts";
 import { validateSeedCorpus } from "../src/lib/content-validation.ts";
 
 const { PrismaClient } = prismaClientPackage;
@@ -15,13 +15,13 @@ if (preflight.errors.length > 0) {
 }
 
 const db = new PrismaClient({ adapter: new PrismaPg({ connectionString }) });
-const publishedAt = new Date("2026-07-12T00:00:00.000Z");
-const published = { status: "published", publishedAt };
+const verificationDate = new Date("2026-07-12T00:00:00.000Z");
 
-function publication(record: { status: string; publishedAt: string }) {
+function publication(record: { status: PublicationStatus; publishedAt?: string }) {
+  if (record.status === "published" && !record.publishedAt) throw new Error("Published content requires publishedAt");
   return {
     status: record.status,
-    publishedAt: record.status === "published" ? new Date(record.publishedAt) : null,
+    publishedAt: record.status === "published" ? new Date(record.publishedAt!) : null,
   };
 }
 
@@ -30,8 +30,8 @@ async function main() {
   for (const record of seedCorpus.disciplines) {
     const item = await db.discipline.upsert({
       where: { slug: record.slug },
-      update: { titleEn: record.titleEn, descriptionEn: record.descriptionEn, overviewEn: record.overviewEn, contentJsonb: JSON.parse(JSON.stringify(record.content)), ...published },
-      create: { slug: record.slug, titleEn: record.titleEn, descriptionEn: record.descriptionEn, overviewEn: record.overviewEn, contentJsonb: JSON.parse(JSON.stringify(record.content)), ...published },
+      update: { titleEn: record.titleEn, descriptionEn: record.descriptionEn, overviewEn: record.overviewEn, contentJsonb: JSON.parse(JSON.stringify(record.content)), ...publication(record) },
+      create: { slug: record.slug, titleEn: record.titleEn, descriptionEn: record.descriptionEn, overviewEn: record.overviewEn, contentJsonb: JSON.parse(JSON.stringify(record.content)), ...publication(record) },
     });
     disciplineBySlug.set(record.slug, item.id);
   }
@@ -42,8 +42,8 @@ async function main() {
     if (!disciplineId) throw new Error(`Missing discipline for field ${record.slug}`);
     const item = await db.field.upsert({
       where: { slug: record.slug },
-      update: { titleEn: record.titleEn, descriptionEn: record.descriptionEn, contentJsonb: JSON.parse(JSON.stringify(record.content)), disciplineId, ...published },
-      create: { slug: record.slug, titleEn: record.titleEn, descriptionEn: record.descriptionEn, contentJsonb: JSON.parse(JSON.stringify(record.content)), disciplineId, ...published },
+      update: { titleEn: record.titleEn, descriptionEn: record.descriptionEn, contentJsonb: JSON.parse(JSON.stringify(record.content)), disciplineId, ...publication(record) },
+      create: { slug: record.slug, titleEn: record.titleEn, descriptionEn: record.descriptionEn, contentJsonb: JSON.parse(JSON.stringify(record.content)), disciplineId, ...publication(record) },
     });
     fieldBySlug.set(record.slug, item.id);
   }
@@ -58,7 +58,7 @@ async function main() {
         summaryEn: record.summaryEn,
         depth: record.depth,
         contentJsonb,
-        ...published,
+        ...publication(record),
       },
       create: {
         slug: record.slug,
@@ -66,7 +66,7 @@ async function main() {
         summaryEn: record.summaryEn,
         depth: record.depth,
         contentJsonb,
-        ...published,
+        ...publication(record),
       },
     });
     theoryBySlug.set(record.slug, item.id);
@@ -106,7 +106,7 @@ async function main() {
         doi: record.doi ?? null,
         isbn: record.isbn ?? null,
         contentJsonb: JSON.parse(JSON.stringify(record.content)),
-        ...published,
+        ...publication(record),
       },
       create: {
         slug: record.slug,
@@ -117,7 +117,7 @@ async function main() {
         doi: record.doi ?? null,
         isbn: record.isbn ?? null,
         contentJsonb: JSON.parse(JSON.stringify(record.content)),
-        ...published,
+        ...publication(record),
       },
     });
     workBySlug.set(record.slug, item.id);
@@ -142,14 +142,14 @@ async function main() {
         termEn: record.termEn,
         definitionEn: record.definitionEn,
         contentJsonb: JSON.parse(JSON.stringify(record.content)),
-        ...published,
+        ...publication(record),
       },
       create: {
         slug: record.slug,
         termEn: record.termEn,
         definitionEn: record.definitionEn,
         contentJsonb: JSON.parse(JSON.stringify(record.content)),
-        ...published,
+        ...publication(record),
       },
     });
     conceptBySlug.set(record.slug, item.id);
@@ -277,7 +277,7 @@ async function main() {
         level: record.level,
         sources: record.sources,
         notes: record.notes,
-        verifiedAt: record.level === "L1_verified" ? publishedAt : null,
+        verifiedAt: record.level === "L1_verified" ? verificationDate : null,
       },
       create: {
         entityType: "theory",
@@ -286,7 +286,7 @@ async function main() {
         level: record.level,
         sources: record.sources,
         notes: record.notes,
-        verifiedAt: record.level === "L1_verified" ? publishedAt : null,
+        verifiedAt: record.level === "L1_verified" ? verificationDate : null,
       },
     });
   }

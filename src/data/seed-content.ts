@@ -1,4 +1,5 @@
 export type {
+  PublicationStatus,
   SeedConcept,
   SeedCorpus,
   SeedDiscipline,
