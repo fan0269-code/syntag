@@ -37,7 +37,7 @@ flowchart LR
 | 信息架构 | `/theories`、`/scholars`、`/works`、`/concepts`、`/topics`、`/disciplines`、`/fields` 索引与详情路由均进入当前构建。 | Works、Concepts、四个既有 Scholar 页，以及主题、学科和领域页均已具备可浏览的内容路径；C8 验收其全站可达性。 |
 | 学科范围 | 内容事实源和公开静态参数仅覆盖 Education 与 Sociology。 | Psychology 与 Management 继续不进入本轮公开内容承诺。 |
 | 验证 | C1 建立 12 页呈现回归；C2 增加 D3 深度、三层阅读、逐项证据和全来源可达合同；C3 增加 D2 内容合同；C4 增加 D1 性质、来源和关系证据合同；C5 增加 Works/Concepts 的来源、关系、去重与无占位回归；C6 增加 Scholar 的身份、归因边界、关系和无占位回归；C7 增加主题、学科、领域的三类理论路径、来源和无占位回归。2026-07-17 批次 3A、3B、3C、3D 各自独立重跑 `db:migrate → db:seed → test → lint → build` 并通过；`db:migrate` 均为 already in sync。补充门禁还包括 Prisma schema 与 generated `tsvector`/GIN 索引无差异、typecheck、content check、构建产物冒烟。 | C8 仍须逐页重跑全站自动化和浏览器门禁；3A–3D 不代替 C8 或线上验收。 |
-| 公开线上 | `https://syrtag.com` 与三个代表理论页在 2026-07-13 均返回 200，但仍是 C1–C7 前版本：代表页各含 18 处 `being prepared`，且没有新的深度标签和核验记录摘要。 | 本地源码已完成 C1–C7、线上尚未同步；本阶段禁止部署，不能宣称线上已更新。 |
+| 公开线上 | 线上已同步 C1–C7，代表页 0 处 `being prepared`；`/pricing` 与 `/editorial-policy` 均返回 200 并进入 sitemap。 | 2026-07-17 PR #2 合并后，production workflow `29573060575` 绿色完成；首页、Life Course、Teacher Identity、Structuration、Pricing、Editorial Policy 与 sitemap 公网复验通过。 |
 
 旧提示词引用的 `Syrtag-产品设计文档.md` 当前不在仓库内。后续若拿到该文档，应放入 `docs/product/` 并在本文件“决策记录”中登记版本；在此之前，以当前 schema、内容规范和本手册为准。N21 的商业化阶段表修订待该产品设计文档入库后同步，目标语义为 Phase 1 = `AdSense（探针）`，而非 `AdSense（收入）`。
 
@@ -200,6 +200,6 @@ flowchart LR
 
 | ID | 批次 / 决策 | 基线 / 结论 | 验收记录 / 理由 | 日期 |
 | --- | --- | --- | --- | --- |
-| C8a | 线上同步（P0） | 本地 C1–C7 已完成。原 2026-07-13 线上审计基线为 C1 前，代表理论页每页可见 18 处 `being prepared`；2026-07-17 本批次执行前重新 `curl` 四个代表页时已均为 HTTP 200 且占位计数为 0，因此不将过期的 18 处记为当前线上事实。仍通过本轮完整门禁、PR 合并、production workflow 和部署后复验建立独立发布证据。 | 本地门禁已通过：临时独立数据库上 `db:migrate` 无 drift、seed 成功、测试 66/66、lint 通过、构建生成 92/92 页。测试数高于 C7 时的 62，是因为 release-hardening 分支增加了部署合同回归。本地生产预览中 Life Course、Teacher Identity、Structuration、Institutional 四页均为 HTTP 200、`being prepared` 为 0，且可见核验标记。待完成：PR 合并、production workflow 与部署后复验。 | 2026-07-17 |
+| C8a | 线上同步批次（P0） | 本地 C1–C7 与 release-positioning-hardening 已经完整门禁验证并通过 PR #2 合入 `main`。原 2026-07-13 每页 18 处 `being prepared` 仅作为历史审计基线；本批部署前代表页已经为 0，本次验收证明合并部署后未回退。 | 本地 `db:migrate → db:seed → typecheck → test → lint → content:check → build` 全绿：74 项测试中 73 通过、0 失败、1 项转由构建后执行并 1/1 通过，构建 93/93 页。production workflow `29573060575` 成功完成 migrate、seed、build、restart 与 3 次公网探测；部署后首页及 Life Course、Teacher Identity、Structuration 理论页均为 200 且 0 处占位，`/pricing`、`/editorial-policy` 为 200，sitemap 同时包含二者。 | 2026-07-17 |
 | N21 | Phase 1 商业化目标重设 | Phase 1 不以 AdSense 收入为 KPI；AdSense 仅作为“流量是否到达”的探针与补充收入。Phase 1 KPI 改为：可验证的 Search Console 展示量/点击量、被外部学术页面引用次数、核验体系对外可见度。产品设计文档当前未入库，商业化阶段表待同步为 `AdSense（探针）`。 | 学术垂直内容 RPM 低，12 个着陆页不足以支撑有意义的广告收入；本阶段本质是内容资产与权威信号积累期。 | 2026-07-17 |
 | N22 | 图谱渲染引擎 | 采用自绘 Canvas（`GraphCanvas`），不引入 React Flow/Sigma.js（修正 N5 中的候选库表述）。 | 当前实现使用原生 2D Canvas 和 `requestAnimationFrame` 绘制节点、边与动画，并直接处理缩放、拖拽、指针与键盘交互；依赖中无 React Flow/Sigma.js。该方案轻量，交互与可达性可控，无重型图库运行时。 | 2026-07-17 |
