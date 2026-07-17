@@ -64,6 +64,7 @@ model Theory {
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
   publishedAt  DateTime? @map("published_at")
+  searchVectorEn Unsupported("tsvector")? @default(dbgenerated("((setweight(to_tsvector('english'::regconfig, COALESCE(title_en, ''::text)), 'A'::\"char\") || setweight(to_tsvector('english'::regconfig, COALESCE(summary_en, ''::text)), 'B'::\"char\")) || setweight(to_tsvector('english'::regconfig, COALESCE((content_jsonb)::text, ''::text)), 'C'::\"char\"))")) @map("search_vector_en")
 
   // 理论谱系（有向边）
   sourceRelations TheoryGenealogy[] @relation("SourceTheory")
@@ -76,6 +77,7 @@ model Theory {
   topics          TopicTheory[]
   disciplines     DisciplineTheory[]
 
+  @@index([searchVectorEn], map: "theories_search_idx", type: Gin)
   @@map("theories")
 }
 
@@ -118,12 +120,14 @@ model Scholar {
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
   publishedAt  DateTime? @map("published_at")
+  searchVectorEn Unsupported("tsvector")? @default(dbgenerated("(((setweight(to_tsvector('english'::regconfig, COALESCE(name, ''::text)), 'A'::\"char\") || setweight(to_tsvector('english'::regconfig, COALESCE(title_en, ''::text)), 'A'::\"char\")) || setweight(to_tsvector('english'::regconfig, COALESCE(bio_en, ''::text)), 'B'::\"char\")) || setweight(to_tsvector('english'::regconfig, COALESCE((content_jsonb)::text, ''::text)), 'C'::\"char\"))")) @map("search_vector_en")
 
   theories           TheoryScholar[]
   genealogyRelations TheoryGenealogy[]
   sourceRelations    ScholarScholar[] @relation("SourceScholar")
   targetRelations    ScholarScholar[] @relation("TargetScholar")
 
+  @@index([searchVectorEn], map: "scholars_search_idx", type: Gin)
   @@map("scholars")
 }
 
@@ -158,10 +162,12 @@ model Work {
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
   publishedAt  DateTime? @map("published_at")
+  searchVectorEn Unsupported("tsvector")? @default(dbgenerated("(setweight(to_tsvector('english'::regconfig, COALESCE(title, ''::text)), 'A'::\"char\") || setweight(to_tsvector('english'::regconfig, COALESCE((content_jsonb)::text, ''::text)), 'C'::\"char\"))")) @map("search_vector_en")
 
   theories           TheoryWork[]
   genealogyRelations TheoryGenealogy[]
 
+  @@index([searchVectorEn], map: "works_search_idx", type: Gin)
   @@map("works")
 }
 
@@ -197,9 +203,11 @@ model Topic {
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
   publishedAt  DateTime? @map("published_at")
+  searchVectorEn Unsupported("tsvector")? @default(dbgenerated("(setweight(to_tsvector('english'::regconfig, COALESCE(question_en, ''::text)), 'A'::\"char\") || setweight(to_tsvector('english'::regconfig, COALESCE((content_jsonb)::text, ''::text)), 'C'::\"char\"))")) @map("search_vector_en")
 
   theories TopicTheory[]
 
+  @@index([searchVectorEn], map: "topics_search_idx", type: Gin)
   @@map("topics")
 }
 

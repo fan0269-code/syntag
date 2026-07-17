@@ -191,3 +191,9 @@ flowchart LR
 ## 9. 近期执行顺序
 
 下一步从 [`prompts/completion/01-baseline-and-scope.md`](../prompts/completion/01-baseline-and-scope.md) 开始，并依次执行至 Prompt 08。每完成一步，更新对应的 `docs/roadmaps/` 计划和本文件第 2 节的当前基线；当路线图、实际代码和验收结果不一致时，先更新计划和决策记录，再继续实现。
+
+## 10. 决策记录
+
+| ID | 批次 | 基线与决策 | 验收记录 | 日期 |
+| --- | --- | --- | --- | --- |
+| C8a | 线上同步（P0） | 本地 C1–C7 已完成。原 2026-07-13 线上审计基线为 C1 前，代表理论页每页可见 18 处 `being prepared`；2026-07-17 本批次执行前重新 `curl` 四个代表页时已均为 HTTP 200 且占位计数为 0，因此不将过期的 18 处记为当前线上事实。仍通过本轮完整门禁、PR 合并、production workflow 和部署后复验建立独立发布证据。 | 本地门禁已通过：临时独立数据库上 `db:migrate` 无 drift、seed 成功、测试 66/66、lint 通过、构建生成 92/92 页。测试数高于 C7 时的 62，是因为 release-hardening 分支增加了部署合同回归。本地生产预览中 Life Course、Teacher Identity、Structuration、Institutional 四页均为 HTTP 200、`being prepared` 为 0，且可见核验标记。待完成：PR 合并、production workflow 与部署后复验。 | 2026-07-17 |
