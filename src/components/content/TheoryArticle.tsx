@@ -8,6 +8,8 @@ import type { InternalLink } from "@/lib/internal-links";
 import { buildTheoryPresentation } from "@/lib/theory-presentation";
 import { ContentAd, ProseSection, RelatedLinks } from "./ContentBlocks";
 import { TheoryGenealogyMap } from "./TheoryGenealogyMap";
+import { ArticleToc } from "./ArticleToc";
+import { VerificationBadge } from "@/components/common/VerificationBadge";
 
 type TheoryArticleData = {
   titleEn: string;
@@ -54,11 +56,12 @@ export function TheoryArticle({ theory, internalLinks = [] }: { theory: TheoryAr
       <div className="entity-page__meta">
         <span>{readingTime(theory.summaryEn, presentation.summary)}</span>
         <span>{presentation.depthLabel}</span>
-        <span>{presentation.verificationSummary}</span>
+        <span>{presentation.verificationSummary}</span><VerificationBadge level={presentation.sourceItems[0]?.level ?? "L3_pending"} />
       </div>
       <Link className="text-link" href={`/?discipline=${field?.discipline?.slug ?? "education"}&mode=genealogy&focus=${theory.slug}`}>View in graph →</Link>
     </header>
 
+    <ArticleToc />
     <ProseSection title="Quick Summary" id="summary">{presentation.summary || theory.summaryEn || ""}</ProseSection>
     <ContentAd placement="in-article" />
     <ProseSection title="1. Origins & Intellectual History">{presentation.origins}</ProseSection>

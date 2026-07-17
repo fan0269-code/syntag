@@ -31,6 +31,8 @@ flowchart LR
 | 数据库 | Prisma schema、迁移与幂等 seed 已存在；当前本地环境的只读 seed 集成核验通过。生产数据库配置与数据状态本轮未验证。 | 仅可确认本地数据可读，不能据此宣称生产数据已同步。 |
 | 图谱与搜索 | 真实数据、不可用状态、图谱与搜索的自动化测试在当前本地测试集内通过。 | C1 不扩大图谱/搜索范围；完整浏览器验收留给 C8。 |
 | 图谱渲染 | `GraphCanvas` 使用原生 2D Canvas 与 `requestAnimationFrame` 自绘，依赖中无 React Flow/Sigma.js；N22 已回写该有意决策。 | 批次 3A 仅对齐文档与现实，未改渲染代码。 |
+| 图谱交互 | N4a 已增加相邻边加粗、邻居高亮与无关节点 30% 淡化；点击改为轻量详情卡，12 节点布局收紧，移动端以图谱上方折叠控制条暴露三种模式。 | 空图和错误状态复用 `DataUnavailableState`；生产 demo 边界保持不变。 |
+| 内容阅读 | N4b 将正文稳定在 720px、行高 1.7，并为实体正文增加桌面 sticky / 移动折叠 TOC；来源改为脚注式，标题区显示深度与核验徽章。 | 代表理论页与通用实体页共用阅读基线，无新增依赖。 |
 | 工程门禁 | `typecheck` 与 `.next` 产物冒烟已纳入本地命令；冒烟检查核心路由 manifest、sitemap 预期 URL 数和 robots 公开规则。 | 批次 3B 未引入浏览器或其他新依赖；本批次不改公开页面，375px 页面验收不适用。 |
 | 部署与回滚 | 部署保留上一 commit 的 `.next` 快照；本地存活检查失败会自动回滚，GitHub Actions 另做 3 次公网探测并在失败时远程回滚。回滚恢复旧 commit、依赖与 `.next` 后重启并健康检查；数据库迁移保持前向执行，因此生产迁移必须向后兼容旧应用快照。 | 批次 3C 仅完成本地源码与测试，未触发生产部署，不表示线上已更新。 |
 | 内容录入流 | `npm run content:check` 复用 `validateSeedCorpus()` 并增加批次规则：每个实体需有 slug、英文标题与可追溯来源，D3 需有 genealogy；不可核验或缺 D3 谱系者强制降为 draft 并从公开 static params 排除。 | 批次 3D 建立本地校验流，未扩展 Education/Sociology 之外的公开内容。 |
@@ -203,3 +205,5 @@ flowchart LR
 | C8a | 线上同步批次（P0） | 本地 C1–C7 与 release-positioning-hardening 已经完整门禁验证并通过 PR #2 合入 `main`。原 2026-07-13 每页 18 处 `being prepared` 仅作为历史审计基线；本批部署前代表页已经为 0，本次验收证明合并部署后未回退。 | 本地 `db:migrate → db:seed → typecheck → test → lint → content:check → build` 全绿：74 项测试中 73 通过、0 失败、1 项转由构建后执行并 1/1 通过，构建 93/93 页。production workflow `29573060575` 成功完成 migrate、seed、build、restart 与 3 次公网探测；部署后首页及 Life Course、Teacher Identity、Structuration 理论页均为 200 且 0 处占位，`/pricing`、`/editorial-policy` 为 200，sitemap 同时包含二者。 | 2026-07-17 |
 | N21 | Phase 1 商业化目标重设 | Phase 1 不以 AdSense 收入为 KPI；AdSense 仅作为“流量是否到达”的探针与补充收入。Phase 1 KPI 改为：可验证的 Search Console 展示量/点击量、被外部学术页面引用次数、核验体系对外可见度。产品设计文档当前未入库，商业化阶段表待同步为 `AdSense（探针）`。 | 学术垂直内容 RPM 低，12 个着陆页不足以支撑有意义的广告收入；本阶段本质是内容资产与权威信号积累期。 | 2026-07-17 |
 | N22 | 图谱渲染引擎 | 采用自绘 Canvas（`GraphCanvas`），不引入 React Flow/Sigma.js（修正 N5 中的候选库表述）。 | 当前实现使用原生 2D Canvas 和 `requestAnimationFrame` 绘制节点、边与动画，并直接处理缩放、拖拽、指针与键盘交互；依赖中无 React Flow/Sigma.js。该方案轻量，交互与可达性可控，无重型图库运行时。 | 2026-07-17 |
+| N24 | N4a 图谱交互反馈 | 保留原生 Canvas 与既有设计令牌；小规模图谱收紧半径，hover 只改变透明度和线宽，click 打开轻量详情卡而不直接跳转。移动端三模式置于图谱上方原生折叠控制条。 | `typecheck` 与 `lint` 通过；完整批次门禁见本次提交验收记录。空图/错误路径使用统一不可用状态，未引入 demo 或新依赖。 | 2026-07-17 |
+| N25 | N4b 内容页阅读体验 | 正文保持 720px / 1.7 行高；TOC 由页面现有 h2 自动生成，桌面 sticky 并跟踪当前节，移动端使用原生 details。SourceBlock 改为脚注式，标题区直接展示核验徽章。 | 完整门禁全绿：74 项测试中 73 通过、1 项按设计跳过；构建 93/93，构建后冒烟 1/1。 | 2026-07-17 |
