@@ -702,6 +702,8 @@ code, pre { font-family: var(--font-mono); }
 .related-links a span { color: var(--text-secondary); display: block; font-size: 13px; margin-top: 3px; }
 .responsive-table { border: 1px solid var(--border-visible); }
 .responsive-table article { display: grid; gap: 8px; grid-template-columns: minmax(140px, .8fr) repeat(2, 1.4fr); padding: 14px; }
+.pricing-table { margin: 24px 0; }
+.pricing-table article { grid-template-columns: minmax(100px, .55fr) minmax(130px, .9fr) minmax(140px, 1fr) minmax(200px, 1.8fr); }
 .responsive-table article + article { border-top: 1px solid var(--border-default); }
 .responsive-table span { color: var(--text-secondary); font-size: 14px; }
 .responsive-table b { color: var(--text-tertiary); display: block; font-size: 11px; font-weight: 500; letter-spacing: .08em; margin-bottom: 3px; text-transform: uppercase; }
@@ -745,6 +747,7 @@ code, pre { font-family: var(--font-mono); }
   .rel-card { align-items: flex-start; grid-template-columns: 1fr auto; }
   .rel-type { grid-column: 1 / -1; }
   .responsive-table article { grid-template-columns: 1fr; }
+  .pricing-table article { grid-template-columns: 1fr; }
   .theory-pathway { align-items: flex-start; flex-direction: column; gap: 5px; }
   .theory-pathway > span { min-width: 0; }
 }

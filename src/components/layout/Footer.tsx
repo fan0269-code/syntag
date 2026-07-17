@@ -1,7 +1,11 @@
 import Link from "next/link";
 import { ENTITY_INDEXES } from "@/lib/entity-routes";
+import { STATIC_INTERNAL_LINKS } from "@/lib/static-internal-links";
 
-const links = ENTITY_INDEXES.map(({ label, href }) => [label, href] as const);
+const links = [
+  ...ENTITY_INDEXES.map(({ label, href }) => [label, href] as const),
+  ...STATIC_INTERNAL_LINKS.map(({ label, href }) => [label, href] as const),
+];
 
 const legal = [
   ["Privacy", "/privacy"],
