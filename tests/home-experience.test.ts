@@ -36,3 +36,16 @@ test("shared navigation and footer expose English accessible landmarks", () => {
   assert.match(footer, /aria-label="Legal information"/);
   assert.match(styles, /\.skip-link:focus-visible/);
 });
+
+test("measurement language is privacy-minimised and honest about verification", () => {
+  const privacy = readFileSync("src/app/privacy/page.tsx", "utf8");
+  const editorial = readFileSync("src/app/editorial-policy/page.tsx", "utf8");
+  const roadmap = readFileSync("docs/roadmaps/2026-07-17-english-home-and-minimal-measurement.md", "utf8");
+
+  assert.match(privacy, /does not use third-party on-site behavioural analytics/i);
+  assert.match(privacy, /research questions or raw site-search terms/i);
+  assert.match(privacy, /Google Search Console/);
+  assert.match(editorial, /does not mean that every claim on a page has completed claim-level review/i);
+  assert.match(roadmap, /Event definitions only/);
+  assert.match(roadmap, /No event is emitted or collected/);
+});
