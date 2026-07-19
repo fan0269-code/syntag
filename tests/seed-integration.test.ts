@@ -24,8 +24,8 @@ test("the local seed has the expected published corpus and queryable relations",
     assert.equal(result.genealogyCount, 8);
     assert.equal(result.publishedScholarCount, 7);
     assert.equal(result.theoryScholarCount, 7);
-    assert.equal(result.totalScholarCount, 8);
-    assert.equal(result.totalTheoryScholarCount, 8);
+    assert.equal(result.totalScholarCount, 10);
+    assert.equal(result.totalTheoryScholarCount, 10);
     assert.equal(result.publishedTopicCount, 4);
     assert.equal(result.topicTheoryCount, 12);
     assert.equal(result.totalTopicCount, 8);
@@ -41,6 +41,10 @@ test("the local seed has the expected published corpus and queryable relations",
       { slug: "jean-lave", status: "published" },
       { slug: "john-w-kingdon", status: "draft" },
       { slug: "michael-lipsky", status: "published" },
+    ]);
+    assert.deepEqual(result.secondScholarStatuses, [
+      { slug: "christopher-day", status: "draft" },
+      { slug: "ivor-f-goodson", status: "draft" },
     ]);
     assert.equal(result.l1VerificationCount, 12);
     assert.equal(result.searchableTheoryCount, 12);

@@ -7,6 +7,7 @@ import type { ConceptContent, WorkContent } from "../../templates/knowledge-enti
 import type { ScholarContent } from "../../templates/scholar-template.ts";
 import type { PathwayContent } from "../../templates/pathway-template.ts";
 import { createFirstEnrichmentBatch } from "../content-batches/2026-07-18-first-enrichment.ts";
+import { createGoodsonDayDraftScholarBatch } from "../content-batches/2026-07-19-goodson-day-draft-scholars.ts";
 
 export type PublicationStatus = "draft" | "published" | "archived";
 
@@ -429,8 +430,8 @@ const sources = {
     evidence_level: "L1",
     supports: ["Publisher bibliographic record", "Life-history research"],
   },
-  lifeHistoryTeachers: { id: "teacher-life-history-goodson-1992", citation: "Goodson, I. F. (Ed.). (1992). Studying Teachers' Lives. Routledge.", url: "https://www.routledge.com/Studying-Teachers-Lives/Goodison/p/book/9780415068581", source_kind: "publisher", evidence_level: "L1", supports: ["Teacher life-history research", "Methods, problems, and possibilities"] },
-  lifeHistoryGoodsonSikes: { id: "teacher-life-history-goodson-sikes-2001", citation: "Goodson, I. F., & Sikes, P. (2001). Life History Research in Educational Settings: Learning from Lives. Open University Press.", url: "https://www.mheducation.co.uk/life-history-research-in-educational-settings-9780335207138-emea", source_kind: "publisher", evidence_level: "L1", supports: ["Life-history research in education", "Educational settings"] },
+  lifeHistoryTeachers: { id: "teacher-life-history-goodson-1992", citation: "Goodson, I. F. (Ed.). (1992). Studying Teachers' Lives. Routledge.", url: "https://books.google.com/books/about/Studying_Teachers_Lives.html?id=43MTmQEACAAJ", source_kind: "authoritative_web", evidence_level: "L1", supports: ["Google Books bibliographic record", "Editor Ivor Goodson", "Teacher life-history research"] },
+  lifeHistoryGoodsonSikes: { id: "teacher-life-history-goodson-sikes-2001", citation: "Goodson, I. F., & Sikes, P. (2001). Life History Research in Educational Settings: Learning from Lives. Open University Press.", url: "https://search.worldcat.org/cs/title/Life-history-research-in-educational-settings-%3A-learning-from-lives/oclc/45873740", source_kind: "authoritative_web", evidence_level: "L1", supports: ["WorldCat bibliographic record", "Authors Ivor Goodson and Patricia J. Sikes", "Life-history research in education"] },
   lifeHistoryJosselson: { id: "teacher-life-history-josselson-2007", citation: "Josselson, R. (2007). The ethical attitude in narrative research: Principles and practicalities. In D. J. Clandinin (Ed.), Handbook of Narrative Inquiry: Mapping a Methodology (pp. 537–566). SAGE Publications.", url: "https://doi.org/10.4135/9781452226552.n21", source_kind: "doi", evidence_level: "L1", supports: ["Narrative research ethics", "Relational mediation"] },
   equity: {
     id: "unesco-2020-inclusion-education",
@@ -485,6 +486,7 @@ const sources = {
 } satisfies Record<string, ContentSource>;
 
 const firstEnrichmentBatch = createFirstEnrichmentBatch(sources);
+const goodsonDayDraftScholarBatch = createGoodsonDayDraftScholarBatch(sources);
 
 function pathwayContent(draft: Omit<PathwayContent, "verification"> & { l1Claim: string; l1SourceId: string }): PathwayContent {
   const { l1Claim, l1SourceId, ...content } = draft;
@@ -1566,8 +1568,8 @@ export const seedCorpus: SeedCorpus = {
   disciplineTheories,
   fieldTheories,
   genealogy,
-  scholars: [...scholars, ...firstEnrichmentBatch.scholars],
-  theoryScholars: [...theoryScholars, ...firstEnrichmentBatch.theoryScholars],
+  scholars: [...scholars, ...firstEnrichmentBatch.scholars, ...goodsonDayDraftScholarBatch.scholars],
+  theoryScholars: [...theoryScholars, ...firstEnrichmentBatch.theoryScholars, ...goodsonDayDraftScholarBatch.theoryScholars],
   topics: [...topics, ...firstEnrichmentBatch.topics],
   topicTheories: [...topicTheories, ...firstEnrichmentBatch.topicTheories],
   verifications,

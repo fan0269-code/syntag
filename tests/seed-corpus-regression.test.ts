@@ -31,12 +31,24 @@ test("seed corpus preserves its semantic baseline after module extraction", () =
     disciplineTheories: 15,
     fieldTheories: 8,
     genealogy: 8,
-    scholars: 8,
-    theoryScholars: 8,
+    scholars: 10,
+    theoryScholars: 10,
     topics: 8,
     topicTheories: 24,
     verifications: 36,
   });
+  assert.equal(seedCorpus.scholars.filter((scholar) => scholar.status === "published").length, 7);
+  assert.equal(seedCorpus.theoryScholars.filter((relation) => {
+    const scholar = seedCorpus.scholars.find((candidate) => candidate.slug === relation.scholarSlug);
+    const theory = seedCorpus.theories.find((candidate) => candidate.slug === relation.theorySlug);
+    return scholar?.status === "published" && theory?.status === "published";
+  }).length, 7);
+  assert.equal(seedCorpus.topics.filter((topic) => topic.status === "published").length, 4);
+  assert.equal(seedCorpus.topicTheories.filter((relation) => {
+    const topic = seedCorpus.topics.find((candidate) => candidate.slug === relation.topicSlug);
+    const theory = seedCorpus.theories.find((candidate) => candidate.slug === relation.theorySlug);
+    return topic?.status === "published" && theory?.status === "published";
+  }).length, 12);
   assert.deepEqual(seedCorpus.theories.map(({ slug }) => slug), [
     "life-course-theory",
     "teacher-identity-theory",
@@ -80,6 +92,8 @@ test("seed corpus preserves its semantic baseline after module extraction", () =
     "etienne-wenger",
     "michael-lipsky",
     "john-w-kingdon",
+    "ivor-f-goodson",
+    "christopher-day",
   ]);
   assert.deepEqual(validateSeedCorpus(seedCorpus).errors, []);
 });

@@ -274,8 +274,9 @@ test("C5 detail routes render their audited content rather than generic placehol
   }
 });
 
-test("the four existing scholar pages satisfy the C6 evidence and attribution contract", () => {
-  const expectedSlugs = ["glen-h-elder-jr", "geert-kelchtermans", "anthony-giddens", "pierre-bourdieu", "jean-lave", "etienne-wenger", "michael-lipsky", "john-w-kingdon"];
+test("the existing scholar pages satisfy the C6 evidence and attribution contract", () => {
+  const expectedSlugs = ["glen-h-elder-jr", "geert-kelchtermans", "anthony-giddens", "pierre-bourdieu", "jean-lave", "etienne-wenger", "michael-lipsky", "john-w-kingdon", "ivor-f-goodson", "christopher-day"];
+  const secondDraftSlugs = ["ivor-f-goodson", "christopher-day"];
   const theorySlugs = new Set(seedCorpus.theories.map((theory) => theory.slug));
   const workSlugs = new Set(seedCorpus.works.map((work) => work.slug));
 
@@ -286,6 +287,13 @@ test("the four existing scholar pages satisfy the C6 evidence and attribution co
     assert.ok(scholar.content.en.representative_works.every((entry) => !entry.work_slug || workSlugs.has(entry.work_slug)), `${scholar.slug} only links reviewed works`);
     assert.ok(scholar.content.en.attribution_boundaries.length > 0, `${scholar.slug} states an attribution boundary`);
     assert.deepEqual(new Set(scholar.content.en.verification.map((entry) => entry.evidence_level)), new Set(["L1", "L2", "L3"]), `${scholar.slug} separates L1/L2/L3`);
+  }
+  for (const slug of secondDraftSlugs) {
+    const scholar = seedCorpus.scholars.find((entry) => entry.slug === slug);
+
+    assert.equal(scholar?.status, "draft", `${slug} remains draft pending claim-level review`);
+    assert.equal(scholar?.publishedAt, undefined, `${slug} does not author a publication date`);
+    assert.ok(scholar && isScholarContent(scholar.content.en), `${slug} has complete draft scholar content`);
   }
 
   const source = readFileSync(new URL("../src/app/scholars/[slug]/page.tsx", import.meta.url), "utf8");

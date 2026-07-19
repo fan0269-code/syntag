@@ -17,6 +17,7 @@ export interface SeedVerificationResult {
   totalTopicTheoryCount: number;
   enrichmentTopicStatuses: Array<{ slug: string; status: string }>;
   enrichmentScholarStatuses: Array<{ slug: string; status: string }>;
+  secondScholarStatuses: Array<{ slug: string; status: string }>;
   l1VerificationCount: number;
   searchableTheoryCount: number;
   searchableScholarCount: number;
@@ -50,6 +51,7 @@ export async function verifySeededDatabase(db: PrismaClient): Promise<SeedVerifi
     totalTopicTheoryCount,
     enrichmentTopicStatuses,
     enrichmentScholarStatuses,
+    secondScholarStatuses,
     l1Rows,
     searchableTheoryRows,
     searchableScholarRows,
@@ -114,6 +116,15 @@ export async function verifySeededDatabase(db: PrismaClient): Promise<SeedVerifi
       orderBy: { slug: "asc" },
       select: { slug: true, status: true },
     }),
+    db.scholar.findMany({
+      where: {
+        slug: {
+          in: ["christopher-day", "ivor-f-goodson"],
+        },
+      },
+      orderBy: { slug: "asc" },
+      select: { slug: true, status: true },
+    }),
     db.$queryRaw<CountRow[]>(Prisma.sql`
       SELECT COUNT(*) AS count
       FROM "verifications"
@@ -171,6 +182,7 @@ export async function verifySeededDatabase(db: PrismaClient): Promise<SeedVerifi
     totalTopicTheoryCount,
     enrichmentTopicStatuses,
     enrichmentScholarStatuses,
+    secondScholarStatuses,
     l1VerificationCount: countValue(l1Rows),
     searchableTheoryCount: countValue(searchableTheoryRows),
     searchableScholarCount: countValue(searchableScholarRows),
