@@ -18,6 +18,12 @@ export function validateSeedCorpus(corpus: SeedCorpus): SeedCorpusValidationResu
   const topicSlugs = new Set(corpus.topics.map((topic) => topic.slug));
   const workSlugs = new Set(corpus.works.map((work) => work.slug));
   const conceptSlugs = new Set(corpus.concepts.map((concept) => concept.slug));
+  const theoryStatuses = new Map(corpus.theories.map((theory) => [theory.slug, theory.status]));
+  const topicStatuses = new Map(corpus.topics.map((topic) => [topic.slug, topic.status]));
+  const fieldStatuses = new Map(corpus.fields.map((field) => [field.slug, field.status]));
+  const scholarStatuses = new Map(corpus.scholars.map((scholar) => [scholar.slug, scholar.status]));
+  const workStatuses = new Map(corpus.works.map((work) => [work.slug, work.status]));
+  const conceptStatuses = new Map(corpus.concepts.map((concept) => [concept.slug, concept.status]));
   const sourceUrls = new Set(corpus.theories.flatMap((theory) => theory.content.en.sources?.map((source) => source.url) ?? []));
   const theoryScholarKeys = new Set<string>();
   const topicTheoryKeys = new Set<string>();
@@ -33,7 +39,7 @@ export function validateSeedCorpus(corpus: SeedCorpus): SeedCorpusValidationResu
     }
   }
 
-  function validatePathway(slug: string, content: unknown) {
+  function validatePathway(slug: string, ownerStatus: "draft" | "published" | "archived", content: unknown) {
     if (!isPathwayContent(content)) {
       errors.push(`${slug}: does not satisfy the pathway content contract`);
       return;
@@ -44,20 +50,32 @@ export function validateSeedCorpus(corpus: SeedCorpus): SeedCorpusValidationResu
     }
     for (const category of content.question_categories) {
       for (const theorySlug of category.theory_slugs) {
-        if (!theorySlugs.has(theorySlug)) errors.push(`${slug}: unknown category theory ${theorySlug}`);
+        if (!theorySlugs.has(theorySlug)) {
+          errors.push(`${slug}: unknown category theory ${theorySlug}`);
+        } else if (ownerStatus === "published" && theoryStatuses.get(theorySlug) !== "published") {
+          errors.push(`${slug}: published pathway category theory ${theorySlug} is not published`);
+        }
       }
     }
     for (const pathway of content.theory_pathways) {
-      if (!theorySlugs.has(pathway.theory_slug)) errors.push(`${slug}: unknown pathway theory ${pathway.theory_slug}`);
+      if (!theorySlugs.has(pathway.theory_slug)) {
+        errors.push(`${slug}: unknown pathway theory ${pathway.theory_slug}`);
+      } else if (ownerStatus === "published" && theoryStatuses.get(pathway.theory_slug) !== "published") {
+        errors.push(`${slug}: published pathway theory ${pathway.theory_slug} is not published`);
+      }
     }
     for (const entry of content.entry_points) {
-      const known = entry.entity_type === "topic" ? topicSlugs
-        : entry.entity_type === "field" ? fieldSlugs
-          : entry.entity_type === "theory" ? theorySlugs
-            : entry.entity_type === "scholar" ? scholarSlugs
-              : entry.entity_type === "work" ? workSlugs
-                : conceptSlugs;
-      if (!known.has(entry.slug)) errors.push(`${slug}: unknown ${entry.entity_type} entry point ${entry.slug}`);
+      const targetStatus = entry.entity_type === "topic" ? topicStatuses.get(entry.slug)
+        : entry.entity_type === "field" ? fieldStatuses.get(entry.slug)
+          : entry.entity_type === "theory" ? theoryStatuses.get(entry.slug)
+            : entry.entity_type === "scholar" ? scholarStatuses.get(entry.slug)
+              : entry.entity_type === "work" ? workStatuses.get(entry.slug)
+                : conceptStatuses.get(entry.slug);
+      if (targetStatus === undefined) {
+        errors.push(`${slug}: unknown ${entry.entity_type} entry point ${entry.slug}`);
+      } else if (ownerStatus === "published" && targetStatus !== "published") {
+        errors.push(`${slug}: published pathway entry point ${entry.entity_type}:${entry.slug} is not published`);
+      }
     }
   }
 
@@ -113,7 +131,7 @@ export function validateSeedCorpus(corpus: SeedCorpus): SeedCorpusValidationResu
       errors.push(`${field.slug}: references unknown discipline ${field.disciplineSlug}`);
     }
     if (!field.descriptionEn.trim()) errors.push(`${field.slug}: field description is empty`);
-    validatePathway(field.slug, field.content.en);
+    validatePathway(field.slug, field.status, field.content.en);
     if (!["topic", "theory", "scholar", "work", "concept"].every((type) => field.content.en.entry_points.some((entry) => entry.entity_type === type))) {
       errors.push(`${field.slug}: field pathway is missing one or more required topic/theory/scholar/work/concept entry points`);
     }
@@ -122,7 +140,7 @@ export function validateSeedCorpus(corpus: SeedCorpus): SeedCorpusValidationResu
     validatePublication(discipline, discipline.slug);
     if (discipline.status === "published" && !publicDisciplineSlugs.has(discipline.slug)) errors.push(`${discipline.slug}: published discipline is outside the current public scope`);
     if (!discipline.descriptionEn.trim() || !discipline.overviewEn.trim()) errors.push(`${discipline.slug}: discipline description or overview is empty`);
-    validatePathway(discipline.slug, discipline.content.en);
+    validatePathway(discipline.slug, discipline.status, discipline.content.en);
     if (!["topic", "theory", "scholar", "work", "concept"].every((type) => discipline.content.en.entry_points.some((entry) => entry.entity_type === type))) {
       errors.push(`${discipline.slug}: discipline pathway is missing one or more required topic/theory/scholar/work/concept entry points`);
     }
@@ -197,7 +215,7 @@ export function validateSeedCorpus(corpus: SeedCorpus): SeedCorpusValidationResu
     validatePublication(topic, topic.slug);
     if (!topic.slug.trim()) errors.push("topic: slug is empty");
     if (!topic.questionEn.trim()) errors.push(`${topic.slug}: topic question is empty`);
-    validatePathway(topic.slug, topic.content.en);
+    validatePathway(topic.slug, topic.status, topic.content.en);
   }
   for (const relation of corpus.topicTheories) {
     const key = `${relation.topicSlug}:${relation.theorySlug}`;

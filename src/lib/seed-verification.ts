@@ -9,8 +9,14 @@ export interface SeedVerificationResult {
   genealogyCount: number;
   publishedScholarCount: number;
   theoryScholarCount: number;
+  totalScholarCount: number;
+  totalTheoryScholarCount: number;
   publishedTopicCount: number;
   topicTheoryCount: number;
+  totalTopicCount: number;
+  totalTopicTheoryCount: number;
+  enrichmentTopicStatuses: Array<{ slug: string; status: string }>;
+  enrichmentScholarStatuses: Array<{ slug: string; status: string }>;
   l1VerificationCount: number;
   searchableTheoryCount: number;
   searchableScholarCount: number;
@@ -36,8 +42,14 @@ export async function verifySeededDatabase(db: PrismaClient): Promise<SeedVerifi
     genealogyCount,
     publishedScholarCount,
     theoryScholarCount,
+    totalScholarCount,
+    totalTheoryScholarCount,
     publishedTopicCount,
     topicTheoryCount,
+    totalTopicCount,
+    totalTopicTheoryCount,
+    enrichmentTopicStatuses,
+    enrichmentScholarStatuses,
     l1Rows,
     searchableTheoryRows,
     searchableScholarRows,
@@ -68,12 +80,39 @@ export async function verifySeededDatabase(db: PrismaClient): Promise<SeedVerifi
         scholar: { status: "published" },
       },
     }),
+    db.scholar.count(),
+    db.theoryScholar.count(),
     db.topic.count({ where: { status: "published" } }),
     db.topicTheory.count({
       where: {
         topic: { status: "published" },
         theory: { status: "published" },
       },
+    }),
+    db.topic.count(),
+    db.topicTheory.count(),
+    db.topic.findMany({
+      where: {
+        slug: {
+          in: [
+            "access-to-educational-support-and-opportunity",
+            "communities-of-practice-in-teacher-learning",
+            "education-policy-implementation-frontline-discretion",
+            "teacher-professional-learning-and-change",
+          ],
+        },
+      },
+      orderBy: { slug: "asc" },
+      select: { slug: true, status: true },
+    }),
+    db.scholar.findMany({
+      where: {
+        slug: {
+          in: ["etienne-wenger", "jean-lave", "john-w-kingdon", "michael-lipsky"],
+        },
+      },
+      orderBy: { slug: "asc" },
+      select: { slug: true, status: true },
     }),
     db.$queryRaw<CountRow[]>(Prisma.sql`
       SELECT COUNT(*) AS count
@@ -124,8 +163,14 @@ export async function verifySeededDatabase(db: PrismaClient): Promise<SeedVerifi
     genealogyCount,
     publishedScholarCount,
     theoryScholarCount,
+    totalScholarCount,
+    totalTheoryScholarCount,
     publishedTopicCount,
     topicTheoryCount,
+    totalTopicCount,
+    totalTopicTheoryCount,
+    enrichmentTopicStatuses,
+    enrichmentScholarStatuses,
     l1VerificationCount: countValue(l1Rows),
     searchableTheoryCount: countValue(searchableTheoryRows),
     searchableScholarCount: countValue(searchableScholarRows),

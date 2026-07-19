@@ -2,6 +2,8 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 
+import { sourceItemsForEntity } from "../src/lib/knowledge-entity-presentation.ts";
+
 const articleTocSource = () => readFileSync("src/components/content/ArticleToc.tsx", "utf8");
 const entityArticleSource = () => readFileSync("src/components/content/EntityArticle.tsx", "utf8");
 const sourceBlockSource = () => readFileSync("src/components/common/SourceBlock.tsx", "utf8");
@@ -56,4 +58,29 @@ test("VerificationBadge keeps existing levels while exposing scope and accessibl
   assert.match(source, /verification-badge__level/);
   assert.match(source, /verification-badge__text/);
   assert.match(source, /verification-badge__explanation/);
+});
+
+test("legacy L1 source metadata keeps its link but does not display claim-level Source verified", () => {
+  const items = sourceItemsForEntity({
+    sources: [{
+      id: "legacy-source",
+      citation: "Legacy source record.",
+      url: "https://example.edu/legacy-source",
+      source_kind: "university",
+      evidence_level: "L1",
+      supports: ["A bounded source record"],
+    }],
+    verification: [{
+      claim: "A legacy L1 source record is listed without claim-level approval.",
+      evidence_level: "L1",
+      source_id: "legacy-source",
+      status: "verified",
+    }],
+  });
+
+  assert.deepEqual(items, [{
+    text: "A legacy L1 source record is listed without claim-level approval. — Legacy source record.",
+    level: "L3_pending",
+    url: "https://example.edu/legacy-source",
+  }]);
 });

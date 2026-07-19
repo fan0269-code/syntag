@@ -31,10 +31,10 @@ test("seed corpus preserves its semantic baseline after module extraction", () =
     disciplineTheories: 15,
     fieldTheories: 8,
     genealogy: 8,
-    scholars: 4,
-    theoryScholars: 4,
-    topics: 4,
-    topicTheories: 12,
+    scholars: 8,
+    theoryScholars: 8,
+    topics: 8,
+    topicTheories: 24,
     verifications: 36,
   });
   assert.deepEqual(seedCorpus.theories.map(({ slug }) => slug), [
@@ -66,6 +66,71 @@ test("seed corpus preserves its semantic baseline after module extraction", () =
     "educational-transitions-over-time",
     "organizational-routines-and-structural-change",
     "inequality-in-educational-and-social-fields",
+    "teacher-professional-learning-and-change",
+    "education-policy-implementation-frontline-discretion",
+    "access-to-educational-support-and-opportunity",
+    "communities-of-practice-in-teacher-learning",
+  ]);
+  assert.deepEqual(seedCorpus.scholars.map(({ slug }) => slug), [
+    "glen-h-elder-jr",
+    "geert-kelchtermans",
+    "anthony-giddens",
+    "pierre-bourdieu",
+    "jean-lave",
+    "etienne-wenger",
+    "michael-lipsky",
+    "john-w-kingdon",
   ]);
   assert.deepEqual(validateSeedCorpus(seedCorpus).errors, []);
+});
+
+test("the first enrichment topics retain their editorial pathways and existing-theory sources", () => {
+  const enrichmentTopicSlugs = [
+    "teacher-professional-learning-and-change",
+    "education-policy-implementation-frontline-discretion",
+    "access-to-educational-support-and-opportunity",
+    "communities-of-practice-in-teacher-learning",
+  ];
+  const expectedRoles = new Set(["primary", "supporting", "not_recommended"]);
+
+  for (const slug of enrichmentTopicSlugs) {
+    const topic = seedCorpus.topics.find((entry) => entry.slug === slug);
+    const relations = seedCorpus.topicTheories.filter((entry) => entry.topicSlug === slug);
+
+    assert.ok(topic, `${slug} exists`);
+    assert.equal(topic?.status, "draft", `${slug} remains draft pending claim-level review`);
+    assert.equal(topic?.publishedAt, undefined, `${slug} does not author a publication date`);
+    assert.deepEqual(new Set(topic?.content.en.theory_pathways.map((entry) => entry.role)), expectedRoles, `${slug} has all pathway roles`);
+    assert.equal(relations.length, 3, `${slug} has exactly three topic-theory relations`);
+    assert.deepEqual(new Set(relations.map((entry) => entry.recommendation)), expectedRoles, `${slug} has exactly three recommendation roles`);
+    const pathwayRoles = new Map(
+      topic?.content.en.theory_pathways.map((entry) => [entry.theory_slug, entry.role]),
+    );
+    const relationRoles = new Map(
+      relations.map((entry) => [entry.theorySlug, entry.recommendation]),
+    );
+    assert.deepEqual(
+      [...relationRoles.entries()].sort(([left], [right]) => left.localeCompare(right)),
+      [...pathwayRoles.entries()].sort(([left], [right]) => left.localeCompare(right)),
+      `${slug} keeps page pathway roles aligned with TopicTheory recommendations`,
+    );
+    assert.ok(relations.every((entry) => entry.evidenceNotesEn.includes("editorial")), `${slug} marks every fit as editorial`);
+    assert.ok(relations.every((entry) => {
+      const theory = seedCorpus.theories.find((candidate) => candidate.slug === entry.theorySlug);
+      const sourceUrls = new Set(theory?.content.en.sources?.map((source) => source.url));
+      return entry.sourceUrls.every((url) => sourceUrls.has(url));
+    }), `${slug} uses only source URLs registered by its theory`);
+  }
+});
+
+test("the enrichment scholars have bounded publication decisions without widening public scope", () => {
+  const candidates = new Map(seedCorpus.scholars.map((scholar) => [scholar.slug, scholar]));
+
+  assert.equal(candidates.get("jean-lave")?.status, "published");
+  assert.equal(candidates.get("etienne-wenger")?.status, "published");
+  assert.equal(candidates.get("michael-lipsky")?.status, "published");
+  assert.equal(candidates.get("john-w-kingdon")?.status, "draft");
+  assert.ok(seedCorpus.theoryScholars.slice(-4).every((entry) => entry.role === "key_contributor"));
+  assert.ok(!seedCorpus.disciplines.some((entry) => entry.status === "published" && ["psychology", "management"].includes(entry.slug)));
+  assert.ok(!seedCorpus.fields.some((entry) => entry.status === "published" && ["psychology", "management"].includes(entry.disciplineSlug)));
 });

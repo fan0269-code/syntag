@@ -6,6 +6,7 @@ import type {
 import type { ConceptContent, WorkContent } from "../../templates/knowledge-entity-template.ts";
 import type { ScholarContent } from "../../templates/scholar-template.ts";
 import type { PathwayContent } from "../../templates/pathway-template.ts";
+import { createFirstEnrichmentBatch } from "../content-batches/2026-07-18-first-enrichment.ts";
 
 export type PublicationStatus = "draft" | "published" | "archived";
 
@@ -481,7 +482,9 @@ const sources = {
   giddensLseProfile: { id: "giddens-lse-profile", citation: "London School of Economics and Political Science. Lord Tony Giddens profile.", url: "https://www.lse.ac.uk/people/lord-tony-giddens", source_kind: "university", evidence_level: "L1", supports: ["Academic positioning", "Sociology career record"] },
   bourdieuCollegeProfile: { id: "bourdieu-college-france-profile", citation: "Collège de France. Pierre Bourdieu profile.", url: "https://www.college-de-france.fr/fr/personne/pierre-bourdieu", source_kind: "university", evidence_level: "L1", supports: ["Academic positioning", "Sociology chair record"] },
   bourdieuCollegeChair: { id: "bourdieu-college-france-sociology-chair", citation: "Collège de France. Pierre Bourdieu, Sociology chair record (1982–2001).", url: "https://www.college-de-france.fr/fr/chaire/pierre-bourdieu-sociologie-chaire-statutaire", source_kind: "university", evidence_level: "L1", supports: ["Sociology chair", "Institutional academic record"] },
-} as const satisfies Record<string, ContentSource>;
+} satisfies Record<string, ContentSource>;
+
+const firstEnrichmentBatch = createFirstEnrichmentBatch(sources);
 
 function pathwayContent(draft: Omit<PathwayContent, "verification"> & { l1Claim: string; l1SourceId: string }): PathwayContent {
   const { l1Claim, l1SourceId, ...content } = draft;
@@ -1563,9 +1566,9 @@ export const seedCorpus: SeedCorpus = {
   disciplineTheories,
   fieldTheories,
   genealogy,
-  scholars,
-  theoryScholars,
-  topics,
-  topicTheories,
+  scholars: [...scholars, ...firstEnrichmentBatch.scholars],
+  theoryScholars: [...theoryScholars, ...firstEnrichmentBatch.theoryScholars],
+  topics: [...topics, ...firstEnrichmentBatch.topics],
+  topicTheories: [...topicTheories, ...firstEnrichmentBatch.topicTheories],
   verifications,
 };

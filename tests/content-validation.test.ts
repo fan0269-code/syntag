@@ -5,6 +5,7 @@ import test from "node:test";
 import { seedCorpus } from "../src/data/seed-content.ts";
 import { isConceptContent, isWorkContent } from "../src/data/templates/knowledge-entity-template.ts";
 import { isScholarContent } from "../src/data/templates/scholar-template.ts";
+import { isPathwayContent } from "../src/data/templates/pathway-template.ts";
 import { requiredTheoryBlocks } from "../src/data/templates/theory-template.ts";
 import { entityDetailHref } from "../src/lib/entity-routes.ts";
 import { validateSeedCorpus } from "../src/lib/content-validation.ts";
@@ -274,7 +275,7 @@ test("C5 detail routes render their audited content rather than generic placehol
 });
 
 test("the four existing scholar pages satisfy the C6 evidence and attribution contract", () => {
-  const expectedSlugs = ["glen-h-elder-jr", "geert-kelchtermans", "anthony-giddens", "pierre-bourdieu"];
+  const expectedSlugs = ["glen-h-elder-jr", "geert-kelchtermans", "anthony-giddens", "pierre-bourdieu", "jean-lave", "etienne-wenger", "michael-lipsky", "john-w-kingdon"];
   const theorySlugs = new Set(seedCorpus.theories.map((theory) => theory.slug));
   const workSlugs = new Set(seedCorpus.works.map((work) => work.slug));
 
@@ -295,7 +296,7 @@ test("the four existing scholar pages satisfy the C6 evidence and attribution co
 
 test("C7 topics, disciplines, and fields provide sourced theory-selection pathways", () => {
   const roles = new Set(["primary", "supporting", "not_recommended"]);
-  assert.equal(seedCorpus.topics.length, 4);
+  assert.equal(seedCorpus.topics.length, 8);
   assert.equal(seedCorpus.disciplines.length, 2);
   assert.equal(seedCorpus.fields.length, 6);
 
@@ -318,4 +319,106 @@ test("C7 topics, disciplines, and fields provide sourced theory-selection pathwa
     assert.match(source, /PathwayContentSections/, `${route} renders the theory-selection path`);
     assert.doesNotMatch(source, /being prepared|Verification pending/i, `${route} has no C7 placeholder copy`);
   }
+});
+
+test("the four enrichment topics remain draft while satisfying the complete pathway and traceability contract", () => {
+  const enrichmentTopicSlugs = new Set([
+    "teacher-professional-learning-and-change",
+    "education-policy-implementation-frontline-discretion",
+    "access-to-educational-support-and-opportunity",
+    "communities-of-practice-in-teacher-learning",
+  ]);
+  const roles = new Set(["primary", "supporting", "not_recommended"]);
+
+  for (const topic of seedCorpus.topics.filter((entry) => enrichmentTopicSlugs.has(entry.slug))) {
+    assert.equal(topic.status, "draft", `${topic.slug} remains draft pending claim-level review`);
+    assert.equal(topic.publishedAt, undefined, `${topic.slug} does not author a publication date`);
+    assert.ok(isPathwayContent(topic.content.en), `${topic.slug} has complete pathway content`);
+    assert.deepEqual(new Set(topic.content.en.theory_pathways.map((entry) => entry.role)), roles, `${topic.slug} has all three pathways`);
+    assert.deepEqual(new Set(topic.content.en.verification.map((entry) => entry.evidence_level)), new Set(["L1", "L2", "L3"]), `${topic.slug} separates source, editorial, and research guidance`);
+
+    for (const relation of seedCorpus.topicTheories.filter((entry) => entry.topicSlug === topic.slug)) {
+      const theorySources = new Set(seedCorpus.theories.find((theory) => theory.slug === relation.theorySlug)?.content.en.sources?.map((source) => source.url));
+      assert.ok(relation.sourceUrls.every((url) => theorySources.has(url)), `${topic.slug}:${relation.theorySlug} retains a theory source URL`);
+      assert.match(relation.evidenceNotesEn, /editorial/i, `${topic.slug}:${relation.theorySlug} describes fit as editorial`);
+    }
+  }
+
+  assert.equal(seedCorpus.topics.filter((entry) => enrichmentTopicSlugs.has(entry.slug)).length, 4);
+  assert.ok(!seedCorpus.disciplines.some((entry) => entry.status === "published" && ["psychology", "management"].includes(entry.slug)));
+  assert.ok(!seedCorpus.fields.some((entry) => entry.status === "published" && ["psychology", "management"].includes(entry.disciplineSlug)));
+});
+
+test("published pathways cannot advertise draft entry points, while draft pathways may retain authoring references", () => {
+  const publishedCorpus = structuredClone(seedCorpus);
+  const publishedOwner = publishedCorpus.topics.find((topic) => topic.status === "published");
+
+  assert.ok(publishedOwner, "the test corpus includes a published topic pathway");
+  publishedOwner.content.en.entry_points[0] = {
+    ...publishedOwner.content.en.entry_points[0],
+    entity_type: "scholar",
+    slug: "john-w-kingdon",
+  };
+
+  assert.ok(
+    validateSeedCorpus(publishedCorpus).errors.includes(
+      `${publishedOwner.slug}: published pathway entry point scholar:john-w-kingdon is not published`,
+    ),
+  );
+
+  const draftCorpus = structuredClone(seedCorpus);
+  const draftOwner = draftCorpus.topics.find((topic) => topic.status === "draft");
+
+  assert.ok(draftOwner, "the test corpus includes a draft topic pathway");
+  draftOwner.content.en.entry_points[0] = {
+    ...draftOwner.content.en.entry_points[0],
+    entity_type: "scholar",
+    slug: "john-w-kingdon",
+  };
+  assert.ok(
+    !validateSeedCorpus(draftCorpus).errors.includes(
+      `${draftOwner.slug}: published pathway entry point scholar:john-w-kingdon is not published`,
+    ),
+  );
+});
+
+test("published pathways cannot render draft theories from categories or theory pathways, while draft owners may retain them", () => {
+  for (const referenceKind of ["question category", "theory pathway"] as const) {
+    const corpus = structuredClone(seedCorpus);
+    const owner = corpus.topics.find((topic) => topic.status === "published");
+
+    assert.ok(owner, "the test corpus includes a published topic pathway");
+    const targetSlug = referenceKind === "question category"
+      ? owner.content.en.question_categories.flatMap((category) => category.theory_slugs)[0]
+      : owner.content.en.theory_pathways[0]?.theory_slug;
+    const target = corpus.theories.find((theory) => theory.slug === targetSlug);
+
+    assert.ok(targetSlug, `${referenceKind} has a Theory reference`);
+    assert.ok(target, `${referenceKind} Theory reference resolves`);
+    target.status = "draft";
+    delete target.publishedAt;
+
+    const expectedError = referenceKind === "question category"
+      ? `${owner.slug}: published pathway category theory ${target.slug} is not published`
+      : `${owner.slug}: published pathway theory ${target.slug} is not published`;
+    assert.ok(validateSeedCorpus(corpus).errors.includes(expectedError), expectedError);
+  }
+
+  const draftCorpus = structuredClone(seedCorpus);
+  const draftOwner = draftCorpus.topics.find((topic) => topic.status === "draft");
+
+  assert.ok(draftOwner, "the test corpus includes a draft topic pathway");
+  const draftTheorySlug = draftOwner.content.en.theory_pathways[0]?.theory_slug;
+  const draftTheory = draftCorpus.theories.find((theory) => theory.slug === draftTheorySlug);
+  assert.ok(draftTheorySlug, "the draft owner has an internal Theory reference");
+  assert.ok(draftTheory, "the draft owner's Theory reference resolves");
+  draftTheory.status = "draft";
+  delete draftTheory.publishedAt;
+
+  assert.ok(
+    !validateSeedCorpus(draftCorpus).errors.some(
+      (error) => error.includes(draftOwner.slug) && error.includes(draftTheory.slug) && error.includes("not published"),
+    ),
+    "draft owners may retain internal references to draft Theories",
+  );
 });

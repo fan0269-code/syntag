@@ -1,5 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
+import { watchBrowserHealth } from "./browser-health";
 import { expectNoHorizontalScroll, useViewport, viewportCases } from "./viewport-helper";
 
 type RouteCase = {
@@ -125,7 +126,9 @@ async function gotoHomeOrUnavailable(page: Page) {
 for (const viewport of viewportCases) {
   test.describe(`viewport ${viewport.name} ${viewport.width}x${viewport.height}`, () => {
     for (const route of routeCases) {
-      test(`${route.name} smoke and serious/critical a11y`, async ({ page }) => {
+      test(`${route.name} smoke and serious/critical a11y`, async ({ page, baseURL }) => {
+        const assertBrowserHealth = watchBrowserHealth(page, baseURL);
+
         await useViewport(page, viewport);
         await page.goto(route.path, { waitUntil: "domcontentloaded" });
 
@@ -139,30 +142,40 @@ for (const viewport of viewportCases) {
         await route.assertPage?.(page);
         await expectNoHorizontalScroll(page);
         await expectNoSeriousA11yViolations(page);
+        assertBrowserHealth();
       });
     }
   });
 }
 
-test("life course detail keeps TOC and layout stable at the 769px boundary", async ({ page }) => {
+test("life course detail keeps TOC and layout stable at the 769px boundary", async ({ page, baseURL }) => {
+  const assertBrowserHealth = watchBrowserHealth(page, baseURL);
+
   await page.setViewportSize({ width: 769, height: 900 });
   await page.goto("/theories/life-course-theory", { waitUntil: "domcontentloaded" });
 
   if (await hasUnavailableState(page)) {
     await expectUnavailableState(page);
     await expectNoHorizontalScroll(page);
+    assertBrowserHealth();
     return;
   }
 
   await expect(page.getByRole("heading", { level: 1, name: /Life Course Theory/i })).toBeVisible();
   await expect(page.getByRole("navigation", { name: /On this page/i })).toBeVisible();
   await expectNoHorizontalScroll(page);
+  assertBrowserHealth();
 });
 
-test("home inline search submits to the search route", async ({ page }) => {
+test("home inline search submits to the search route", async ({ page, baseURL }) => {
+  const assertBrowserHealth = watchBrowserHealth(page, baseURL);
+
   await page.setViewportSize({ width: 1024, height: 900 });
 
-  if ((await gotoHomeOrUnavailable(page)) === "unavailable") return;
+  if ((await gotoHomeOrUnavailable(page)) === "unavailable") {
+    assertBrowserHealth();
+    return;
+  }
 
   await page.getByLabel(/Search for a theory, scholar, concept, or research topic/i).fill("teacher identity");
   await Promise.all([
@@ -170,12 +183,18 @@ test("home inline search submits to the search route", async ({ page }) => {
     page.getByRole("button", { name: /^Search$/i }).click(),
   ]);
   await expect(page.getByRole("heading", { level: 1, name: /Results for “teacher identity”/i })).toBeVisible();
+  assertBrowserHealth();
 });
 
-test("home graph mode controls and node detail workflow are keyboard recoverable", async ({ page }) => {
+test("home graph mode controls and node detail workflow are keyboard recoverable", async ({ page, baseURL }) => {
+  const assertBrowserHealth = watchBrowserHealth(page, baseURL);
+
   await page.setViewportSize({ width: 1024, height: 900 });
 
-  if ((await gotoHomeOrUnavailable(page)) === "unavailable") return;
+  if ((await gotoHomeOrUnavailable(page)) === "unavailable") {
+    assertBrowserHealth();
+    return;
+  }
 
   await expect(page.getByRole("region", { name: /Research theory knowledge graph/i })).toBeVisible();
   const modeControls = page.locator(".graph-workspace .graph-modes");
@@ -206,6 +225,7 @@ test("home graph mode controls and node detail workflow are keyboard recoverable
   await page.keyboard.press("Escape");
   await expect(page.getByRole("complementary", { name: /Selected node details/i })).toBeHidden();
   await expect(canvas).toBeFocused();
+  assertBrowserHealth();
 });
 
 async function getGraphDrawCount(page: Page) {
@@ -214,7 +234,9 @@ async function getGraphDrawCount(page: Page) {
   ).__syrtagGraphDrawCount ?? 0);
 }
 
-test("reduced motion prevents sustained graph canvas RAF while preserving node details", async ({ page }) => {
+test("reduced motion prevents sustained graph canvas RAF while preserving node details", async ({ page, baseURL }) => {
+  const assertBrowserHealth = watchBrowserHealth(page, baseURL);
+
   await page.setViewportSize({ width: 1024, height: 900 });
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.addInitScript(() => {
@@ -246,6 +268,7 @@ test("reduced motion prevents sustained graph canvas RAF while preserving node d
 
   if ((await gotoHomeOrUnavailable(page)) === "unavailable") {
     await expectNoHorizontalScroll(page);
+    assertBrowserHealth();
     return;
   }
 
@@ -284,4 +307,5 @@ test("reduced motion prevents sustained graph canvas RAF while preserving node d
   });
 
   expect(runningAnimations).toEqual([]);
+  assertBrowserHealth();
 });
