@@ -82,12 +82,14 @@ for (const topic of topicCases) {
     await expect(page.getByRole("heading", { level: 1, name: "Topics" })).toBeVisible();
     await expect(page.locator(`a[href="/topics/${topic.slug}"]`)).toHaveCount(0);
     await expect(page.getByText(topic.question, { exact: true })).toHaveCount(0);
+    await page.waitForLoadState("networkidle");
 
     await page.goto(`/search?q=${encodeURIComponent(topic.searchPhrase)}`, { waitUntil: "domcontentloaded" });
     await expect(page.getByRole("heading", { level: 1, name: /Results for/i })).toContainText(topic.searchPhrase);
     await expect(page.getByRole("heading", { level: 1, name: "Search is temporarily unavailable" })).toHaveCount(0);
     await expect(page.locator(`a[href="/topics/${topic.slug}"]`)).toHaveCount(0);
     await expect(page.getByRole("link", { name: topic.question, exact: true })).toHaveCount(0);
+    await page.waitForLoadState("networkidle");
 
     const sitemap = await request.get("/sitemap.xml");
     expect(sitemap.status()).toBe(200);
@@ -117,6 +119,7 @@ test("published scholar profiles show attribution boundaries and source semantic
     await expect(sourceRegister.getByText(/These sources are registered for this page and support editorial synthesis\. This is not a claim-by-claim verification database\./i)).toBeVisible();
     await expect(page.getByText(/Sources listed · editorial synthesis · claim-level review pending/i)).toBeVisible();
     await expect(page.getByText(/claim-level review remains pending unless a source entry states otherwise/i)).toBeVisible();
+    await page.waitForLoadState("networkidle");
   }
 
   assertBrowserHealth();
@@ -141,11 +144,13 @@ test("draft Kingdon scholar is absent from public index, search, sitemap, and de
   await page.goto("/scholars", { waitUntil: "domcontentloaded" });
   await expect(page.getByRole("heading", { level: 1, name: "Scholars" })).toBeVisible();
   await expectNoDraftKingdon(page);
+  await page.waitForLoadState("networkidle");
 
   await page.goto("/search?q=kingdon", { waitUntil: "domcontentloaded" });
   await expect(page.getByRole("heading", { level: 1, name: /Results for “kingdon”/i })).toBeVisible();
   await expect(page.getByRole("heading", { level: 1, name: "Search is temporarily unavailable" })).toHaveCount(0);
   await expectNoDraftKingdon(page);
+  await page.waitForLoadState("networkidle");
 
   const sitemap = await request.get("/sitemap.xml");
   expect(sitemap.status()).toBe(200);
@@ -168,6 +173,7 @@ for (const searchCase of searchCases) {
     await expect(scholarResult).toBeVisible();
     await expect(scholarResult).toHaveAccessibleName(searchCase.result);
     await expectNoDraftKingdon(page);
+    await page.waitForLoadState("networkidle");
     assertBrowserHealth();
   });
 }
@@ -192,5 +198,6 @@ test("home graph topics mode excludes all four draft topics from the accessible 
   for (const topic of topicCases) {
     await expect(accessibleNodeList.getByRole("button", { name: topic.question, exact: true })).toHaveCount(0);
   }
+  await page.waitForLoadState("networkidle");
   assertBrowserHealth();
 });
