@@ -1,65 +1,67 @@
-### Task 1: Add typed page-content templates
+### Task 1: Align Topic corpus status with the evidence packs
 
 **Files:**
 
-- Create: \`src/data/templates/theory-template.ts\`
-- Create: \`src/data/templates/scholar-template.ts\`
-- Create: \`src/data/templates/work-template.ts\`
-- Create: \`src/data/templates/topic-template.ts\`
-- Test: \`tests/content-templates.test.ts\`
+- Modify: `src/data/corpus/content-batches/2026-07-18-first-enrichment.ts`
+- Modify: `tests/content-validation.test.ts`
+- Modify: `tests/seed-corpus-regression.test.ts`
 
-**Produces:** \`TheoryContent\`, \`TheoryDepth\`, \`requiredTheoryBlocks\`, \`isTheoryContent\`, and page-type interfaces.
+- [ ] **Step 1: Change the tests first**
 
-- [ ] **Step 1: Write the failing theory-depth test.**
+In `tests/content-validation.test.ts`, replace the assertion that the four enrichment Topics are published with assertions that each Topic:
 
-\`\`\`ts
-assert.deepEqual(requiredTheoryBlocks("D2"), [
-  "what_is_it", "origins", "core_concepts", "genealogy", "applicable_topics",
-  "inapplicable_topics", "misuse_risks", "analysis_dimensions", "data_collection",
-  "chapter_structure", "fit_writing", "sources",
+- has `status === "draft"`;
+- has `publishedAt === undefined`;
+- still satisfies `isPathwayContent()`;
+- retains exactly the roles `primary`, `supporting`, and `not_recommended`;
+- retains L1/L2/L3 content-nature separation;
+- retains three TopicTheory authoring relations with source URLs registered by the corresponding Theory.
+
+Use the exact Topic slug set already present in the test:
+
+```ts
+const enrichmentTopicSlugs = new Set([
+  "teacher-professional-learning-and-change",
+  "education-policy-implementation-frontline-discretion",
+  "access-to-educational-support-and-opportunity",
+  "communities-of-practice-in-teacher-learning",
 ]);
-assert.equal(isTheoryContent(LIFE_COURSE_D2_EXAMPLE, "D2"), true);
-assert.equal(isTheoryContent({ ...LIFE_COURSE_D2_EXAMPLE, fit_writing: [] }, "D2"), false);
-\`\`\`
+```
 
-- [ ] **Step 2: Run the test before implementation.**
+In `tests/seed-corpus-regression.test.ts`, add exact status assertions:
 
-Run: \`node --experimental-strip-types --test tests/content-templates.test.ts\`
-
-Expected: failure because the template module does not exist.
-
-- [ ] **Step 3: Implement the minimal reusable template contract.**
-
-\`\`\`ts
-export const THEORY_BLOCKS = [
-  "what_is_it", "origins", "core_concepts", "genealogy", "applicable_topics",
-  "inapplicable_topics", "misuse_risks", "analysis_dimensions", "data_collection",
-  "chapter_structure", "fit_writing", "sources",
-] as const;
-export type TheoryDepth = "D1" | "D2" | "D3";
-export type TheoryBlockName = (typeof THEORY_BLOCKS)[number];
-
-export function requiredTheoryBlocks(depth: TheoryDepth) {
-  return depth === "D1" ? THEORY_BLOCKS.slice(0, 7) : [...THEORY_BLOCKS];
+```ts
+for (const slug of enrichmentTopicSlugs) {
+  const topic = seedCorpus.topics.find((entry) => entry.slug === slug);
+  assert.equal(topic?.status, "draft", `${slug} remains draft pending claim-level review`);
+  assert.equal(topic?.publishedAt, undefined, `${slug} does not author a publication date`);
 }
-export function isTheoryContent(value: unknown, depth: TheoryDepth) {
-  return !!value && typeof value === "object" &&
-    requiredTheoryBlocks(depth).every((key) => key in value);
-}
-\`\`\`
+```
 
-Define concept, genealogy, suitability, operationalization, reading-path, chapter, source, and verification interfaces. Include a complete English D2 Life Course example and compact English examples for scholar, work, and topic pages.
+- [ ] **Step 2: Run the focused tests and confirm RED**
 
-- [ ] **Step 4: Re-run the test.**
+```bash
+node --env-file-if-exists=.env --experimental-strip-types --test \
+  tests/content-validation.test.ts \
+  tests/seed-corpus-regression.test.ts
+```
 
-Run: \`node --experimental-strip-types --test tests/content-templates.test.ts\`
+Expected: failure because the four Topic records are currently `published` and author `publishedAt`.
 
-Expected: PASS.
+- [ ] **Step 3: Make the minimal corpus change**
 
-- [ ] **Step 5: Commit only Task 1 files.**
+In `src/data/corpus/content-batches/2026-07-18-first-enrichment.ts`, for each of the four Topic objects:
 
-\`\`\`bash
-git add src/data/templates tests/content-templates.test.ts
-git commit -m "feat: add typed content templates"
-\`\`\`
+- change `status: "published"` to `status: "draft"`;
+- remove `publishedAt` from the Topic object;
+- leave Topic content, sources, pathways, and the 12 TopicTheory authoring records unchanged;
+- leave the three published Scholars and draft Kingdon unchanged.
+
+Do not remove the shared `publishedAt` constant because the three published Scholar records still use it.
+
+- [ ] **Step 4: Re-run the focused tests**
+
+Run the same command. Expected: PASS.
+
+---
 
