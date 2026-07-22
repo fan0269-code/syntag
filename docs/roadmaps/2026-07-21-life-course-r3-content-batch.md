@@ -1,9 +1,9 @@
 # R3: 接入 Life Course R2 验证产物 + Goodson-Day R1 修正 → content-batches
 
-> 日期：2026-07-21  
-> 状态：待执行  
-> 阶段：P1（内容语料）— 扩源入 batch，不落库，不改变 published/draft 边界  
-> 负责人：Codex  
+> 日期：2026-07-21
+> 状态：待执行
+> 阶段：P1（内容语料）— 扩源入 batch，不落库，不改变 published/draft 边界
+> 负责人：Codex
 > 关联：`docs/research/2026-07-20-life-course-evidence-r0.md`、`docs/research/2026-07-20-life-course-evidence-r2.md`、`docs/research/2026-07-21-goodson-day-evidence-r1.md`、`docs/research/skill-sop.md`
 
 ## 1. 目标与用户价值

@@ -1,9 +1,9 @@
 # Codex 提示词：R3 Life Course R2 验证产物接入 content-batches
 
-> 日期：2026-07-21  
-> 阶段：P1（内容语料）  
-> 前置条件：`docs/research/2026-07-20-life-course-evidence-r2.md`、`docs/research/2026-07-21-goodson-day-evidence-r1.md` 已存在  
-> 执行者：Codex  
+> 日期：2026-07-21
+> 阶段：P1（内容语料）
+> 前置条件：`docs/research/2026-07-20-life-course-evidence-r2.md`、`docs/research/2026-07-21-goodson-day-evidence-r1.md` 已存在
+> 执行者：Codex
 > 工作目录：`syntag/`
 
 ---
