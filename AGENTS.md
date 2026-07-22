@@ -41,3 +41,9 @@ For every theory, scholar, work, or topic article, research and verify sources b
 ## Commit & Pull Request Guidelines
 
 Recent history uses concise Conventional Commit-style prefixes, such as `feat: add typed content templates`, `fix: tighten template source references`, and `docs: add content writing system design`. Keep commits scoped and imperative. PRs should explain impact, list verification results, link the relevant issue or prompt, and include screenshots for visual or responsive changes. Call out migrations, seed changes, environment requirements, and unresolved risks.
+
+## Obsidian Update Sync
+
+After completing any content-facing change, automatically create or update one review record under `/Users/fanlw/Documents/Website-Content-Hub/20-16-博士知识图谱网站建设/30-待审核/网站更新记录/`. Follow `/Users/fanlw/Documents/Website-Content-Hub/50-内容模板/网站更新同步记录模板.md` and record the branch, baseline/result commit when available, changed files, content summary, planning basis, academic sources, actual verification results, publication-status boundary, risks, and owner decision needed.
+
+This sync is part of the content task and does not require a separate reminder. Preserve unrelated repository and Vault changes. Set the Vault record to `status: review`, `needs_human_review: true`, `owner_decision: pending`, and `deployment_status: not_started`. Never mark the record approved, previewed, deployed, or published on the owner's behalf. Do not expose draft entities or deploy unless the owner separately authorizes it after review.
