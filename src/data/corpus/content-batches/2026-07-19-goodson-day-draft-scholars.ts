@@ -212,7 +212,7 @@ export function createGoodsonDayDraftScholarBatch(
               source_ids: [sources.teacherDevelopment.id],
             },
             {
-              title: "The personal and professional selves of teachers",
+              title: "The personal and professional selves of teachers: Stable and unstable identities",
               contribution: "Day, Alison Kington, Gordon Stobart, and Pam Sammons coauthored this specific 2006 article.",
               source_ids: [sources.teacherDevelopmentIdentity.id],
             },
@@ -244,7 +244,7 @@ export function createGoodsonDayDraftScholarBatch(
             },
             {
               order: 3,
-              title: "The personal and professional selves of teachers",
+              title: "The personal and professional selves of teachers: Stable and unstable identities",
               purpose: "Read the four-author 2006 article while keeping its coauthorship boundary explicit.",
               source_id: sources.teacherDevelopmentIdentity.id,
             },

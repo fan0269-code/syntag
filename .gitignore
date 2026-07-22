@@ -40,5 +40,8 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# local agent brainstorming runtime
+# local agent runtime
 /.superpowers/
+.claude/settings.json
+.claude/worktrees/
+.claude/hooks/

@@ -15,7 +15,6 @@ if (preflight.errors.length > 0) {
 }
 
 const db = new PrismaClient({ adapter: new PrismaPg({ connectionString }) });
-const verificationDate = new Date("2026-07-12T00:00:00.000Z");
 
 function publication(record: { status: PublicationStatus; publishedAt?: string }) {
   if (record.status === "published" && !record.publishedAt) throw new Error("Published content requires publishedAt");
@@ -277,7 +276,7 @@ async function main() {
         level: record.level,
         sources: record.sources,
         notes: record.notes,
-        verifiedAt: record.level === "L1_verified" ? verificationDate : null,
+        verifiedAt: record.level === "L1_verified" ? new Date(record.verifiedAt) : null,
       },
       create: {
         entityType: "theory",
@@ -286,7 +285,7 @@ async function main() {
         level: record.level,
         sources: record.sources,
         notes: record.notes,
-        verifiedAt: record.level === "L1_verified" ? verificationDate : null,
+        verifiedAt: record.level === "L1_verified" ? new Date(record.verifiedAt) : null,
       },
     });
   }

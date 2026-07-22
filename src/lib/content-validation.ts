@@ -237,6 +237,9 @@ export function validateSeedCorpus(corpus: SeedCorpus): SeedCorpusValidationResu
       errors.push(`verification for ${item.entitySlug}: L1 record is missing a source`);
     }
     if (item.level === "L1_verified") {
+      if (Number.isNaN(Date.parse(item.verifiedAt))) {
+        errors.push(`verification for ${item.entitySlug}: L1 record requires a valid ISO verifiedAt`);
+      }
       const theory = corpus.theories.find((entry) => entry.slug === item.entitySlug);
       const sourceUrls = new Set(theory?.content.en.sources?.map((source) => source.url) ?? []);
       if (item.sources.some((source) => !sourceUrls.has(source))) {

@@ -1,8 +1,8 @@
 # Syrtag 网站建设总规划与迭代手册
 
-> 版本：v1.0  
-> 状态：执行中  
-> 最后更新：2026-07-17
+> 版本：v1.1
+> 状态：执行中
+> 最后更新：2026-07-22
 > 用途：本文件是 Syrtag 后续建站、内容建设、验收与发布的唯一工作格式。任何新需求、修复或内容批次均先按本文“迭代规划模板”立项，再进入实现。
 
 ## 1. 网站目标与边界
@@ -27,8 +27,8 @@ flowchart LR
 | 维度 | 当前事实 | 结论 |
 | --- | --- | --- |
 | 前端 | 首页、静态说明页、七类实体索引与详情路由、图谱组件和 SEO 基础均已存在；C7 后本地构建生成 92 个页面。 | 具备进入全站内容质量与发布验收的页面骨架。 |
-| 内容 | `src/data/seed-content.ts` 是唯一作者语料源，含 Education 与 Sociology 的 12 个主理论（D3×2、D2×4、D1×6）。C1 已校准结构化呈现；C2、C3、C4 已分别在本地完成 D3、D2、D1 内容深化；C5 已从这些理论的现有核心来源发布 19 条 Works 和 24 条去重的 Concepts；C6 已深化 4 位既有学者并完成其余理论作者审计；C7 已为 4 个主题、2 个学科和 6 个领域发布带来源的理论选择路径。 | D3 覆盖深度研究转换；D2 覆盖研究设计判断；D1 已明确理论/框架/研究传统/编辑总称的性质、初步适用边界、阅读路径和来源。Works、Concepts、Scholar、主题、学科和领域页均已呈现真实来源、关系和内容合同；后续转入 C8 全站质量与发布验收。 |
-| 数据库 | Prisma schema、迁移与幂等 seed 已存在；当前本地环境的只读 seed 集成核验通过。生产数据库配置与数据状态本轮未验证。 | 仅可确认本地数据可读，不能据此宣称生产数据已同步。 |
+| 内容 | `src/data/seed-content.ts` 是唯一 production manifest，当前公开范围仍为 Education 与 Sociology 的 12 个主理论（D3×2、D2×4、D1×6）。R4 已在当前工作树把 R3 的 3 条 Life Course R2 L1 source 接入 `lifeCourseContent.sources`、reading path 和页面 verification，并完成本地发布门禁。 | 既有公开内容边界不变；目前只能确认本地发布候选通过，PR、生产部署和公网验证完成前不声称已上线。 |
+| 数据库 | Prisma schema、迁移与幂等 seed 已存在；当前本机非生产数据库已完成 migration、连续两次 seed 和持久化日期集成核验。生产数据库状态须由本次 production workflow 与公网探针验证。 | 本地数据链路已验证，不能据此提前宣称生产数据已同步。 |
 | 图谱与搜索 | 真实数据、不可用状态、图谱与搜索的自动化测试在当前本地测试集内通过。 | C1 不扩大图谱/搜索范围；完整浏览器验收留给 C8。 |
 | 图谱渲染 | `GraphCanvas` 使用原生 2D Canvas 与 `requestAnimationFrame` 自绘，依赖中无 React Flow/Sigma.js；N22 已回写该有意决策。 | 批次 3A 仅对齐文档与现实，未改渲染代码。 |
 | 图谱交互 | N4a 已增加相邻边加粗、邻居高亮与无关节点 30% 淡化；点击改为轻量详情卡，12 节点布局收紧，移动端以图谱上方折叠控制条暴露三种模式。 | 空图和错误状态复用 `DataUnavailableState`；生产 demo 边界保持不变。 |
@@ -197,7 +197,7 @@ flowchart LR
 
 ## 9. 近期执行顺序
 
-下一步从 [`prompts/completion/01-baseline-and-scope.md`](../prompts/completion/01-baseline-and-scope.md) 开始，并依次执行至 Prompt 08。每完成一步，更新对应的 `docs/roadmaps/` 计划和本文件第 2 节的当前基线；当路线图、实际代码和验收结果不一致时，先更新计划和决策记录，再继续实现。
+R4 已完成 corpus 接入、核验日期持久化与本地完整发布门禁；用户已在 2026-07-22 明确批准进入 PR、合并和生产上线。当前只发布已审范围，不自动扩 Scholar、Work、Concept、Genealogy、学科或发布状态。production workflow 与公网探针完成前，仍只能称“本地发布候选通过”，不能称“已上线”。
 
 ## 10. 决策记录
 
@@ -211,3 +211,9 @@ flowchart LR
 | N23 | Graphify 端点 ID 健康修复 | Graphify 生成图中 99 条 dangling-endpoint 边已降为 0；8 个旧绝对路径端点按 extraction spec 改为 `syntag_...` 仓库相对路径 ID，丢失的外部 import 端点根据源文件显式 import 补齐。未新增业务关系，未改网站运行逻辑。 | 已保留 `graphify-out/graph.before-id-repair.json` 和 `graphify-out/dangling-endpoint-edges.json`。已知项：2 组 API route 同时 import/间接调用，另 2 组 `internal-links.ts` 同时 import/re-export，这 4 组多关系在 DiGraph 中会折叠；它们是 Graphify 同端点多边限制，不是端点断裂。 | 2026-07-17 |
 | N26 | P0 内容运营主计划执行基线 | `PLAN_BASE_COMMIT=b25c20f3fe2783e7b980d1d601adebcbfc8ebd89`；分支 `feature/release-positioning-hardening`，相对 upstream ahead/behind 为 `0/0`，相对 `origin/main` 为 `3/2`。旧执行入口 `docs/roadmaps/2026-07-17-next-round-codex-prompt.md` 与 `docs/roadmaps/2026-07-17-overhaul-and-operations-codex-prompt.md` 已废止；当前入口为五角度运营路线图与批准的主实施计划。 | 本地 loopback PostgreSQL 依次通过 migrate、seed、typecheck、73/74 tests（1 项既有构建后条件性 skip）、lint、content check、93/93 build 与构建产物 smoke。桌面及 375px 实查 `/`、Life Course、Structuration：图谱模式切换与节点入口可用，移动控制条、TOC、阅读宽度、来源区和广告位存在，三页无横向滚动。线上同步、Graphify、2A–2C、3A–3D 已完成；4A/4B 以本次实时验收为准；4C–4E 与扩学科须重新立项。本轮未 push、merge 或 deploy。 | 2026-07-17 |
 | N27 | UI 设计修正与浏览器验收 | 按 [`docs/roadmaps/2026-07-17-ui-design-remediation.md`](roadmaps/2026-07-17-ui-design-remediation.md) 完成首页搜索、图谱等价交互、响应式 TOC、来源/核验范围、静态页、空广告和分域 CSS；保持原生 Canvas、published-only 与 Education/Sociology 范围。 | 本地 loopback PostgreSQL migrate 与双次幂等 seed 通过；typecheck、lint、content check 全绿；Node 114 项中 113 通过、0 失败、1 项既有 skip；build 93/93、产物 smoke 1/1、Chromium Playwright + axe 20/20。PR #6 合并为 `082debc`，production workflow `29594180907` 成功；线上代表页无横向溢出或浏览器错误，图谱模式、节点详情与 Escape 回焦通过。 | 2026-07-18 |
+| N28 | 科研 skill + Zotero 联动立项（R0） | 创建 `~/.claude/skills/syrtag-research/SKILL.md` 与项目级 `docs/research/skill-sop.md`，固化五源检索→核验→source register + claim matrix + ContentSource 片段流程；产物保持 draft，不落库、不改 schema。Life Course 试跑用 Crossref 本地代理核验 Elder 1998 真实 DOI `10.1111/j.1467-8624.1998.tb06128.x`，并拦下二手清单误植（`tb06138` 实为 Davies & Cummings 1998）。发现 OpenAlex 免费层每日预算坑与 WebFetch 共享 IP 429，已回写 skill。配套建 `docs/research/user-research/phd-question-log.md` 支持用户侧潜水采集。 | `content:check` 全绿（2 disciplines + 12 theories），基线不受影响；不扩 published 范围、不改 schema、不部署。R1–R3 与 Zotero 接入待续。 | 2026-07-20 |
+| N29 | Zotero 联动落地（R1） | Zotero 7 + Better BibTeX 已装；本地 API 23119 已开（Settings → Advanced → Allow other applications）。`theories/life-course-theory` collection 建好，Elder 1998 经 DOI 抓入（Zotero key `GEVCBX8J`，BBT citekey `elderLifeCourseDevelopmental1998`，元数据全对）。`scripts/zotero-export.ts` 跑通：用 Zotero 原生 `?format=bibtex/json` 端点产出 ContentSource 片段 + source register 行 + citekey 映射。SOP §4 更新 citekey 映射规则：BBT 默认 camelCase 不动，`ContentSource.id` 用 kebab slug，两者通过 source register `bbt citekey` 列显式映射。 | `content:check` 全绿；Zotero API 可读（不支持脚本写，写条目仍靠 GUI）。R2 待挂 PDF 做 Zotero 注解升级 claim locator 从 `none` 到页码；R3 待人审落库。 | 2026-07-20 |
+| N30 | Life Course 扩源核验（R2 部分） | 用 Crossref 本地代理核验 Elder 代表作：1996 编著章节（DOI `10.1017/cbo9780511571114.004`，Cambridge UP，pp. 31–62）与 2000 百科条目（DOI `10.1037/10520-020`，Oxford UP，pp. 50–52）两条 L1 通过；1974 *Children of the Great Depression* 原版无 Crossref DOI，Crossref 命中的 2018 Routledge 重印 book-chapter 经比对（出版年/出版社/载体三字段不符）判定不可冒充原版，降为 L3 pending。Google Books API 本轮仍 429。 | `content:check` 全绿；evidence pack §2 +3 行、§3 +3 claim、§4.1 拦截记录。R3 source-pool 已在 `7c468ea` 完成；claim-level locator 与 R4 页面接入仍待续。 | 2026-07-20 |
+| N31 | Life Course R3 source-pool 与 R4 接入边界 | R3 已在 `7c468ea` 准备 3 条 L1 ContentSource，并补全 Day et al. 2006 canonical 标题；source-pool 尚未接入 `lifeCourseContent`，所以公开页面、数据库和 static routes 均未因这 3 条来源改变。 | 旧 R4 提示词错误地把 `entities.ts` 的 `sources` 当作包含新键的 `LifeCourseEvidenceR2SourcePool`，且限定只改 `entities.ts`，实际无法通过类型检查。R4 改为先把 batch 收紧为零参数自包含工厂，再接入 source、reading path 和页面级 verification，并以目标测试、`content:check`、typecheck 为门禁。 | 2026-07-22 |
+| N32 | Life Course R4 本地 corpus 接入 | `createLifeCourseEvidenceR2Batch()` 已收紧为零参数自包含工厂；Life Course 当前工作树含 9 条 source 和 order 1–9 的 reading path，3 条 R2 source 均有页面级 `L1 / verified` 记录。 | 聚焦测试有效 RED（退出码 1）后 GREEN（退出码 0）；`content:check`、typecheck、两文件回归（21/21）与 `git diff --check` 均为 0。未 seed、build、deploy 或线上验证；Elder 1974 与 claim-level locator 仍未解决。 | 2026-07-22 |
+| N33 | Life Course R4 生产发布候选 | 补齐 L1 `verifiedAt` seed 合同与按记录持久化；3 条 R2 source 仍只扩充既有 Life Course 页面，不新增实体、路由、sitemap 或发布状态。用户已授权 PR、合并和 deploy。 | 本机非生产 DB migration in sync，连续两次 seed 与数据库集成回归通过；typecheck、Node 测试 123 通过/1 项按设计留给 build、全仓 lint、content check、生产 build + smoke 1/1 和 Chromium 36/36 均通过。PR、Actions 和公网探针待本提交合并后完成，当前不声明已上线。 | 2026-07-22 |

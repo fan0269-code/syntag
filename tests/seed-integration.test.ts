@@ -53,6 +53,34 @@ test("the local seed has the expected published corpus and queryable relations",
     assert.ok(result.identitySearchCount > 0);
     assert.ok(result.elderSearchCount > 0);
     assert.ok(result.transitionTopicSearchCount > 0);
+
+    const lifeCourse = await db.theory.findUnique({
+      where: { slug: "life-course-theory" },
+      select: { id: true, contentJsonb: true },
+    });
+    assert.ok(lifeCourse, "the seeded Life Course theory exists");
+    const lifeCourseContent = lifeCourse.contentJsonb as {
+      en?: { sources?: Array<{ id?: string }> };
+    };
+    assert.deepEqual(
+      lifeCourseContent.en?.sources?.slice(-3).map((source) => source.id),
+      [
+        "elder-1996-human-lives-changing-societies",
+        "elder-2000-life-course-theory-encyclopedia",
+        "elder-1999-children-of-the-great-depression-25th",
+      ],
+    );
+
+    const sourceVerification = await db.verification.findUnique({
+      where: {
+        entityType_entityId_fieldPath: {
+          entityType: "theory",
+          entityId: lifeCourse.id,
+          fieldPath: "content_jsonb.en.sources",
+        },
+      },
+    });
+    assert.equal(sourceVerification?.verifiedAt?.toISOString(), "2026-07-21T00:00:00.000Z");
   } finally {
     await db.$disconnect();
   }

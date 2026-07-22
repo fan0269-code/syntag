@@ -1,89 +1,80 @@
-# Task 1 report: typed page-content templates
+# Task 1 Report — Topic evidence-pack publication alignment
 
 ## Scope
 
-Created only the Task 1 templates and focused test:
+Implemented the brief for the four enrichment Topics only:
 
-- `src/data/templates/theory-template.ts`
-- `src/data/templates/scholar-template.ts`
-- `src/data/templates/work-template.ts`
-- `src/data/templates/topic-template.ts`
-- `tests/content-templates.test.ts`
-
-The templates provide the requested page-content interfaces, theory-depth block rules, a non-empty block validator, a complete English D2 Life Course example, and compact English scholar, work, and topic examples.
+- `teacher-professional-learning-and-change`
+- `education-policy-implementation-frontline-discretion`
+- `access-to-educational-support-and-opportunity`
+- `communities-of-practice-in-teacher-learning`
 
 ## TDD record
 
-1. Added `tests/content-templates.test.ts` before production code.
-2. Ran `node --experimental-strip-types --test tests/content-templates.test.ts`.
-3. Observed the expected red failure: `ERR_MODULE_NOT_FOUND` for `src/data/templates/theory-template.ts`.
-4. Implemented the template contracts and examples.
-5. Re-ran the focused test: 1 passing, 0 failing.
+### RED
 
-`isTheoryContent` checks that every depth-required block is present and non-empty. This is necessary for the specified negative case in which an empty `fit_writing` array must be rejected.
+After changing the focused assertions first, ran:
 
-## Verification
+```bash
+node --env-file-if-exists=.env --experimental-strip-types --test \
+  tests/content-validation.test.ts \
+  tests/seed-corpus-regression.test.ts
+```
 
-- Focused test: `node --experimental-strip-types --test tests/content-templates.test.ts` — pass (1/1).
-- Full test suite: `npm test` — pass (4/4).
-- Type check: `npx tsc --noEmit --incremental false` — pass.
-- Diff whitespace check: `git diff --check` — pass.
+Result: `18` tests total, `16` passed, `2` failed.
 
-The test commands emit the repository's pre-existing Node module-type warning because `package.json` does not declare `"type": "module"`. This Task intentionally does not change project configuration.
+Both failures were expected and named the first enrichment Topic:
+
+```text
+teacher-professional-learning-and-change remains draft pending claim-level review
++ actual - expected
++ 'published'
+- 'draft'
+```
+
+The failures occurred in the enriched-topic contract test and the seed-corpus regression test, confirming the prior corpus records were published and authored `publishedAt` values.
+
+### Minimal implementation
+
+In the first-enrichment batch, changed only the four Topic objects from `status: "published"` to `status: "draft"` and removed each Topic's `publishedAt` property. The shared `publishedAt` constant and all Scholar publication decisions were left intact.
+
+## GREEN
+
+Re-ran the exact focused command:
+
+```bash
+node --env-file-if-exists=.env --experimental-strip-types --test \
+  tests/content-validation.test.ts \
+  tests/seed-corpus-regression.test.ts
+```
+
+Result: `18` passed, `0` failed.
+
+The test runner emitted the pre-existing `MODULE_TYPELESS_PACKAGE_JSON` warning only; it did not affect the result.
 
 ## Self-review
 
-- `TheoryDepth` applies the required D1 subset and full D2/D3 block set.
-- The Life Course example supplies all required D2 blocks with English copy and source/verification metadata.
-- Scholar, work, and topic contracts reuse shared source, verification, and reading-path types rather than duplicating them.
-- No existing unrelated files were modified or staged.
+Read-only corpus inspection confirmed:
 
-## Review-fix addendum (2026-07-12)
+```text
+four enrichment Topics: status=draft; publishedAt absent
+topicTheories=12
+publishedScholars=jean-lave:published,etienne-wenger:published,michael-lipsky:published
+kingdon=draft
+```
 
-### Fixed findings
+The focused contracts also confirm, for each Topic, pathway validity, exactly the `primary` / `supporting` / `not_recommended` roles, L1/L2/L3 verification separation, exactly three TopicTheory relations, and relation source URLs registered on the corresponding Theory.
 
-- Added explicit Scholar `academic_identity` and `research_fit` fields, with populated Glen Elder example values.
-- Added Work `core_question`, `content_guide`, `key_chapters`, and lawful `lawful_access` routes. The compact work example links only to its DOI landing page.
-- Added Topic `theory_comparison_table`, `recommended_primary_theory`, and `chapter_structure_suggestion`, with the school-to-work example comparing Life Course Theory and Social Capital Theory.
-- Added the `isTheoryDepth` runtime type guard. `isTheoryContent` now rejects unknown depths and validates the required D1/D2/D3 block shapes rather than only checking fields are non-empty.
-- Strengthened nested validation for concepts, genealogy, suitability, operationalization, chapters, sources, reading paths, and verification records.
-- Made provenance discriminated and explicit: traceable `ContentSource` entries are L1-only and identify a source kind; L1 verification must reference an existing source; L2 is editorial; L3 is proposed.
-- Added focused tests for page-specific template fields, invalid depth values, malformed nested blocks, and invalid L1 provenance.
+`git diff --check -- tests/content-validation.test.ts tests/seed-corpus-regression.test.ts` completed with no whitespace errors.
 
-### Commands and results
+## Files changed by this task
 
-1. `node --experimental-strip-types --test tests/content-templates.test.ts`
-   - Initial red run failed as intended because `isTheoryDepth` was not exported.
-   - Final run: 3 tests passed, 0 failed.
-2. `npx tsc --noEmit --incremental false`
-   - Passed with exit code 0 and no output.
-3. `npm test`
-   - Final run: 6 tests passed, 0 failed.
-4. `git diff --check`
-   - Passed with no output.
+- `src/data/corpus/content-batches/2026-07-18-first-enrichment.ts`
+- `tests/content-validation.test.ts`
+- `tests/seed-corpus-regression.test.ts`
+- `.superpowers/sdd/task-1-report.md` (required task report)
 
-The test commands retain the repository's pre-existing Node module-type warning because `package.json` does not declare `"type": "module"`; this fix does not alter project configuration.
+## Concerns
 
-### Final self-review
-
-- The changes are limited to the four Task 1 template modules and the focused template test.
-- L1 claims cannot validate without a source that is present in the template's source list; the compact examples use a DOI-backed L1 source and reserve recommendations for L2/L3.
-- The report is an untracked task artifact and is intentionally not staged with the code commit.
-
-## Final re-review fixes (2026-07-12)
-
-- `isTheoryContent` now validates every optional `reading_path[].source_id` against the current page's `ContentSource.id` set, matching the existing L1 verification-source integrity rule.
-- Added a focused negative test using `invented-source-id`; it failed before the validator change and passes after it.
-- Corrected the compact Life Course journal-article example: its retained `key_chapters` entry is now explicitly an article-level guide and says it is not a chapter title.
-
-### Verification
-
-1. `node --experimental-strip-types --test tests/content-templates.test.ts`
-   - Red: 2 expected failures (invented reading-path source was accepted; article example was labeled as a chapter).
-   - Green: 4 passed, 0 failed.
-2. `npm test`
-   - Passed: 7 passed, 0 failed.
-3. `git diff --check -- src/data/templates/theory-template.ts src/data/templates/work-template.ts tests/content-templates.test.ts`
-   - Passed with no output.
-
-The pre-existing Node module-type warning remains and is outside this Task 1 scope. This report remains untracked and excluded from the Task 1 code/test commit.
+- The worktree contained substantial pre-existing uncommitted changes, including the untracked enrichment batch. They were preserved; this task made only the scoped additive edits above.
+- No commit, push, PR, merge, deployment, or database action was performed.

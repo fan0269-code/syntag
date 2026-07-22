@@ -68,6 +68,19 @@ test("published entity requires a valid ISO publishedAt", () => {
   assert.ok(validateSeedCorpus(corpus).errors.some((error) => error.includes(corpus.works[0].slug) && error.includes("valid ISO")));
 });
 
+test("L1 seed verification requires a valid ISO verifiedAt", () => {
+  const corpus = structuredClone(seedCorpus);
+  const verification = corpus.verifications.find((entry) => entry.level === "L1_verified");
+
+  assert.ok(verification, "the corpus includes an L1 seed verification");
+  verification.verifiedAt = "not-a-date";
+  assert.ok(
+    validateSeedCorpus(corpus).errors.includes(
+      `verification for ${verification.entitySlug}: L1 record requires a valid ISO verifiedAt`,
+    ),
+  );
+});
+
 test("the seed corpus includes published scholar and topic graph relations with evidence", () => {
   assert.ok(seedCorpus.scholars.some((scholar) => scholar.status === "published" && scholar.slug === "glen-h-elder-jr"));
   assert.ok(seedCorpus.topics.some((topic) => topic.status === "published" && topic.slug === "educational-transitions-over-time"));
@@ -97,6 +110,35 @@ test("the teacher life-history ethics source resolves to its publisher DOI recor
 
   assert.equal(source?.url, "https://doi.org/10.4135/9781452226552.n21");
   assert.match(source?.citation || "", /Josselson, R\. \(2007\)/);
+});
+
+test("Life Course R2 sources are wired into sources, reading path, and L1 verification", () => {
+  const expectedSourceIds = [
+    "elder-1996-human-lives-changing-societies",
+    "elder-2000-life-course-theory-encyclopedia",
+    "elder-1999-children-of-the-great-depression-25th",
+  ];
+  const lifeCourse = seedCorpus.theories.find((theory) => theory.slug === "life-course-theory");
+
+  assert.ok(lifeCourse, "life-course-theory is included");
+  const sourceIds = lifeCourse.content.en.sources?.map((source) => source.id) ?? [];
+  const readingSourceIds = lifeCourse.content.en.reading_path?.map((entry) => entry.source_id) ?? [];
+  const verifiedSourceIds = lifeCourse.content.en.verification
+    ?.filter((entry) => entry.evidence_level === "L1" && entry.status === "verified")
+    .map((entry) => entry.source_id) ?? [];
+
+  for (const sourceId of expectedSourceIds) {
+    assert.equal(sourceIds.filter((id) => id === sourceId).length, 1, `${sourceId} appears once in sources`);
+    assert.ok(readingSourceIds.includes(sourceId), `${sourceId} appears in the reading path`);
+    assert.ok(verifiedSourceIds.includes(sourceId), `${sourceId} has L1 verified page verification`);
+  }
+  assert.equal(sourceIds.length, 9, "Life Course has nine sources");
+  assert.equal(readingSourceIds.length, 9, "Life Course has nine reading-path entries");
+  assert.deepEqual(
+    lifeCourse.content.en.reading_path?.map((entry) => entry.order),
+    [1, 2, 3, 4, 5, 6, 7, 8, 9],
+    "Life Course reading-path orders are unique and sequential",
+  );
 });
 
 test("three flagship checks retain genealogy, fit boundaries, paths, operationalization, and sources", () => {
