@@ -84,25 +84,6 @@ function titleOf(title?: string): string {
   return (title || "").replace(/\s+/g, " ").trim();
 }
 
-// kebab slug: elderLifeCourseDevelopmental1998 → elder-1998-life-course-developmental-theory
-function kebabFromCitekey(citekey?: string, title?: string, year?: string): string {
-  if (title && year) {
-    const slug = title.toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-+|-+$/g, "");
-    const firstAuthor = "elder"; // 实际从 creators 取，这里简化为约定
-    return `${firstAuthor}-${year}-${slug}`;
-  }
-  // 退回 citekey 拆分
-  if (!citekey) return `unknown-${Date.now()}`;
-  return citekey
-    .replace(/([a-z])([A-Z])/g, "$1-$2")
-    .replace(/(\d+)$/, "-$1")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-}
-
 function inferSourceKind(data: ZoteroItemData): ContentSourceDraft["source_kind"] {
   if (data.DOI) return "doi";
   if (data.itemType === "book" || data.itemType === "bookSection") return data.publisher ? "publisher" : "library";
@@ -136,10 +117,10 @@ function toCitation(data: ZoteroItemData): string {
   return `${authors} (${year}). ${title}.`.trim();
 }
 
-async function fetchJson(path: string): Promise<any> {
+async function fetchJson<T>(path: string): Promise<T> {
   const res = await fetch(`${ZOTERO_API}${path}`);
   if (!res.ok) throw new Error(`HTTP ${res.status} ${path}`);
-  return res.json();
+  return res.json() as Promise<T>;
 }
 
 function toContentSourceDraft(item: ZoteroItem): ContentSourceDraft {
@@ -147,16 +128,11 @@ function toContentSourceDraft(item: ZoteroItem): ContentSourceDraft {
   const firstAuthorSurname = (data.creators?.[0]?.lastName || data.creators?.[0]?.name || "unknown")
     .toLowerCase().replace(/[^a-z0-9]+/g, "");
   const year = yearOf(data.date);
-  const slug = kebabFromCitekey(data.citationKey, data.title, year);
   // 显式把 firstAuthor 塞进 slug 前缀
   const id = `${firstAuthorSurname}-${year}-${(data.title || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "")}`;
 
   const supports: string[] = [];
   if (data.creators?.length) {
-    const names = data.creators
-      .filter((c) => c.creatorType === "author" || !c.creatorType)
-      .map((c) => `${c.lastName || c.name || ""}${c.firstName ? ", " + c.firstName : ""}`.trim())
-      .filter(Boolean);
     supports.push(`${authorsToApa(data.creators)} authored "${titleOf(data.title)}"`);
   }
   if (year) supports.push(`Published in ${year}`);
@@ -213,7 +189,7 @@ async function main() {
   const path = argKey
     ? `/api/users/0/items/${argKey}?format=json`
     : `/api/users/0/items?limit=100&format=json&itemType=-attachment%20-note`;
-  const items: ZoteroItem[] = await fetchJson(path);
+  const items = await fetchJson<ZoteroItem | ZoteroItem[]>(path);
   const arr = Array.isArray(items) ? items : [items];
 
   if (arr.length === 0) {

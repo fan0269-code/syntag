@@ -40,24 +40,16 @@ const elder1999ChildrenOfTheGreatDepression25th: ContentSource = {
   ],
 };
 
-export interface LifeCourseEvidenceR2SourcePool {
-  elder1996HumanLivesChangingSocieties: ContentSource;
-  elder2000LifeCourseTheoryEncyclopedia: ContentSource;
-  elder1999ChildrenOfTheGreatDepression25th: ContentSource;
-}
-
 export interface LifeCourseEvidenceR2Batch {
   sources: ContentSource[];
 }
 
-export function createLifeCourseEvidenceR2Batch(
-  sources: LifeCourseEvidenceR2SourcePool,
-): LifeCourseEvidenceR2Batch {
+export function createLifeCourseEvidenceR2Batch(): LifeCourseEvidenceR2Batch {
   return {
     sources: [
-      sources.elder1996HumanLivesChangingSocieties,
-      sources.elder2000LifeCourseTheoryEncyclopedia,
-      sources.elder1999ChildrenOfTheGreatDepression25th,
+      elder1996HumanLivesChangingSocieties,
+      elder2000LifeCourseTheoryEncyclopedia,
+      elder1999ChildrenOfTheGreatDepression25th,
     ],
   };
 }

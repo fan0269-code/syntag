@@ -8,6 +8,7 @@ import type { ScholarContent } from "../../templates/scholar-template.ts";
 import type { PathwayContent } from "../../templates/pathway-template.ts";
 import { createFirstEnrichmentBatch } from "../content-batches/2026-07-18-first-enrichment.ts";
 import { createGoodsonDayDraftScholarBatch } from "../content-batches/2026-07-19-goodson-day-draft-scholars.ts";
+import { createLifeCourseEvidenceR2Batch } from "../content-batches/2026-07-21-life-course-evidence-r2.ts";
 
 export type PublicationStatus = "draft" | "published" | "archived";
 
@@ -124,13 +125,17 @@ export interface SeedTopicTheory {
   evidenceNotesEn: string;
 }
 
-export interface SeedVerification {
+interface SeedVerificationBase {
   entitySlug: string;
   fieldPath: string;
-  level: "L1_verified" | "L2_editorial" | "L3_pending";
   sources: string[];
   notes: string;
 }
+
+export type SeedVerification = SeedVerificationBase & (
+  | { level: "L1_verified"; verifiedAt: string }
+  | { level: "L2_editorial" | "L3_pending"; verifiedAt?: never }
+);
 
 export interface SeedCorpus {
   disciplines: SeedDiscipline[];
@@ -487,6 +492,7 @@ const sources = {
 
 const firstEnrichmentBatch = createFirstEnrichmentBatch(sources);
 const goodsonDayDraftScholarBatch = createGoodsonDayDraftScholarBatch(sources);
+const lifeCourseEvidenceR2Batch = createLifeCourseEvidenceR2Batch();
 
 function pathwayContent(draft: Omit<PathwayContent, "verification"> & { l1Claim: string; l1SourceId: string }): PathwayContent {
   const { l1Claim, l1SourceId, ...content } = draft;
@@ -589,7 +595,7 @@ const lifeCourseContent: TheoryContent = {
     "State which concepts guide the analysis, what evidence can reconstruct change, and what competing explanations remain.",
     "Treat all operationalisation suggestions as options to adapt to the question, ethics, access, population, and disciplinary guidance.",
   ],
-  sources: [sources.lifeCourse, sources.lifeCourseHandbook, sources.lifeCourseShanahan, sources.lifeCourseMayer, sources.lifeCourseAlwin, sources.lifeCourseMethods],
+  sources: [sources.lifeCourse, sources.lifeCourseHandbook, sources.lifeCourseShanahan, sources.lifeCourseMayer, sources.lifeCourseAlwin, sources.lifeCourseMethods, ...lifeCourseEvidenceR2Batch.sources],
   reading_path: [
     { order: 1, level: "Level 1 · Orientation", title: "Elder (1998): developmental problem and historical context", purpose: "Orientation to the perspective's central problem and longitudinal origins.", source_id: sources.lifeCourse.id },
     { order: 2, level: "Level 1 · Orientation", title: "Elder, Johnson, and Crosnoe (2003): principles and history", purpose: "Learn the consolidated principles and their emergence.", source_id: sources.lifeCourseHandbook.id },
@@ -597,10 +603,16 @@ const lifeCourseContent: TheoryContent = {
     { order: 4, level: "Level 2 · Differentiation", title: "Mayer (2009): field limits and causal questions", purpose: "Assess theory-development and causal limits before making explanatory claims.", source_id: sources.lifeCourseMayer.id },
     { order: 5, level: "Level 2 · Differentiation", title: "Alwin (2012): conceptual varieties", purpose: "Compare the non-identical meanings attached to life-course theory, perspective, paradigm, and framework.", source_id: sources.lifeCourseAlwin.id },
     { order: 6, level: "Level 3 · Research design", title: "Giele and Elder (1998): methods of life-course research", purpose: "Evaluate retrospective, prospective, qualitative, and quantitative evidence choices.", source_id: sources.lifeCourseMethods.id },
+    { order: 7, level: "Level 1 · Source verification", title: "Elder (1996): verified chapter record", purpose: "Check the chapter's authorship, publication context, and page range in the publisher record.", source_id: "elder-1996-human-lives-changing-societies" },
+    { order: 8, level: "Level 1 · Source verification", title: "Elder (2000): verified encyclopedia entry", purpose: "Check the entry's authorship, volume, publisher, and page range in the bibliographic record.", source_id: "elder-2000-life-course-theory-encyclopedia" },
+    { order: 9, level: "Level 1 · Edition verification", title: "Elder (1999): 25th Anniversary Edition record", purpose: "Distinguish the Westview anniversary edition and its added chapter from the 1974 original.", source_id: "elder-1999-children-of-the-great-depression-25th" },
   ],
   verification: [
     { claim: "Historical development and the classic principles are limited to the linked journal and publisher records.", evidence_level: "L1", source_id: sources.lifeCourseHandbook.id, status: "verified" },
     { claim: "The field-development and causal-limit statements are supported by Mayer's review.", evidence_level: "L1", source_id: sources.lifeCourseMayer.id, status: "verified" },
+    { claim: "Glen H. Elder authored the 1996 chapter 'Human Lives in Changing Societies: Life Course and Developmental Insights,' published by Cambridge University Press in Developmental Science, pages 31–62.", evidence_level: "L1", source_id: "elder-1996-human-lives-changing-societies", status: "verified", verifiedAt: "2026-07-20T00:00:00.000Z" },
+    { claim: "Glen H. Elder authored the 2000 encyclopedia entry 'Life course theory,' published by Oxford University Press in Encyclopedia of Psychology, Vol. 5, pages 50–52.", evidence_level: "L1", source_id: "elder-2000-life-course-theory-encyclopedia", status: "verified", verifiedAt: "2026-07-20T00:00:00.000Z" },
+    { claim: "The publisher record identifies the 1999 Westview Press 25th Anniversary Edition as 472 pages with a new Chapter 11; this edition is not the 1974 original.", evidence_level: "L1", source_id: "elder-1999-children-of-the-great-depression-25th", status: "verified", verifiedAt: "2026-07-21T00:00:00.000Z" },
     { claim: "Comparisons, fit judgments, and the concept relationship model are Syntag editorial interpretations, not universal consensus.", evidence_level: "L2", status: "editorial" },
     { claim: "Research and writing suggestions require adaptation to the question, setting, ethics, data access, and disciplinary guidance.", evidence_level: "L3", status: "proposed" },
   ],
@@ -1550,8 +1562,16 @@ const theoryConcepts: SeedTheoryConcept[] = concepts.flatMap((concept) => concep
 const verifications: SeedVerification[] = theories.flatMap((entry) => {
   const pageSources = entry.content.en.sources ?? [];
   if (pageSources.length === 0) throw new Error(`${entry.slug} must have an L1 source`);
+  const latestPageVerificationDate = entry.content.en.verification
+    ?.flatMap((verification) => (
+      verification.evidence_level === "L1" && verification.verifiedAt
+        ? [verification.verifiedAt]
+        : []
+    ))
+    .sort()
+    .at(-1) ?? entry.publishedAt ?? publishedAt;
   return [
-    { entitySlug: entry.slug, fieldPath: "content_jsonb.en.sources", level: "L1_verified" as const, sources: pageSources.map((source) => source.url), notes: "Traceable source records reviewed for the page's factual and bibliographic claims." },
+    { entitySlug: entry.slug, fieldPath: "content_jsonb.en.sources", level: "L1_verified" as const, sources: pageSources.map((source) => source.url), notes: "Traceable source records reviewed for the page's factual and bibliographic claims.", verifiedAt: latestPageVerificationDate },
     { entitySlug: entry.slug, fieldPath: "content_jsonb.en.fit_and_boundaries", level: "L2_editorial" as const, sources: [], notes: "Editorial explanation and theory-fit judgement." },
     { entitySlug: entry.slug, fieldPath: "content_jsonb.en.research_guidance", level: "L3_pending" as const, sources: [], notes: "Research-design guidance requiring study-specific and supervisor review." },
   ];

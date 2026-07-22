@@ -1,18 +1,18 @@
 # R3: 接入 Life Course R2 验证产物 + Goodson-Day R1 修正 → content-batches
 
 > 日期：2026-07-21
-> 状态：待执行
+> 状态：已完成（R3 source-pool 准备完成；尚未接入 Life Course 页面）
 > 阶段：P1（内容语料）— 扩源入 batch，不落库，不改变 published/draft 边界
 > 负责人：Codex
 > 关联：`docs/research/2026-07-20-life-course-evidence-r0.md`、`docs/research/2026-07-20-life-course-evidence-r2.md`、`docs/research/2026-07-21-goodson-day-evidence-r1.md`、`docs/research/skill-sop.md`
 
 ## 1. 目标与用户价值
 
-把 Life Course R2 经 Crossref 核验通过的三条新来源（Elder 1996、Elder 2000、Elder 1999）写入 `content-batches`，使 Life Course Theory 的 D2 内容拥有可追溯的 L1 来源层。同时按 Goodson-Day R1 的 Crossref 核验结果修正 Day et al. 2006 标题副标题。完成后 `npm run content:check` 应全绿，现有 published 实体不受影响。
+把 Life Course R2 经核验通过的三条新来源（Elder 1996、Elder 2000、Elder 1999）整理为独立 `content-batches` source pool，同时按 Goodson-Day R1 的 Crossref 核验结果修正 Day et al. 2006 标题副标题。本轮只准备可集成资产，不把新来源接入 Life Course Theory 页面；页面接入留给 R4。
 
 本轮完成后用户能观察到的变化：
 - `src/data/corpus/content-batches/2026-07-21-life-course-evidence-r2.ts` 存在且通过 `validateSeedCorpus()`
-- Life Course Theory 的 `sources` 数组新增 3 条 L1 ContentSource
+- 新 batch 内含 3 条 L1 ContentSource，但 Life Course Theory 的 `sources` 数组暂不变化
 - Goodson-Day draft batch 中 Day et al. 2006 标题补全副标题 `and unstable identities`
 - 无新 published 实体；无新 static params；无新 sitemap 条目
 - Education/Sociology 范围不变
@@ -169,6 +169,22 @@ node --env-file-if-exists=.env --experimental-strip-types --test --test-name-pat
 
 ## 7. 风险、回退与发布判定
 
-- **风险**：若 `validateSeedCorpus()` 对新增 source pool 有额外结构要求（如必须被 `seed-content.ts` 引用），则本 batch 可能无法通过独立校验。应对：先跑 `content:check` 看具体报错，再决定是调整 batch 结构还是仅在 `seed-content.ts` 中引用。
+- **风险**：source pool 未接入 production manifest 时，`content:check` 只能证明既有 corpus 未回归，不能证明新来源已经进入页面或数据库。R4 必须补充接入断言。
 - **回退**：删除新建的 `.ts` 文件和 revert Goodson-Day 修改即回退，不影响已发布内容。
 - **发布判定**：本批为 source 层扩写，不改变 public surface。通过 `content:check` + `typecheck` + 测试即视为完成。
+
+## 8. 执行记录
+
+- 实际完成：提交 `7c468ea` 新增 `src/data/corpus/content-batches/2026-07-21-life-course-evidence-r2.ts`，并在 canonical `src/data/corpus/shared/entities.ts` 与 Goodson-Day draft batch 中补全 Day et al. 2006 副标题。
+- 验证结果：`npm run content:check`、`npm run typecheck`、目标内容/seed 回归测试与 `git diff --check` 均通过；未修改 schema、migration、公开状态、static params、sitemap 或部署。
+- 未完成：3 条 Life Course R2 source 尚未被 `lifeCourseContent.sources`、`reading_path` 和页面级 `verification` 引用；当前 batch 工厂仍要求外部 `SourcePool`，但 `entities.ts` 的 `sources` 不含这些键，不能直接按旧 R4 提示词调用。
+- 下一步：执行 [`prompts/07-r4-integrate-life-course-r2-batch.md`](../../prompts/07-r4-integrate-life-course-r2-batch.md)。R4 先把 batch 工厂改为零参数自包含工厂，再接入 Life Course D2 页面并用测试锁定 3 个 source id。
+
+## 9. R4 跟进执行记录（2026-07-22）
+
+- 实际改动：将 `createLifeCourseEvidenceR2Batch()` 收紧为零参数自包含工厂；在 `lifeCourseContent` 原 6 条 source 之后接入 3 条 R2 source，并追加 order 7–9 的 reading path 和 3 条 `L1 / verified` 页面 verification。未改写分析性正文、实体、状态或发布路径。
+- RED → GREEN：同一聚焦测试首次因 `elder-1996-human-lives-changing-societies` 未出现在 sources 失败（退出码 1）；接入后通过（退出码 0）。
+- 验证结果：`npm run content:check` 退出码 0；`npm run typecheck` 退出码 0；`tests/content-validation.test.ts` + `tests/seed-corpus-regression.test.ts` 21/21 通过（退出码 0）；`git diff --check` 退出码 0。
+- 后续上线门禁：在用户另行授权后，本机非生产数据库 migration 与连续两次 seed 成功；数据库集成测试确认 3 个 source id 和最新 L1 日期 `2026-07-21T00:00:00.000Z`。`typecheck`、完整 Node 测试、全仓 `lint`、`content:check`、生产 build/smoke 与 Playwright 36/36 均通过。
+- 远端状态：本记录随发布候选提交；PR、production workflow 和公网验收尚待提交合并后完成，因此此处不提前声明线上已更新。
+- 遗留项：Elder 1974 原版仍缺 WorldCat/OCLC 或等价 library-level 核验；claim-level locator 仍未升级。

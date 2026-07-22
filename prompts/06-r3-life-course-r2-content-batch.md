@@ -6,6 +6,8 @@
 > 执行者：Codex
 > 工作目录：`syntag/`
 
+> **状态：已执行（commit `7c468ea`）。不要重复执行。** 下一步使用 [`07-r4-integrate-life-course-r2-batch.md`](07-r4-integrate-life-course-r2-batch.md)。
+
 ---
 
 ## 任务

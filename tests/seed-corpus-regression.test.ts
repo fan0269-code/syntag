@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { seedCorpus } from "../src/data/seed-content.ts";
+import type { VerificationEntry } from "../src/data/templates/theory-template.ts";
 import { validateSeedCorpus } from "../src/lib/content-validation.ts";
 
 test("seed corpus preserves its semantic baseline after module extraction", () => {
@@ -96,6 +97,34 @@ test("seed corpus preserves its semantic baseline after module extraction", () =
     "christopher-day",
   ]);
   assert.deepEqual(validateSeedCorpus(seedCorpus).errors, []);
+});
+
+test("Life Course R2 verification dates flow into the persisted L1 seed record", () => {
+  const expectedDates = new Map([
+    ["elder-1996-human-lives-changing-societies", "2026-07-20T00:00:00.000Z"],
+    ["elder-2000-life-course-theory-encyclopedia", "2026-07-20T00:00:00.000Z"],
+    ["elder-1999-children-of-the-great-depression-25th", "2026-07-21T00:00:00.000Z"],
+  ]);
+  const lifeCourse = seedCorpus.theories.find((theory) => theory.slug === "life-course-theory");
+
+  assert.ok(lifeCourse, "life-course-theory is included");
+  for (const [sourceId, verifiedAt] of expectedDates) {
+    const matchedVerification: VerificationEntry | undefined = lifeCourse.content.en.verification?.find(
+      (entry) => entry.evidence_level === "L1" && entry.source_id === sourceId,
+    );
+    assert.equal(matchedVerification?.verifiedAt, verifiedAt, `${sourceId} retains its evidence review date`);
+  }
+
+  const persistedVerification = seedCorpus.verifications.find((entry) => (
+    entry.entitySlug === "life-course-theory"
+    && entry.fieldPath === "content_jsonb.en.sources"
+    && entry.level === "L1_verified"
+  ));
+  assert.equal(
+    persistedVerification?.verifiedAt,
+    "2026-07-21T00:00:00.000Z",
+    "the persisted source verification uses the latest reviewed source date",
+  );
 });
 
 test("the first enrichment topics retain their editorial pathways and existing-theory sources", () => {
