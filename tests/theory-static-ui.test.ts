@@ -16,9 +16,9 @@ test("theory guide hero separates guide depth reading time and page-level source
   assert.match(source, /Theory guide/);
   assert.match(source, /presentation\.depthLabel/);
   assert.match(source, /readingTime\(theory\.summaryEn, presentation\.summary\)/);
-  assert.match(source, /<VerificationBadge level="L3_pending" scope="page"/);
+  assert.match(source, /<VerificationBadge level="L2_reviewed" scope="page"/);
   assert.doesNotMatch(source, /<VerificationBadge level=\{presentation\.sourceItems\[0\]\?\.level/);
-  assert.match(source, /This guide lists registered sources and editorial synthesis/);
+  assert.match(source, /Bibliographic metadata may be L1 verified/);
 });
 
 test("theory relationships retain sourced genealogy and offer one neutral browse-more entry", () => {

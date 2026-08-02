@@ -224,6 +224,7 @@ export function validateSeedCorpus(corpus: SeedCorpus): SeedCorpusValidationResu
     if (!topicSlugs.has(relation.topicSlug)) errors.push(`topic-theory relation: unknown topic ${relation.topicSlug}`);
     if (!theorySlugs.has(relation.theorySlug)) errors.push(`topic-theory relation: unknown theory ${relation.theorySlug}`);
     if (!relation.suitabilityNotesEn.trim()) errors.push(`topic-theory relation ${key}: suitability notes are empty`);
+    if (!relation.riskNotesEn?.trim()) errors.push(`topic-theory relation ${key}: risk notes are empty`);
     if (!relation.evidenceNotesEn.trim()) errors.push(`topic-theory relation ${key}: evidence notes are empty`);
     if (relation.sourceUrls.length === 0) errors.push(`topic-theory relation ${key}: sourceUrls is empty`);
     if (relation.sourceUrls.some((source) => !sourceUrls.has(source))) {

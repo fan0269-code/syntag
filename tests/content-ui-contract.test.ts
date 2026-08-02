@@ -24,9 +24,9 @@ test("ArticleToc exposes one responsive navigation tree with mobile trigger and 
 test("EntityArticle describes page-level source semantics without promoting the first source badge to whole-page verification", () => {
   const source = entityArticleSource();
 
-  assert.match(source, /Sources listed · editorial synthesis · claim-level review pending/);
+  assert.match(source, /Source records available · editorial synthesis · claim-level review pending/);
   assert.match(source, /page-level-source-note/);
-  assert.match(source, /This page lists registered sources and editorial synthesis/);
+  assert.match(source, /Bibliographic metadata may be L1 verified/);
   assert.doesNotMatch(source, /<VerificationBadge level=\{sourceItems\[0\]\?\.level/, "hero must not use sourceItems[0] as a whole-page verification badge");
 });
 
@@ -34,8 +34,8 @@ test("SourceBlock states that sources are page registrations, not claim-by-claim
   const source = sourceBlockSource();
 
   assert.match(source, /Page source register/);
-  assert.match(source, /These sources are registered for this page/);
-  assert.match(source, /not a claim-by-claim verification database/);
+  assert.match(source, /bibliographic or contextual records registered for this page/);
+  assert.match(source, /L1 source badges refer to source-level metadata/);
   assert.match(source, /data-source-scope="page-source-register"/);
   assert.match(source, /source-block__meta/);
   assert.match(source, /data-source-type=\{source\.type \?\? "not-recorded"\}/);
@@ -51,6 +51,8 @@ test("VerificationBadge keeps existing levels while exposing scope and accessibl
   assert.match(source, /type VerificationLevel = "L1_verified" \| "L2_reviewed" \| "L3_pending"/);
   assert.match(source, /scope\?: VerificationScope/);
   assert.match(source, /data-verification-scope=\{scope\}/);
+  assert.match(source, /L1_verified: "Bibliographic source"/);
+  assert.match(source, /bibliographic or source-level metadata/);
   assert.doesNotMatch(source, /aria-label=\{accessibleLabel\}/);
   assert.doesNotMatch(source, /accessibleLabel/);
   assert.doesNotMatch(source, /verification-badge__a11y/);
@@ -60,7 +62,18 @@ test("VerificationBadge keeps existing levels while exposing scope and accessibl
   assert.match(source, /verification-badge__explanation/);
 });
 
-test("legacy L1 source metadata keeps its link but does not display claim-level Source verified", () => {
+test("topic relation rendering exposes fit, recommendation, route rationale, and risk", () => {
+  const source = readFileSync("src/app/topics/[slug]/page.tsx", "utf8");
+  const pathwaySource = readFileSync("src/components/content/PathwayContentSections.tsx", "utf8");
+
+  assert.match(source, /<b>Fit<\/b>/);
+  assert.match(source, /<b>Recommendation<\/b>/);
+  assert.match(source, /<b>Why this route<\/b>/);
+  assert.match(source, /<b>Risk \/ Use carefully<\/b>\{relation\.riskNotesEn\}/);
+  assert.match(pathwaySource, /<b>Risk \/ Use carefully<\/b>\{pathway\.limitations\}/);
+});
+
+test("L1 source metadata keeps its link and displays a bibliographic source badge without whole-page verification", () => {
   const items = sourceItemsForEntity({
     sources: [{
       id: "legacy-source",
@@ -80,7 +93,7 @@ test("legacy L1 source metadata keeps its link but does not display claim-level 
 
   assert.deepEqual(items, [{
     text: "A legacy L1 source record is listed without claim-level approval. — Legacy source record.",
-    level: "L3_pending",
+    level: "L1_verified",
     url: "https://example.edu/legacy-source",
   }]);
 });

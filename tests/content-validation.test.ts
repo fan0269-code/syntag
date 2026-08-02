@@ -97,6 +97,7 @@ test("the seed corpus includes published scholar and topic graph relations with 
     && relation.suitability === "high"
     && relation.recommendation === "primary"
     && relation.suitabilityNotesEn.trim().length > 0
+    && relation.riskNotesEn.trim().length > 0
     && relation.sourceUrls.length > 0
   )));
   assert.equal(entityDetailHref("scholar", "glen-h-elder-jr"), "/scholars/glen-h-elder-jr");
@@ -110,6 +111,38 @@ test("the teacher life-history ethics source resolves to its publisher DOI recor
 
   assert.equal(source?.url, "https://doi.org/10.4135/9781452226552.n21");
   assert.match(source?.citation || "", /Josselson, R\. \(2007\)/);
+});
+
+test("published topic-theory relations require risk notes", () => {
+  const corpus = structuredClone(seedCorpus);
+  const relation = corpus.topicTheories.find((entry) => (
+    entry.topicSlug === "educational-transitions-over-time"
+    && entry.theorySlug === "life-course-theory"
+  ));
+
+  assert.ok(relation, "the published Life Course topic relation exists");
+  relation.riskNotesEn = "";
+  assert.ok(
+    validateSeedCorpus(corpus).errors.includes(
+      "topic-theory relation educational-transitions-over-time:life-course-theory: risk notes are empty",
+    ),
+  );
+});
+
+test("bibliographic source records keep their edition and support boundaries", () => {
+  const sources = seedCorpus.theories.flatMap((theory) => theory.content.en.sources ?? []);
+  const kingdon1995 = sources.find((source) => source.id === "kingdon-1995-agendas-alternatives-openlibrary");
+  const bourdieu1986 = sources.find((source) => source.id === "practice-capital-1986");
+  const goodsonSikes = sources.find((source) => source.id === "teacher-life-history-goodson-sikes-2001");
+
+  assert.equal(kingdon1995?.source_kind, "library");
+  assert.match(kingdon1995?.citation || "", /\(1995\).*2nd ed\./);
+  assert.ok(kingdon1995?.supports.every((support) => !/2011 edition|original 1984/i.test(support) || /does not verify/i.test(support)));
+  assert.equal(bourdieu1986?.source_kind, "university");
+  assert.ok(bourdieu1986?.supports.some((support) => /auxiliary reading/i.test(support)));
+  assert.ok(bourdieu1986?.supports.some((support) => /does not serve as claim-level proof/i.test(support)));
+  assert.equal(goodsonSikes?.source_kind, "library");
+  assert.ok(goodsonSikes?.supports.some((support) => /WorldCat\/OCLC bibliographic record/i.test(support)));
 });
 
 test("Life Course R2 sources are wired into sources, reading path, and L1 verification", () => {

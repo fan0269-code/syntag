@@ -249,6 +249,9 @@ async function main() {
       update: {
         suitability: relation.suitability,
         suitabilityNotesEn: relation.suitabilityNotesEn,
+        suitabilityNotesZh: relation.suitabilityNotesZh ?? null,
+        riskNotesEn: relation.riskNotesEn,
+        riskNotesZh: relation.riskNotesZh ?? null,
         recommendation: relation.recommendation,
       },
       create: {
@@ -256,6 +259,9 @@ async function main() {
         theoryId,
         suitability: relation.suitability,
         suitabilityNotesEn: relation.suitabilityNotesEn,
+        suitabilityNotesZh: relation.suitabilityNotesZh ?? null,
+        riskNotesEn: relation.riskNotesEn,
+        riskNotesZh: relation.riskNotesZh ?? null,
         recommendation: relation.recommendation,
       },
     });

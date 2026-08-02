@@ -81,6 +81,25 @@ test("the local seed has the expected published corpus and queryable relations",
       },
     });
     assert.equal(sourceVerification?.verifiedAt?.toISOString(), "2026-07-21T00:00:00.000Z");
+
+    const lifeCourseTopicRelation = await db.topicTheory.findFirst({
+      where: {
+        topic: { slug: "educational-transitions-over-time", status: "published" },
+        theory: { slug: "life-course-theory", status: "published" },
+      },
+      select: {
+        suitability: true,
+        recommendation: true,
+        suitabilityNotesEn: true,
+        riskNotesEn: true,
+      },
+    });
+    assert.deepEqual(lifeCourseTopicRelation, {
+      suitability: "high",
+      recommendation: "primary",
+      suitabilityNotesEn: "Life Course Theory is suitable because the question foregrounds transition timing, linked lives, institutions, and historically situated sequences.",
+      riskNotesEn: "Use carefully when the study has only one cross-sectional snapshot or undated recollections; do not infer life-course causality from temporal order without contextual and relational evidence.",
+    });
   } finally {
     await db.$disconnect();
   }

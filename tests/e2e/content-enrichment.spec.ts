@@ -116,9 +116,9 @@ test("published scholar profiles show attribution boundaries and source semantic
     const sourceRegister = page.locator("[data-source-scope='page-source-register']");
     await expect(sourceRegister).toBeVisible();
     await expect(sourceRegister.getByRole("listitem").first()).toBeVisible();
-    await expect(sourceRegister.getByText(/These sources are registered for this page and support editorial synthesis\. This is not a claim-by-claim verification database\./i)).toBeVisible();
-    await expect(page.getByText(/Sources listed · editorial synthesis · claim-level review pending/i)).toBeVisible();
-    await expect(page.getByText(/claim-level review remains pending unless a source entry states otherwise/i)).toBeVisible();
+    await expect(sourceRegister.getByText(/These sources are bibliographic or contextual records registered for this page\. L1 source badges refer to source-level metadata; theory fit, interpretation, and dissertation-use guidance remain editorial synthesis unless claim-level locators are shown\./i)).toBeVisible();
+    await expect(page.getByText(/Source records available · editorial synthesis · claim-level review pending/i)).toBeVisible();
+    await expect(page.getByText(/Source records are listed below\. Bibliographic metadata may be L1 verified; interpretation and research-use guidance remain editorial synthesis unless claim-level locators are shown\./i)).toBeVisible();
     await page.waitForLoadState("networkidle");
   }
 

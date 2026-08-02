@@ -124,7 +124,7 @@ function buildSourceItems(value: unknown, sources: ContentSource[]): SourceItem[
       if (entry.status !== "verified" || !source) return [];
       return [{
         text: `${claim} — ${source.citation}`,
-        level: "L3_pending" as const,
+        level: "L1_verified" as const,
         url: source.url,
       }];
     }
@@ -327,7 +327,7 @@ export function buildTheoryPresentation(content: ContentRecord, depth: TheoryDep
     fitWriting: stringArray(content.fit_writing),
     readingPath,
     sourceItems,
-    verificationSummary: "Sources listed · claim-level review pending",
+    verificationSummary: "Source records available · L1 bibliographic records available · editorial synthesis ongoing",
     depthCoverage,
     sectionKeys,
   };

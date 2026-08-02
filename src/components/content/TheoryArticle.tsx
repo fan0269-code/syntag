@@ -62,9 +62,9 @@ export function TheoryArticle({ theory, internalLinks = [] }: { theory: TheoryAr
         <span><b>Depth</b>{presentation.depthLabel}</span>
         <span><b>Reading time</b>{readingTime(theory.summaryEn, presentation.summary)}</span>
         <span>{presentation.verificationSummary}</span>
-        <VerificationBadge level="L3_pending" scope="page" />
+        <VerificationBadge level="L2_reviewed" scope="page" />
       </div>
-      <p className="page-level-source-note">This guide lists registered sources and editorial synthesis; claim-level review remains pending unless a source entry states otherwise.</p>
+      <p className="page-level-source-note">Source records are listed below. Bibliographic metadata may be L1 verified; theory fit, interpretation, and dissertation-use guidance remain editorial synthesis unless claim-level locators are shown.</p>
       <Link className="text-link" href={`/?discipline=${field?.discipline?.slug ?? "education"}&mode=genealogy&focus=${theory.slug}`}>View in graph →</Link>
     </header>
 

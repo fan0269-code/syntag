@@ -80,6 +80,7 @@ function topicTheory(
   recommendation: SeedTopicTheory["recommendation"],
   suitability: SeedTopicTheory["suitability"],
   suitabilityNotesEn: string,
+  riskNotesEn: string,
   sourceUrl: string,
 ): SeedTopicTheory {
   return {
@@ -87,6 +88,7 @@ function topicTheory(
     theorySlug,
     suitability,
     suitabilityNotesEn,
+    riskNotesEn,
     recommendation,
     sourceUrls: [sourceUrl],
     evidenceNotesEn: "This theory fit is an L2 Syntag editorial judgment constrained by the listed theory source record; it is not a universal ranking or claim-level approval.",
@@ -361,18 +363,18 @@ export function createFirstEnrichmentBatch(sources: FirstEnrichmentSourcePool): 
   ];
 
   const topicTheories: SeedTopicTheory[] = [
-    topicTheory(teacherLearningTopic, "teacher-professional-development-theory", "primary", "high", "Use this editorial route when learning processes and changes in teacher practice are the explanatory object.", sources.teacherDevelopmentClarke.url),
-    topicTheory(teacherLearningTopic, "communities-of-practice", "supporting", "medium", "Use this editorial route only when sustained participation in shared practice is evidenced.", sources.communitiesWenger.url),
-    topicTheory(teacherLearningTopic, "teacher-identity-theory", "not_recommended", "low", "Do not make identity primary when learning and practice change, rather than professional self-understanding, are central.", sources.teacherIdentity.url),
-    topicTheory(policyImplementationTopic, "street-level-bureaucracy", "primary", "high", "Use this editorial route for frontline implementation after policy adoption under documented organisational conditions.", sources.streetLevel.url),
-    topicTheory(policyImplementationTopic, "institutional-theory", "supporting", "medium", "Use this editorial route when formal adoption, legitimacy, institutional rules, or decoupling are separately evidenced.", sources.institutionalMeyerRowan.url),
-    topicTheory(policyImplementationTopic, "multiple-streams-framework", "not_recommended", "low", "Do not make agenda-setting vocabulary primary for post-adoption frontline delivery.", sources.multipleStreams.url),
-    topicTheory(accessTopic, "educational-equity-theory", "primary", "high", "Use this editorial route for an explicit normative comparison of access or opportunity.", sources.equity.url),
-    topicTheory(accessTopic, "social-capital-theory", "supporting", "medium", "Use this editorial route when specified relations plausibly enable access to a defined resource.", sources.socialCapital.url),
-    topicTheory(accessTopic, "practice-theory-bourdieu", "not_recommended", "low", "Do not make Bourdieu primary when field, capital conversion, and recognition evidence are absent.", sources.practice.url),
-    topicTheory(copTeacherLearningTopic, "communities-of-practice", "primary", "high", "Use this editorial route only when shared practice, participation, and the CoP conditions can be evidenced.", sources.communitiesWenger.url),
-    topicTheory(copTeacherLearningTopic, "teacher-professional-development-theory", "supporting", "medium", "Use this editorial route for a distinct question about teacher growth and practice change beyond one shared practice.", sources.teacherDevelopmentClarke.url),
-    topicTheory(copTeacherLearningTopic, "social-capital-theory", "not_recommended", "low", "Do not make relation-enabled resource access primary when shared practice and participation are the proposed mechanism.", sources.socialCapital.url),
+    topicTheory(teacherLearningTopic, "teacher-professional-development-theory", "primary", "high", "Use this editorial route when learning processes and changes in teacher practice are the explanatory object.", "Use carefully when evidence only documents attendance or satisfaction; do not infer changed practice or learner outcomes without process and practice evidence.", sources.teacherDevelopmentClarke.url),
+    topicTheory(teacherLearningTopic, "communities-of-practice", "supporting", "medium", "Use this editorial route only when sustained participation in shared practice is evidenced.", "Use carefully when the setting is merely a team, workshop, platform, or attendance list; CoP requires mutual engagement, joint enterprise, and shared repertoire evidence.", sources.communitiesWenger.url),
+    topicTheory(teacherLearningTopic, "teacher-identity-theory", "not_recommended", "low", "Do not make identity primary when learning and practice change, rather than professional self-understanding, are central.", "Use only for a separate identity question; self-understanding evidence should not be used as a proxy for demonstrated professional learning or changed practice.", sources.teacherIdentity.url),
+    topicTheory(policyImplementationTopic, "street-level-bureaucracy", "primary", "high", "Use this editorial route for frontline implementation after policy adoption under documented organisational conditions.", "Use carefully when there is no identifiable frontline role, consequential case-level judgement, or policy-in-service interaction; discretion is not automatically beneficial or harmful.", sources.streetLevel.url),
+    topicTheory(policyImplementationTopic, "institutional-theory", "supporting", "medium", "Use this editorial route when formal adoption, legitimacy, institutional rules, or decoupling are separately evidenced.", "Use carefully when the evidence is only a policy-practice gap; do not infer legitimacy pressure, isomorphism, or decoupling without organisational and field context.", sources.institutionalMeyerRowan.url),
+    topicTheory(policyImplementationTopic, "multiple-streams-framework", "not_recommended", "low", "Do not make agenda-setting vocabulary primary for post-adoption frontline delivery.", "Use only for a distinct pre-adoption agenda or policy-choice question; it should not be stretched into an everyday implementation theory.", sources.multipleStreams.url),
+    topicTheory(accessTopic, "educational-equity-theory", "primary", "high", "Use this editorial route for an explicit normative comparison of access or opportunity.", "Use carefully when the comparator, equity dimension, or normative basis is unstated; equity framing alone does not identify the mechanism producing access or exclusion.", sources.equity.url),
+    topicTheory(accessTopic, "social-capital-theory", "supporting", "medium", "Use this editorial route when specified relations plausibly enable access to a defined resource.", "Use carefully when ties are counted without resource access, mobilisation, non-access cases, or unequal resource quality; not every tie is beneficial.", sources.socialCapital.url),
+    topicTheory(accessTopic, "practice-theory-bourdieu", "not_recommended", "low", "Do not make Bourdieu primary when field, capital conversion, and recognition evidence are absent.", "Use only when opportunity is field-conditioned and capitals, positions, conversion, and recognition can be evidenced; otherwise it may over-theorize a narrower access mechanism.", sources.practice.url),
+    topicTheory(copTeacherLearningTopic, "communities-of-practice", "primary", "high", "Use this editorial route only when shared practice, participation, and the CoP conditions can be evidenced.", "Use carefully when formal membership, collaboration rhetoric, or online interaction is the only evidence; the route needs sustained shared practice and boundary evidence.", sources.communitiesWenger.url),
+    topicTheory(copTeacherLearningTopic, "teacher-professional-development-theory", "supporting", "medium", "Use this editorial route for a distinct question about teacher growth and practice change beyond one shared practice.", "Use carefully when professional growth is asserted from programme labels; it should support, not replace, a CoP account unless practice-change evidence is primary.", sources.teacherDevelopmentClarke.url),
+    topicTheory(copTeacherLearningTopic, "social-capital-theory", "not_recommended", "low", "Do not make relation-enabled resource access primary when shared practice and participation are the proposed mechanism.", "Use only for a separate access-to-resources question; relation-enabled support is not the same mechanism as learning through participation in practice.", sources.socialCapital.url),
   ];
 
   return { scholars, theoryScholars, topics, topicTheories };
