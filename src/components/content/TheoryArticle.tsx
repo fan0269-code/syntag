@@ -6,6 +6,7 @@ import { isTheoryDepth } from "@/data/templates/theory-template";
 import { readingTime, type ContentRecord } from "@/lib/content";
 import type { InternalLink } from "@/lib/internal-links";
 import { buildTheoryPresentation } from "@/lib/theory-presentation";
+import { hasPublicGenealogyRelations } from "@/lib/genealogy-visibility";
 import { ContentAd, ProseSection, RelatedLinks } from "./ContentBlocks";
 import { TheoryGenealogyMap } from "./TheoryGenealogyMap";
 import { ArticleToc } from "./ArticleToc";
@@ -30,6 +31,7 @@ type TheoryArticleData = {
 export function TheoryArticle({ theory, internalLinks = [] }: { theory: TheoryArticleData; internalLinks?: InternalLink[] }) {
   const depth = isTheoryDepth(theory.depth) ? theory.depth : "D1";
   const presentation = buildTheoryPresentation(theory.content, depth);
+  const showPublicGenealogy = hasPublicGenealogyRelations();
   const field = theory.fields[0]?.field;
   const relationshipLinks = Array.from(new Map([
     ...theory.sourceRelations.map(({ targetTheory }) => [targetTheory.slug, targetTheory] as const),
@@ -62,10 +64,10 @@ export function TheoryArticle({ theory, internalLinks = [] }: { theory: TheoryAr
         <span><b>Depth</b>{presentation.depthLabel}</span>
         <span><b>Reading time</b>{readingTime(theory.summaryEn, presentation.summary)}</span>
         <span>{presentation.verificationSummary}</span>
-        <VerificationBadge level="L3_pending" scope="page" />
+        <VerificationBadge level="L2_editorial" scope="page" />
       </div>
-      <p className="page-level-source-note">This guide lists registered sources and editorial synthesis; claim-level review remains pending unless a source entry states otherwise.</p>
-      <Link className="text-link" href={`/?discipline=${field?.discipline?.slug ?? "education"}&mode=genealogy&focus=${theory.slug}`}>View in graph →</Link>
+      <p className="page-level-source-note">Listed source records do not imply claim-level verification. Interpretation and research-use guidance remain editorial synthesis unless an approved source-backed fact has a reproducible locator and explicit human-review metadata.</p>
+      {showPublicGenealogy && <Link className="text-link" href={`/?discipline=${field?.discipline?.slug ?? "education"}&mode=genealogy&focus=${theory.slug}`}>View in graph →</Link>}
     </header>
 
     <ArticleToc />
@@ -156,7 +158,7 @@ export function TheoryArticle({ theory, internalLinks = [] }: { theory: TheoryAr
       </dl>
     </section>
 
-    <section className="prose-section">
+    {showPublicGenealogy ? <section className="prose-section">
       <h2>3. Theoretical Genealogy</h2>
       <div className="responsive-table">
         {presentation.genealogy.map((entry) => <article key={`${entry.relatedTheory}-${entry.relationship}`}>
@@ -167,7 +169,10 @@ export function TheoryArticle({ theory, internalLinks = [] }: { theory: TheoryAr
         </article>)}
       </div>
       <TheoryGenealogyMap theory={{ slug: theory.slug, titleEn: theory.titleEn }} related={relationshipLinks} />
-    </section>
+    </section> : <section className="prose-section">
+      <h2>3. Theoretical Genealogy</h2>
+      <p className="genealogy-map__empty">Public genealogy relations are temporarily unavailable while evidence and human review are completed.</p>
+    </section>}
 
     {hasD3Details && <section className="prose-section">
       <h2>Adjacent Theories & Important Differences</h2>

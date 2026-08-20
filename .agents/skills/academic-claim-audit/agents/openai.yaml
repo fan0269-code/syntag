@@ -1,0 +1,4 @@
+interface:
+  display_name: "Academic Claim Audit"
+  short_description: "Audit academic claims against cited evidence"
+  default_prompt: "Use $academic-claim-audit to check these claims and citations for evidentiary support."

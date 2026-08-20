@@ -1,0 +1,4 @@
+interface:
+  display_name: "Content Layout Agent"
+  short_description: "Arrange one reviewed article for a render-ready page"
+  default_prompt: "Use $content-layout-agent in a separate context to arrange exactly one polished candidate and produce a row-level layout gate report."

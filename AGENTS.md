@@ -33,6 +33,8 @@ Add focused `*.test.ts` coverage for changed parsing, content contracts, API beh
 
 For every theory, scholar, work, or topic article, research and verify sources before drafting. Record the source URL, source type, and verification date in the content data, and include the relevant sources in the published article.
 
+Before writing or revising content, follow `docs/standards/content-writing-standard.md`. For corrections, source changes, claim revisions, relation changes, or publication-state changes, also follow `docs/standards/content-update-standard.md`. Research completion, human review, corpus implementation, local verification, commit, and publication remain separate gates.
+
 - Use OpenAlex, Crossref, ORCID, Google Books, and WorldCat to verify structured facts such as authorship, publication date, DOI, ISBN, edition, institutional affiliation, and citation relationships.
 - Use original books and papers, publisher pages, university archives, and authoritative academic encyclopedias to support substantive claims about definitions, arguments, intellectual history, influence, and relationships between theories or scholars.
 - Treat Wikidata and general encyclopedias as discovery and cross-checking sources only. They must not be the sole support for a substantive academic claim.

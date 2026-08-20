@@ -357,7 +357,6 @@ export function createFirstEnrichmentBatch(sources: FirstEnrichmentSourcePool): 
     { theorySlug: "communities-of-practice", scholarSlug: "jean-lave", role: "key_contributor", sourceUrls: [sources.communities.url], evidenceNotesEn: "The Lave and Wenger source records the cited coauthored work. This key-contributor relation is a bounded editorial attribution, not a sole-founder claim." },
     { theorySlug: "communities-of-practice", scholarSlug: "etienne-wenger", role: "key_contributor", sourceUrls: [sources.communitiesWenger.url], evidenceNotesEn: "The Wenger publisher record and coauthored source support a bounded key-contributor relation, not a claim of sole origin for Communities of Practice." },
     { theorySlug: "street-level-bureaucracy", scholarSlug: "michael-lipsky", role: "key_contributor", sourceUrls: [sources.streetLevel.url], evidenceNotesEn: "The Lipsky publisher record anchors the corpus's bounded Street-Level Bureaucracy account; key contributor is deliberately narrower than founder." },
-    { theorySlug: "multiple-streams-framework", scholarSlug: "john-w-kingdon", role: "key_contributor", sourceUrls: [sources.multipleStreams.url], evidenceNotesEn: "The retained Kingdon library record supports a bounded key-contributor relation; the related scholar remains draft pending edition-metadata reconciliation." },
   ];
 
   const topicTheories: SeedTopicTheory[] = [

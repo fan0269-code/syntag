@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { seedCorpus } from "../src/data/seed-content.ts";
+import { seedCorpus } from "./helpers/public-seed-corpus.ts";
 import { isScholarContent } from "../src/data/templates/scholar-template.ts";
 
 const draftScholarCases = [
@@ -45,14 +45,15 @@ test("the second scholar enrichment adds bounded draft-only profiles", () => {
     assert.ok(scholar.content.en.attribution_boundaries.length >= 2);
     assert.doesNotMatch(JSON.stringify(scholar.content.en), /sole founder|father of|founded the theory/i);
 
-    const relation = seedCorpus.theoryScholars.find(
+    const canonicalRelation = seedCorpus.theoryScholars.find(
       (candidate) => candidate.scholarSlug === entry.slug && candidate.theorySlug === entry.theorySlug,
     );
 
-    assert.ok(relation, `${entry.slug} has one raw TheoryScholar relation`);
-    assert.equal(relation.role, "key_contributor");
-    assert.ok(relation.evidenceNotesEn.toLowerCase().includes("editorial"));
-    assert.ok(relation.evidenceNotesEn.toLowerCase().includes("not a founder"));
+    assert.equal(
+      canonicalRelation,
+      undefined,
+      `${entry.slug} stays in draft authoring content without a canonical TheoryScholar relation`,
+    );
   }
 
   assert.equal(seedCorpus.scholars.filter((scholar) => scholar.status === "published").length, 7);

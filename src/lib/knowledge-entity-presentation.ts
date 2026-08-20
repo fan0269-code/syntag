@@ -10,9 +10,9 @@ export function sourceItemsForEntity(content: SourceBackedContent): Source[] {
   const items = content.verification.flatMap<Source>((entry): Source[] => {
     if (entry.evidence_level === "L1") {
       const source = sourceById.get(entry.source_id);
-      return source ? [{ text: `${entry.claim} — ${source.citation}`, level: "L3_pending" as const, url: source.url }] : [];
+      return source ? [{ text: `${entry.claim} — ${source.citation}`, level: "source_record" as const, url: source.url }] : [];
     }
-    if (entry.evidence_level === "L2") return [{ text: entry.claim, level: "L2_reviewed" as const }];
+    if (entry.evidence_level === "L2") return [{ text: entry.claim, level: "L2_editorial" as const }];
     return [{ text: entry.claim, level: "L3_pending" as const }];
   });
   const linkedUrls = new Set(items.flatMap((item) => item.url ? [item.url] : []));
@@ -20,8 +20,19 @@ export function sourceItemsForEntity(content: SourceBackedContent): Source[] {
     ...items,
     ...content.sources.filter((source) => !linkedUrls.has(source.url)).map((source) => ({
       text: source.citation,
-      level: "L3_pending" as const,
+      level: "source_record" as const,
       url: source.url,
     })),
   ];
+}
+
+export function topicTheoryRiskPresentation(riskNotesEn: string | null | undefined) {
+  const text = riskNotesEn?.trim();
+  return text
+    ? { label: "Risk / Use carefully", text, pending: false as const }
+    : { label: "Risk / Use carefully", text: "Pending human review", pending: true as const };
+}
+
+export function pathwayBoundaryPresentation(limitations: string) {
+  return { label: "Boundary", text: limitations };
 }

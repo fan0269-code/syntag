@@ -285,22 +285,7 @@ export function createGoodsonDayDraftScholarBatch(
     },
   ];
 
-  const theoryScholars: SeedTheoryScholar[] = [
-    {
-      theorySlug: "teacher-life-history-research",
-      scholarSlug: "ivor-f-goodson",
-      role: "key_contributor",
-      sourceUrls: [sources.lifeHistory.url],
-      evidenceNotesEn: "Goodson's cited work is a source anchor for this research-tradition entry. The key-contributor label is bounded Syntag editorial synthesis, not a founder claim or claim-level approval.",
-    },
-    {
-      theorySlug: "teacher-professional-development-theory",
-      scholarSlug: "christopher-day",
-      role: "key_contributor",
-      sourceUrls: [sources.teacherDevelopment.url],
-      evidenceNotesEn: "Day's cited book is one source anchor within this plural editorial entry. The key-contributor label is bounded Syntag editorial synthesis, not a founder claim or claim-level approval.",
-    },
-  ];
+  const theoryScholars: SeedTheoryScholar[] = [];
 
   return { scholars, theoryScholars };
 }

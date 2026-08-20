@@ -16,7 +16,7 @@ export function SourceBlock({ sources }: { sources: Source[] }) {
   return (
     <section className="source-block" aria-labelledby="sources-heading" data-source-scope="page-source-register">
       <h2 id="sources-heading">Page source register</h2>
-      <p className="source-block__intro">These sources are registered for this page and support editorial synthesis. This is not a claim-by-claim verification database.</p>
+      <p className="source-block__intro">These are listed source records for this page. A listed source record does not imply claim-level verification. “Source verified” is reserved for an approved, source-verified, source-backed fact with a reproducible locator and explicit human-review metadata.</p>
       <ul>
         {sources.map((source) => {
           const safeUrl = safeSourceUrl(source.url);

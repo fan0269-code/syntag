@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { seedCorpus } from "../src/data/seed-content.ts";
+import { seedCorpus } from "./helpers/public-seed-corpus.ts";
 import { onboardingBatchFromSeedCorpus, publicStaticParamSlugs, validateNewBatch, type NewContentBatch } from "../src/lib/content-onboarding.ts";
 
 function validBatch(): NewContentBatch {

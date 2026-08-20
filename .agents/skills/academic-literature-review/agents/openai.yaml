@@ -1,0 +1,4 @@
+interface:
+  display_name: "Academic Literature Review"
+  short_description: "Plan and synthesize a traceable literature review"
+  default_prompt: "Use $academic-literature-review to build a source-bounded literature review for this research question."

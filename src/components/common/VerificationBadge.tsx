@@ -1,22 +1,22 @@
-type VerificationLevel = "L1_verified" | "L2_reviewed" | "L3_pending";
+type VerificationLevel = "source_record" | "L2_editorial" | "L3_pending";
 type VerificationScope = "claim" | "source" | "page";
 
 const labels: Record<VerificationLevel, string> = {
-  L1_verified: "Source verified",
-  L2_reviewed: "Editorial synthesis",
-  L3_pending: "Sources listed · claim-level review pending",
+  source_record: "Source record",
+  L2_editorial: "Editorial synthesis",
+  L3_pending: "Claim-level review pending",
 };
 
 const levelLabels: Record<VerificationLevel, string> = {
-  L1_verified: "L1",
-  L2_reviewed: "L2",
+  source_record: "Record",
+  L2_editorial: "L2",
   L3_pending: "L3",
 };
 
 const explanations: Record<VerificationLevel, string> = {
-  L1_verified: "A listed source supports this registered item.",
-  L2_reviewed: "This is an editorial synthesis rather than a primary-source fact.",
-  L3_pending: "Sources are listed, but claim-level review remains pending.",
+  source_record: "A bibliographic or contextual record is listed; this does not imply claim-level verification.",
+  L2_editorial: "This is an editorial synthesis rather than a primary-source fact.",
+  L3_pending: "Source records may be listed, but page-level interpretation and research-use guidance remain under claim-level review.",
 };
 
 export function VerificationBadge({ level, scope = "claim" }: { level: VerificationLevel; scope?: VerificationScope }) {

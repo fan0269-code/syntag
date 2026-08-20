@@ -318,7 +318,7 @@ model Verification {
   entityType String    @map("entity_type") // theory | scholar | work | concept | topic
   entityId   String    @map("entity_id")
   fieldPath  String    @map("field_path") // content_jsonb.en.origins
-  level      String // L1_verified | L2_reviewed | L3_pending
+  level      String // L1_verified (legacy_source_metadata) | L2_editorial (editorial_synthesis) | L3_pending (manual classification required)
   sources    Json      @default("[]")
   notes      String?
   verifiedAt DateTime? @map("verified_at")

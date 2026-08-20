@@ -9,6 +9,13 @@ const staticPageSource = () => readSource("src/components/content/StaticPage.tsx
 const adSlotSource = () => readSource("src/components/common/AdSlot.tsx");
 const clientAdSlotSource = () => readSource("src/components/common/ClientAdSlot.tsx");
 const pricingSource = () => readSource("src/app/pricing/page.tsx");
+const brandPromiseSources = () => [
+  "src/app/page.tsx",
+  "src/app/about/page.tsx",
+  "src/app/framework-builder/page.tsx",
+  "src/components/layout/Footer.tsx",
+  "src/lib/seo.ts",
+].map(readSource).join("\n");
 
 test("theory guide hero separates guide depth reading time and page-level source status", () => {
   const source = theoryArticleSource();
@@ -16,9 +23,9 @@ test("theory guide hero separates guide depth reading time and page-level source
   assert.match(source, /Theory guide/);
   assert.match(source, /presentation\.depthLabel/);
   assert.match(source, /readingTime\(theory\.summaryEn, presentation\.summary\)/);
-  assert.match(source, /<VerificationBadge level="L3_pending" scope="page"/);
+  assert.match(source, /<VerificationBadge level="L2_editorial" scope="page"/);
   assert.doesNotMatch(source, /<VerificationBadge level=\{presentation\.sourceItems\[0\]\?\.level/);
-  assert.match(source, /This guide lists registered sources and editorial synthesis/);
+  assert.match(source, /Listed source records do not imply claim-level verification\. Interpretation and research-use guidance remain editorial synthesis unless an approved source-backed fact has a reproducible locator and explicit human-review metadata\./);
 });
 
 test("theory relationships retain sourced genealogy and offer one neutral browse-more entry", () => {
@@ -72,4 +79,12 @@ test("StaticPage supports an optional hierarchy and Pricing describes only curre
   assert.match(priceSource, /No purchase or subscription is available today\./);
   assert.doesNotMatch(priceSource, /Phase 2\/3 功能上线后/);
   assert.doesNotMatch(priceSource, /Monthly subscription|monthly or annual|academic pricing/i);
+});
+
+test("brand copy promises source-aware exploration rather than dissertation readiness", () => {
+  const source = brandPromiseSources();
+
+  assert.match(source, /Explore theory choices with source-aware guidance/);
+  assert.match(source, /bounded/i);
+  assert.doesNotMatch(source, /Make a defensible theory choice|dissertation-ready framework/i);
 });

@@ -26,7 +26,7 @@ export type TheorySectionKey =
   | "reading_path"
   | "sources_and_verification";
 
-type VerificationLevel = "L1_verified" | "L2_reviewed" | "L3_pending";
+type VerificationLevel = "source_record" | "L2_editorial" | "L3_pending";
 
 type CoreConcept = { name: string; definition: string; relevance: string };
 type Genealogy = { relatedTheory: string; relationship: string; description: string; sources: ContentSource[] };
@@ -124,12 +124,12 @@ function buildSourceItems(value: unknown, sources: ContentSource[]): SourceItem[
       if (entry.status !== "verified" || !source) return [];
       return [{
         text: `${claim} — ${source.citation}`,
-        level: "L3_pending" as const,
+        level: "source_record" as const,
         url: source.url,
       }];
     }
     if (evidenceLevel === "L2" && entry.status === "editorial") {
-      return [{ text: claim, level: "L2_reviewed" as const }];
+      return [{ text: claim, level: "L2_editorial" as const }];
     }
     if (evidenceLevel === "L3" && entry.status === "proposed") {
       return [{ text: claim, level: "L3_pending" as const }];
@@ -142,7 +142,7 @@ function buildSourceItems(value: unknown, sources: ContentSource[]): SourceItem[
     ...items,
     ...sources.filter((source) => !linkedUrls.has(source.url)).map((source) => ({
       text: source.citation,
-      level: "L3_pending" as const,
+      level: "source_record" as const,
       url: source.url,
     })),
   ];
@@ -327,7 +327,7 @@ export function buildTheoryPresentation(content: ContentRecord, depth: TheoryDep
     fitWriting: stringArray(content.fit_writing),
     readingPath,
     sourceItems,
-    verificationSummary: "Sources listed · claim-level review pending",
+    verificationSummary: "Sources listed · claim-level review pending · editorial synthesis ongoing",
     depthCoverage,
     sectionKeys,
   };

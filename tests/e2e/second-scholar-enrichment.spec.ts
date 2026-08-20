@@ -52,19 +52,9 @@ for (const scholar of draftScholarCases) {
     await expect(await sitemap.text()).not.toContain(`/scholars/${scholar.slug}`);
 
     await page.goto("/", { waitUntil: "domcontentloaded" });
-    await expect(page.getByRole("region", { name: /Research theory knowledge graph/i })).toBeVisible();
-    await page.waitForLoadState("networkidle");
-    const scholarsMode = page.locator(".graph-workspace .graph-modes").getByRole("button", { name: "Scholars" });
-    await Promise.all([
-      page.waitForResponse((response) => response.url().includes("/api/graph") && response.url().includes("mode=scholars") && response.status() === 200),
-      scholarsMode.click(),
-    ]);
-    await expect(scholarsMode).toHaveAttribute("aria-pressed", "true");
-    const accessibleNodeList = page.getByRole("group", { name: /Available graph nodes/i });
-    await expect(accessibleNodeList).toBeVisible();
-    await expect(accessibleNodeList.getByRole("button").first()).toBeVisible();
-    await expect(accessibleNodeList.getByRole("button", { name: scholar.name, exact: true })).toHaveCount(0);
-    await page.waitForLoadState("networkidle");
+    await expect(page.getByRole("heading", { level: 1, name: "The knowledge graph is not published yet" })).toBeVisible();
+    await expect(page.getByRole("region", { name: /Research theory knowledge graph/i })).toHaveCount(0);
+    await expect(page.getByText(scholar.name, { exact: true })).toHaveCount(0);
     assertBrowserHealth();
 
     const detailResponse = await page.goto(`/scholars/${scholar.slug}`, { waitUntil: "domcontentloaded" });
@@ -73,12 +63,12 @@ for (const scholar of draftScholarCases) {
   });
 }
 
-test("published Jean Lave remains visible while Kingdon remains draft", async ({ page, request, baseURL }) => {
+test("archived Jean Lave and draft Kingdon both remain outside public surfaces", async ({ page, request, baseURL }) => {
   const assertBrowserHealth = watchBrowserHealth(page, baseURL);
 
   await page.goto("/scholars", { waitUntil: "domcontentloaded" });
-  await expect(page.locator('a[href="/scholars/jean-lave"]')).toBeVisible();
-  await expect(page.getByText("Jean Lave", { exact: true })).toBeVisible();
+  await expect(page.locator('a[href="/scholars/jean-lave"]')).toHaveCount(0);
+  await expect(page.getByText("Jean Lave", { exact: true })).toHaveCount(0);
   await expect(page.locator('a[href="/scholars/john-w-kingdon"]')).toHaveCount(0);
   await expect(page.getByText(/John W\. Kingdon/i)).toHaveCount(0);
   await page.waitForLoadState("networkidle");
@@ -91,12 +81,16 @@ test("published Jean Lave remains visible while Kingdon remains draft", async ({
 
   const sitemap = await request.get("/sitemap.xml");
   expect(sitemap.status()).toBe(200);
-  await expect(await sitemap.text()).not.toContain("/scholars/john-w-kingdon");
+  const sitemapText = await sitemap.text();
+  expect(sitemapText).not.toContain("/scholars/jean-lave");
+  expect(sitemapText).not.toContain("/scholars/john-w-kingdon");
   assertBrowserHealth();
 
-  const detailResponse = await page.goto("/scholars/john-w-kingdon", { waitUntil: "domcontentloaded" });
-  expect(detailResponse?.status()).toBe(404);
-  await expect(page.getByRole("heading", { level: 1, name: /That entry is not available/i })).toBeVisible();
+  for (const slug of ["jean-lave", "john-w-kingdon"]) {
+    const detailResponse = await page.goto(`/scholars/${slug}`, { waitUntil: "domcontentloaded" });
+    expect(detailResponse?.status()).toBe(404);
+    await expect(page.getByRole("heading", { level: 1, name: /That entry is not available/i })).toBeVisible();
+  }
 });
 
 test("all four 2026-07-18 topics remain draft", async ({ page, request, baseURL }) => {

@@ -20,7 +20,7 @@ const routeCases: readonly RouteCase[] = [
   {
     name: "home",
     path: "/",
-    h1: /Make a defensible theory choice|Data temporarily unavailable|The knowledge graph is not published yet/i,
+    h1: /Explore theory choices with source-aware guidance|Data temporarily unavailable|The knowledge graph is not published yet/i,
     dataDependent: true,
     primaryAction: { role: "link", name: /Start with a research question/i },
   },
@@ -119,7 +119,7 @@ async function gotoHomeOrUnavailable(page: Page) {
     return "unavailable" as const;
   }
 
-  await expect(page.getByRole("heading", { level: 1, name: /Make a defensible theory choice/i })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: /Explore theory choices with source-aware guidance/i })).toBeVisible();
   return "ready" as const;
 }
 
@@ -148,23 +148,15 @@ for (const viewport of viewportCases) {
   });
 }
 
-test("life course detail keeps TOC and layout stable at the 769px boundary", async ({ page, baseURL }) => {
-  const assertBrowserHealth = watchBrowserHealth(page, baseURL);
-
+test("archived life course detail returns an accessible 404 at the 769px boundary", async ({ page }) => {
   await page.setViewportSize({ width: 769, height: 900 });
-  await page.goto("/theories/life-course-theory", { waitUntil: "domcontentloaded" });
+  const response = await page.goto("/theories/life-course-theory", { waitUntil: "domcontentloaded" });
 
-  if (await hasUnavailableState(page)) {
-    await expectUnavailableState(page);
-    await expectNoHorizontalScroll(page);
-    assertBrowserHealth();
-    return;
-  }
-
-  await expect(page.getByRole("heading", { level: 1, name: /Life Course Theory/i })).toBeVisible();
-  await expect(page.getByRole("navigation", { name: /On this page/i })).toBeVisible();
+  expect(response?.status()).toBe(404);
+  await expect(page.getByRole("heading", { level: 1, name: /That entry is not available/i })).toBeVisible();
+  await expect(page.getByRole("navigation", { name: /On this page/i })).toHaveCount(0);
+  await expectNoSeriousA11yViolations(page);
   await expectNoHorizontalScroll(page);
-  assertBrowserHealth();
 });
 
 test("home inline search submits to the search route", async ({ page, baseURL }) => {

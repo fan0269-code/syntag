@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import test from "node:test";
-import { seedCorpus } from "../src/data/seed-content.ts";
+import { seedCorpus } from "./helpers/public-seed-corpus.ts";
+import { isScholarContent } from "../src/data/templates/scholar-template.ts";
 import type { VerificationEntry } from "../src/data/templates/theory-template.ts";
 import { validateSeedCorpus } from "../src/lib/content-validation.ts";
 
@@ -33,7 +35,7 @@ test("seed corpus preserves its semantic baseline after module extraction", () =
     fieldTheories: 8,
     genealogy: 8,
     scholars: 10,
-    theoryScholars: 10,
+    theoryScholars: 7,
     topics: 8,
     topicTheories: 24,
     verifications: 36,
@@ -99,7 +101,7 @@ test("seed corpus preserves its semantic baseline after module extraction", () =
   assert.deepEqual(validateSeedCorpus(seedCorpus).errors, []);
 });
 
-test("Life Course R2 verification dates flow into the persisted L1 seed record", () => {
+test("embedded Life Course evidence dates stay on their rows without promoting the page source record", () => {
   const expectedDates = new Map([
     ["elder-1996-human-lives-changing-societies", "2026-07-20T00:00:00.000Z"],
     ["elder-2000-life-course-theory-encyclopedia", "2026-07-20T00:00:00.000Z"],
@@ -122,8 +124,58 @@ test("Life Course R2 verification dates flow into the persisted L1 seed record",
   ));
   assert.equal(
     persistedVerification?.verifiedAt,
-    "2026-07-21T00:00:00.000Z",
-    "the persisted source verification uses the latest reviewed source date",
+    undefined,
+    "the page-field legacy source metadata record does not aggregate embedded evidence dates",
+  );
+  assert.equal(seedCorpus.verifications.filter((entry) => entry.level === "L1_verified").length, 12);
+  assert.ok(
+    seedCorpus.verifications
+      .filter((entry) => entry.level === "L1_verified")
+      .every((entry) => entry.verifiedAt === undefined),
+    "all twelve legacy source metadata records omit a page-level verification date",
+  );
+});
+
+test("publication, batch, file, and commit dates cannot become legacy source metadata verification dates", () => {
+  const entitiesSource = readFileSync("src/data/corpus/shared/entities.ts", "utf8");
+
+  assert.ok(seedCorpus.verifications.every((entry) => entry.verifiedAt === undefined));
+  assert.doesNotMatch(entitiesSource, /entry\.publishedAt\s*\?\?/);
+  assert.doesNotMatch(entitiesSource, /verificationDates|latestPageVerificationDate/);
+  assert.doesNotMatch(
+    entitiesSource,
+    /fieldPath:\s*"content_jsonb\.en\.sources"[\s\S]{0,300}verifiedAt:/,
+  );
+});
+
+test("the two U0 bibliographic corrections match the authoritative records without changing short labels", () => {
+  const teacherIdentity = seedCorpus.theories
+    .find((theory) => theory.slug === "teacher-identity-theory")
+    ?.content.en.sources?.find((source) => source.id === "kelchtermans-2009-teacher-identity");
+  const kelchtermansWork = seedCorpus.works.find((work) => work.slug === "kelchtermans-2009-teacher-identity");
+  const multipleStreamsHerweg = seedCorpus.theories
+    .find((theory) => theory.slug === "multiple-streams-framework")
+    ?.content.en.sources?.find((source) => source.id === "msf-herweg-etal-2018");
+
+  assert.equal(
+    teacherIdentity?.citation,
+    "Kelchtermans, G. (2009). Who I am in how I teach is the message: self-understanding, vulnerability and reflection. Teachers and Teaching, 15(2), 257–272.",
+  );
+  assert.equal(
+    kelchtermansWork?.title,
+    "Who I am in how I teach is the message: self-understanding, vulnerability and reflection",
+  );
+  assert.equal(
+    multipleStreamsHerweg?.citation,
+    "Herweg, N., Zahariadis, N., & Zohlnhöfer, R. (2018). The Multiple Streams Framework: Foundations, Refinements, and Empirical Applications. In C. M. Weible & P. A. Sabatier (Eds.), Theories of the Policy Process (4th ed., pp. 17–53).",
+  );
+  assert.equal(teacherIdentity?.url, "https://doi.org/10.1080/13540600902875332");
+  assert.equal(multipleStreamsHerweg?.url, "https://doi.org/10.4324/9780429494284-2");
+
+  const teacherIdentityTheory = seedCorpus.theories.find((theory) => theory.slug === "teacher-identity-theory");
+  assert.equal(
+    teacherIdentityTheory?.content.en.key_scholars?.find((scholar) => scholar.name === "Geert Kelchtermans")?.representative_work,
+    "Who I Am in How I Teach Is the Message (2009)",
   );
 });
 
@@ -168,12 +220,24 @@ test("the first enrichment topics retain their editorial pathways and existing-t
 
 test("the enrichment scholars have bounded publication decisions without widening public scope", () => {
   const candidates = new Map(seedCorpus.scholars.map((scholar) => [scholar.slug, scholar]));
+  const kingdon = candidates.get("john-w-kingdon");
 
   assert.equal(candidates.get("jean-lave")?.status, "published");
   assert.equal(candidates.get("etienne-wenger")?.status, "published");
   assert.equal(candidates.get("michael-lipsky")?.status, "published");
-  assert.equal(candidates.get("john-w-kingdon")?.status, "draft");
-  assert.ok(seedCorpus.theoryScholars.slice(-4).every((entry) => entry.role === "key_contributor"));
+  assert.ok(kingdon);
+  assert.equal(kingdon.status, "draft");
+  assert.ok(isScholarContent(kingdon.content.en));
+  assert.deepEqual(
+    kingdon.content.en.theory_relationships.map((relation) => relation.theory_slug),
+    ["multiple-streams-framework"],
+    "Kingdon keeps the draft authoring relationship",
+  );
+  assert.ok(seedCorpus.theoryScholars.every((entry) => {
+    const scholar = candidates.get(entry.scholarSlug);
+    const theory = seedCorpus.theories.find((candidate) => candidate.slug === entry.theorySlug);
+    return scholar?.status === "published" && theory?.status === "published";
+  }), "canonical TheoryScholar relations stay inside the published graph");
   assert.ok(!seedCorpus.disciplines.some((entry) => entry.status === "published" && ["psychology", "management"].includes(entry.slug)));
   assert.ok(!seedCorpus.fields.some((entry) => entry.status === "published" && ["psychology", "management"].includes(entry.disciplineSlug)));
 });

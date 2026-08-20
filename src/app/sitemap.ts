@@ -15,6 +15,7 @@ const staticPages: MetadataRoute.Sitemap = [
   { url: absoluteUrl("/about"), changeFrequency: "monthly", priority: 0.3 },
   { url: absoluteUrl("/pricing"), changeFrequency: "monthly", priority: 0.4 },
   { url: absoluteUrl("/editorial-policy"), changeFrequency: "yearly", priority: 0.3 },
+  { url: absoluteUrl("/corrections"), changeFrequency: "yearly", priority: 0.3 },
   { url: absoluteUrl("/privacy"), changeFrequency: "yearly", priority: 0.3 },
   { url: absoluteUrl("/terms"), changeFrequency: "yearly", priority: 0.3 },
 ];
