@@ -28,7 +28,7 @@ const topicCases = [
   },
 ] as const;
 
-const publishedScholarCases = [
+const archivedScholarCases = [
   { slug: "jean-lave", name: "Jean Lave" },
   { slug: "etienne-wenger", name: "Etienne Wenger" },
   { slug: "michael-lipsky", name: "Michael Lipsky" },
@@ -37,22 +37,18 @@ const publishedScholarCases = [
 const searchCases: ReadonlyArray<{
   query: string;
   slug: string;
-  result: RegExp;
 }> = [
   {
     query: "Jean Lave",
     slug: "jean-lave",
-    result: /Jean Lave/i,
   },
   {
     query: "Etienne Wenger",
     slug: "etienne-wenger",
-    result: /Etienne Wenger/i,
   },
   {
     query: "frontline discretion",
     slug: "michael-lipsky",
-    result: /Michael Lipsky/i,
   },
 ];
 
@@ -102,62 +98,34 @@ for (const topic of topicCases) {
   });
 }
 
-test("published scholar profiles show attribution boundaries and source semantics", async ({ page, baseURL }) => {
-  const assertBrowserHealth = watchBrowserHealth(page, baseURL);
+test("archived scholar profiles stay outside every public detail route", async ({ page }) => {
+  for (const scholar of archivedScholarCases) {
+    const response = await page.goto(`/scholars/${scholar.slug}`, { waitUntil: "domcontentloaded" });
 
-  for (const scholar of publishedScholarCases) {
-    await page.goto(`/scholars/${scholar.slug}`, { waitUntil: "domcontentloaded" });
-
-    await expect(page.getByRole("heading", { level: 1, name: scholar.name })).toBeVisible();
-    const attributionBoundary = page.getByRole("heading", { name: "Attribution boundary" }).locator("..");
-    await expect(attributionBoundary).toBeVisible();
-    await expect(attributionBoundary.getByRole("listitem").first()).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Page source register" })).toBeVisible();
-    const sourceRegister = page.locator("[data-source-scope='page-source-register']");
-    await expect(sourceRegister).toBeVisible();
-    await expect(sourceRegister.getByRole("listitem").first()).toBeVisible();
-    await expect(sourceRegister.getByText(/These are listed source records for this page\. A listed source record does not imply claim-level verification\. “Source verified” is reserved for an approved, source-verified, source-backed fact with a reproducible locator and explicit human-review metadata\./i)).toBeVisible();
-    await expect(page.getByText(/Source records available · editorial synthesis · claim-level review pending/i)).toBeVisible();
-    await expect(page.getByText(/Listed source records do not imply claim-level verification\. Interpretation and research-use guidance remain editorial synthesis unless an approved source-backed fact has a reproducible locator and explicit human-review metadata\./i)).toBeVisible();
-    await page.waitForLoadState("networkidle");
+    expect(response?.status()).toBe(404);
+    await expect(page.getByRole("heading", { level: 1, name: /That entry is not available/i })).toBeVisible();
+    await expect(page.getByRole("heading", { level: 1, name: scholar.name })).toHaveCount(0);
   }
-
-  assertBrowserHealth();
 });
 
-test("published topic keeps pending relation risk separate from pathway Boundary content", async ({ page, baseURL }) => {
-  const assertBrowserHealth = watchBrowserHealth(page, baseURL);
+test("archived topic keeps relation and pathway wording off the public surface", async ({ page }) => {
+  const response = await page.goto("/topics/educational-transitions-over-time", { waitUntil: "domcontentloaded" });
 
-  await page.goto("/topics/educational-transitions-over-time", { waitUntil: "domcontentloaded" });
-
-  await expect(page.getByRole("heading", {
-    level: 1,
-    name: "How do educational transitions unfold across time, relationships, and institutions?",
-  })).toBeVisible();
-  const publishedRelations = page.getByRole("heading", { name: "Published topic-theory relations" }).locator("..");
-  const lifeCourseRelation = publishedRelations.locator("article").filter({ hasText: "Life Course Theory" });
-  const riskSurface = lifeCourseRelation.getByText("Risk / Use carefully", { exact: true }).locator("..");
-  await expect(riskSurface).toContainText("Pending human review");
-
-  const theoryComparison = page.getByRole("heading", { name: "Theory comparison" }).locator("..");
-  const lifeCoursePathway = theoryComparison.locator("article").filter({ hasText: "life course theory" });
-  const boundarySurface = lifeCoursePathway.getByText("Boundary", { exact: true }).locator("..");
-  await expect(boundarySurface).toContainText("Does not establish causality from temporal order alone");
-  await page.waitForLoadState("networkidle");
-  assertBrowserHealth();
+  expect(response?.status()).toBe(404);
+  await expect(page.getByRole("heading", { level: 1, name: /That entry is not available/i })).toBeVisible();
+  await expect(page.getByText("Published topic-theory relations", { exact: true })).toHaveCount(0);
+  await expect(page.getByText("Pending human review", { exact: true })).toHaveCount(0);
 });
 
-test("representative published scholar has no serious a11y, browser health, or 375px overflow failures", async ({ page, baseURL }) => {
-  const assertBrowserHealth = watchBrowserHealth(page, baseURL);
+test("representative archived scholar returns an accessible 404 at 375px", async ({ page }) => {
   await useViewport(page, mobile375);
 
-  await page.goto("/scholars/jean-lave", { waitUntil: "domcontentloaded" });
+  const response = await page.goto("/scholars/jean-lave", { waitUntil: "domcontentloaded" });
 
-  await expect(page.getByRole("heading", { level: 1, name: "Jean Lave" })).toBeVisible();
-  await page.waitForLoadState("networkidle");
+  expect(response?.status()).toBe(404);
+  await expect(page.getByRole("heading", { level: 1, name: /That entry is not available/i })).toBeVisible();
   await expectNoSeriousOrCriticalA11yViolations(page);
   await expectNoHorizontalScroll(page);
-  assertBrowserHealth();
 });
 
 test("draft Kingdon scholar is absent from public index, search, sitemap, and detail route", async ({ page, request, baseURL }) => {
@@ -185,41 +153,29 @@ test("draft Kingdon scholar is absent from public index, search, sitemap, and de
 });
 
 for (const searchCase of searchCases) {
-  test(`search query "${searchCase.query}" exposes corresponding published content only`, async ({ page, baseURL }) => {
+  test(`search query "${searchCase.query}" does not expose archived scholar content`, async ({ page, baseURL }) => {
     const assertBrowserHealth = watchBrowserHealth(page, baseURL);
 
     await page.goto(`/search?q=${encodeURIComponent(searchCase.query)}`, { waitUntil: "domcontentloaded" });
 
     await expect(page.getByRole("heading", { level: 1, name: new RegExp(`Results for .${searchCase.query}.`, "i") })).toBeVisible();
     const scholarResult = page.locator(`a[href="/scholars/${searchCase.slug}"]`);
-    await expect(scholarResult).toBeVisible();
-    await expect(scholarResult).toHaveAccessibleName(searchCase.result);
+    await expect(scholarResult).toHaveCount(0);
     await expectNoDraftKingdon(page);
     await page.waitForLoadState("networkidle");
     assertBrowserHealth();
   });
 }
 
-test("home graph topics mode excludes all four draft topics from the accessible node list", async ({ page, baseURL }) => {
+test("home fails closed when no entity graph is published", async ({ page, baseURL }) => {
   const assertBrowserHealth = watchBrowserHealth(page, baseURL);
 
   await page.goto("/", { waitUntil: "domcontentloaded" });
 
-  await expect(page.getByRole("region", { name: /Research theory knowledge graph/i })).toBeVisible();
-  const topicsMode = page.locator(".graph-workspace .graph-modes").getByRole("button", { name: "Topics" });
-
-  await Promise.all([
-    page.waitForResponse((response) => response.url().includes("/api/graph") && response.url().includes("mode=topics") && response.status() === 200),
-    topicsMode.click(),
-  ]);
-
-  await expect(topicsMode).toHaveAttribute("aria-pressed", "true");
-  const accessibleNodeList = page.getByRole("group", { name: /Available graph nodes/i });
-  await expect(accessibleNodeList).toBeVisible();
-  await expect(accessibleNodeList.getByRole("button").first()).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: "The knowledge graph is not published yet" })).toBeVisible();
+  await expect(page.getByRole("region", { name: /Research theory knowledge graph/i })).toHaveCount(0);
   for (const topic of topicCases) {
-    await expect(accessibleNodeList.getByRole("button", { name: topic.question, exact: true })).toHaveCount(0);
+    await expect(page.getByText(topic.question, { exact: true })).toHaveCount(0);
   }
-  await page.waitForLoadState("networkidle");
   assertBrowserHealth();
 });
