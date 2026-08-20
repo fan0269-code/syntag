@@ -4,8 +4,10 @@ import test from "node:test";
 
 const appRoutesUrl = new URL("../.next/app-path-routes-manifest.json", import.meta.url);
 const prerenderManifestUrl = new URL("../.next/prerender-manifest.json", import.meta.url);
+const homeUrl = new URL("../.next/server/app/index.html", import.meta.url);
 const robotsUrl = new URL("../.next/server/app/robots.txt.body", import.meta.url);
 const sitemapUrl = new URL("../.next/server/app/sitemap.xml.body", import.meta.url);
+const adsTxtUrl = new URL("../public/ads.txt", import.meta.url);
 
 test("production build contains core public route artifacts", {
   skip: process.env.BUILD_OUTPUT_SMOKE_REQUIRED !== "1" && "runs after next build via npm run build",
@@ -32,4 +34,14 @@ test("production build contains core public route artifacts", {
   assert.match(sitemap, /<loc>https:\/\/syrtag\.com\/theories\/life-course-theory<\/loc>/);
   assert.match(robots, /Disallow: \/api\//);
   assert.match(robots, /Sitemap: https:\/\/syrtag\.com\/sitemap\.xml/);
+});
+
+test("production build exposes AdSense ownership signals", {
+  skip: process.env.BUILD_OUTPUT_SMOKE_REQUIRED !== "1" && "runs after next build via npm run build",
+}, async () => {
+  const home = await readFile(homeUrl, "utf8");
+  const adsTxt = await readFile(adsTxtUrl, "utf8");
+
+  assert.match(home, /<meta name="google-adsense-account" content="ca-pub-3018617123550799"\/>/);
+  assert.equal(adsTxt, "google.com, pub-3018617123550799, DIRECT, f08c47fec0942fa0\n");
 });
