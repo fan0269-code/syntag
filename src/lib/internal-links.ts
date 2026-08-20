@@ -1,10 +1,13 @@
-import { getDb } from "./db";
-import type { InternalLink } from "./static-internal-links";
+import type { PrismaClient } from "@prisma/client";
 
-export { STATIC_INTERNAL_LINKS } from "./static-internal-links";
+import { getDb } from "./db.ts";
+import { isPublicGenealogyRelation, publicGenealogyRelationWhere } from "./genealogy-visibility.ts";
+import type { InternalLink } from "./static-internal-links.ts";
+
+export { STATIC_INTERNAL_LINKS } from "./static-internal-links.ts";
 
 export type InternalLinkEntityType = "theory" | "scholar" | "topic" | "work";
-export type { InternalLink } from "./static-internal-links";
+export type { InternalLink } from "./static-internal-links.ts";
 
 const published = "published";
 
@@ -17,23 +20,30 @@ function uniqueLinks(links: InternalLink[]) {
  * synthesize links when a sparse entity has fewer connections than the target.
  */
 export async function getInternalLinks(entityType: InternalLinkEntityType, entitySlug: string): Promise<InternalLink[]> {
-  const db = getDb();
+  return getInternalLinksForDb(getDb(), entityType, entitySlug);
+}
+
+export async function getInternalLinksForDb(
+  db: PrismaClient,
+  entityType: InternalLinkEntityType,
+  entitySlug: string,
+): Promise<InternalLink[]> {
 
   if (entityType === "theory") {
     const theory = await db.theory.findFirst({
       where: { slug: entitySlug, status: published },
       include: {
         scholars: { where: { scholar: { status: published } }, include: { scholar: true }, take: 3 },
-        sourceRelations: { where: { targetTheory: { status: published } }, include: { targetTheory: true }, take: 2 },
-        targetRelations: { where: { sourceTheory: { status: published } }, include: { sourceTheory: true }, take: 2 },
+        sourceRelations: { where: { ...publicGenealogyRelationWhere(), targetTheory: { status: published } }, include: { targetTheory: true }, take: 2 },
+        targetRelations: { where: { ...publicGenealogyRelationWhere(), sourceTheory: { status: published } }, include: { sourceTheory: true }, take: 2 },
         topics: { where: { topic: { status: published } }, include: { topic: true }, take: 2 },
       },
     });
     if (!theory) return [];
     return uniqueLinks([
       ...theory.scholars.map(({ scholar }) => ({ label: scholar.name, href: `/scholars/${scholar.slug}`, reason: "Associated scholar" })),
-      ...theory.sourceRelations.map(({ targetTheory }) => ({ label: targetTheory.titleEn, href: `/theories/${targetTheory.slug}`, reason: "Related theory" })),
-      ...theory.targetRelations.map(({ sourceTheory }) => ({ label: sourceTheory.titleEn, href: `/theories/${sourceTheory.slug}`, reason: "Related theory" })),
+      ...theory.sourceRelations.filter(({ id }) => isPublicGenealogyRelation(id)).map(({ targetTheory }) => ({ label: targetTheory.titleEn, href: `/theories/${targetTheory.slug}`, reason: "Related theory" })),
+      ...theory.targetRelations.filter(({ id }) => isPublicGenealogyRelation(id)).map(({ sourceTheory }) => ({ label: sourceTheory.titleEn, href: `/theories/${sourceTheory.slug}`, reason: "Related theory" })),
       ...theory.topics.map(({ topic }) => ({ label: topic.questionEn, href: `/topics/${topic.slug}`, reason: "Related research topic" })),
     ]);
   }

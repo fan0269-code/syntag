@@ -1,4 +1,24 @@
 import { Prisma, type PrismaClient } from "@prisma/client";
+import {
+  FAN_247_ARCHIVED_CONCEPT_SLUGS,
+  FAN_247_ARCHIVED_DISCIPLINE_SLUGS,
+  FAN_247_ARCHIVED_FIELD_SLUGS,
+  FAN_247_ARCHIVED_SCHOLAR_SLUGS,
+  FAN_247_ARCHIVED_THEORY_SLUGS,
+  FAN_247_ARCHIVED_TOPIC_SLUGS,
+  FAN_247_ARCHIVED_WORK_SLUGS,
+} from "./fan247-visibility.ts";
+import { FAN_133_U3_ARCHIVED_CONCEPT_SLUGS, FAN_133_U3_ARCHIVED_WORK_SLUGS } from "./u3-visibility.ts";
+
+export interface SeedPublicationSnapshot {
+  slug: string;
+  status: string;
+  publishedAt: Date | null;
+}
+
+export interface FAN247ArchivedPublicationSnapshot extends SeedPublicationSnapshot {
+  entityType: "discipline" | "field" | "theory" | "work" | "concept" | "scholar" | "topic";
+}
 
 export interface SeedVerificationResult {
   disciplineSlugs: string[];
@@ -12,13 +32,18 @@ export interface SeedVerificationResult {
   totalScholarCount: number;
   totalTheoryScholarCount: number;
   publishedTopicCount: number;
+  publishedWorkCount: number;
+  publishedConceptCount: number;
+  archivedFAN247: FAN247ArchivedPublicationSnapshot[];
+  archivedU3Works: SeedPublicationSnapshot[];
+  archivedU3Concepts: SeedPublicationSnapshot[];
   topicTheoryCount: number;
   totalTopicCount: number;
   totalTopicTheoryCount: number;
   enrichmentTopicStatuses: Array<{ slug: string; status: string }>;
   enrichmentScholarStatuses: Array<{ slug: string; status: string }>;
   secondScholarStatuses: Array<{ slug: string; status: string }>;
-  l1VerificationCount: number;
+  legacySourceMetadataCount: number;
   searchableTheoryCount: number;
   searchableScholarCount: number;
   searchableTopicCount: number;
@@ -46,13 +71,24 @@ export async function verifySeededDatabase(db: PrismaClient): Promise<SeedVerifi
     totalScholarCount,
     totalTheoryScholarCount,
     publishedTopicCount,
+    publishedWorkCount,
+    publishedConceptCount,
+    archivedFAN247Disciplines,
+    archivedFAN247Fields,
+    archivedFAN247Theories,
+    archivedFAN247Works,
+    archivedFAN247Concepts,
+    archivedFAN247Scholars,
+    archivedFAN247Topics,
+    archivedU3Works,
+    archivedU3Concepts,
     topicTheoryCount,
     totalTopicCount,
     totalTopicTheoryCount,
     enrichmentTopicStatuses,
     enrichmentScholarStatuses,
     secondScholarStatuses,
-    l1Rows,
+    legacySourceMetadataRows,
     searchableTheoryRows,
     searchableScholarRows,
     searchableTopicRows,
@@ -85,6 +121,25 @@ export async function verifySeededDatabase(db: PrismaClient): Promise<SeedVerifi
     db.scholar.count(),
     db.theoryScholar.count(),
     db.topic.count({ where: { status: "published" } }),
+    db.work.count({ where: { status: "published" } }),
+    db.concept.count({ where: { status: "published" } }),
+    db.discipline.findMany({ where: { slug: { in: [...FAN_247_ARCHIVED_DISCIPLINE_SLUGS] } }, orderBy: { slug: "asc" }, select: { slug: true, status: true, publishedAt: true } }),
+    db.field.findMany({ where: { slug: { in: [...FAN_247_ARCHIVED_FIELD_SLUGS] } }, orderBy: { slug: "asc" }, select: { slug: true, status: true, publishedAt: true } }),
+    db.theory.findMany({ where: { slug: { in: [...FAN_247_ARCHIVED_THEORY_SLUGS] } }, orderBy: { slug: "asc" }, select: { slug: true, status: true, publishedAt: true } }),
+    db.work.findMany({ where: { slug: { in: [...FAN_247_ARCHIVED_WORK_SLUGS] } }, orderBy: { slug: "asc" }, select: { slug: true, status: true, publishedAt: true } }),
+    db.concept.findMany({ where: { slug: { in: [...FAN_247_ARCHIVED_CONCEPT_SLUGS] } }, orderBy: { slug: "asc" }, select: { slug: true, status: true, publishedAt: true } }),
+    db.scholar.findMany({ where: { slug: { in: [...FAN_247_ARCHIVED_SCHOLAR_SLUGS] } }, orderBy: { slug: "asc" }, select: { slug: true, status: true, publishedAt: true } }),
+    db.topic.findMany({ where: { slug: { in: [...FAN_247_ARCHIVED_TOPIC_SLUGS] } }, orderBy: { slug: "asc" }, select: { slug: true, status: true, publishedAt: true } }),
+    db.work.findMany({
+      where: { slug: { in: [...FAN_133_U3_ARCHIVED_WORK_SLUGS] } },
+      orderBy: { slug: "asc" },
+      select: { slug: true, status: true, publishedAt: true },
+    }),
+    db.concept.findMany({
+      where: { slug: { in: [...FAN_133_U3_ARCHIVED_CONCEPT_SLUGS] } },
+      orderBy: { slug: "asc" },
+      select: { slug: true, status: true, publishedAt: true },
+    }),
     db.topicTheory.count({
       where: {
         topic: { status: "published" },
@@ -177,13 +232,26 @@ export async function verifySeededDatabase(db: PrismaClient): Promise<SeedVerifi
     totalScholarCount,
     totalTheoryScholarCount,
     publishedTopicCount,
+    publishedWorkCount,
+    publishedConceptCount,
+    archivedFAN247: [
+      ...archivedFAN247Disciplines.map((row) => ({ entityType: "discipline" as const, ...row })),
+      ...archivedFAN247Fields.map((row) => ({ entityType: "field" as const, ...row })),
+      ...archivedFAN247Theories.map((row) => ({ entityType: "theory" as const, ...row })),
+      ...archivedFAN247Works.map((row) => ({ entityType: "work" as const, ...row })),
+      ...archivedFAN247Concepts.map((row) => ({ entityType: "concept" as const, ...row })),
+      ...archivedFAN247Scholars.map((row) => ({ entityType: "scholar" as const, ...row })),
+      ...archivedFAN247Topics.map((row) => ({ entityType: "topic" as const, ...row })),
+    ].sort((left, right) => left.entityType.localeCompare(right.entityType) || left.slug.localeCompare(right.slug)),
+    archivedU3Works,
+    archivedU3Concepts,
     topicTheoryCount,
     totalTopicCount,
     totalTopicTheoryCount,
     enrichmentTopicStatuses,
     enrichmentScholarStatuses,
     secondScholarStatuses,
-    l1VerificationCount: countValue(l1Rows),
+    legacySourceMetadataCount: countValue(legacySourceMetadataRows),
     searchableTheoryCount: countValue(searchableTheoryRows),
     searchableScholarCount: countValue(searchableScholarRows),
     searchableTopicCount: countValue(searchableTopicRows),

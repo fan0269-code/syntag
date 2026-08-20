@@ -1,0 +1,4 @@
+interface:
+  display_name: "Content Polish Agent"
+  short_description: "Polish one reviewed article without changing verified meaning"
+  default_prompt: "Use $content-polish-agent in a separate context to polish exactly one reviewed content candidate and produce a row-level stage report."

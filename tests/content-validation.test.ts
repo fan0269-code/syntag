@@ -2,13 +2,25 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 
-import { seedCorpus } from "../src/data/seed-content.ts";
+import { type SeedCorpus, type SeedTopicTheory } from "../src/data/seed-content.ts";
+import { seedCorpus } from "./helpers/public-seed-corpus.ts";
 import { isConceptContent, isWorkContent } from "../src/data/templates/knowledge-entity-template.ts";
 import { isScholarContent } from "../src/data/templates/scholar-template.ts";
 import { isPathwayContent } from "../src/data/templates/pathway-template.ts";
 import { requiredTheoryBlocks } from "../src/data/templates/theory-template.ts";
 import { entityDetailHref } from "../src/lib/entity-routes.ts";
-import { validateSeedCorpus } from "../src/lib/content-validation.ts";
+import {
+  buildTopicTheoryCreateData,
+  buildTopicTheoryUpdateData,
+  validateSeedCorpus,
+} from "../src/lib/content-validation.ts";
+import { isFAN133U3Archived } from "../src/lib/u3-visibility.ts";
+
+function theorySourcesFor(relation: SeedTopicTheory, corpus = seedCorpus) {
+  return corpus.theories
+    .find((theory) => theory.slug === relation.theorySlug)
+    ?.content.en.sources ?? [];
+}
 
 test("the seed corpus satisfies the structural content contract", () => {
   const result = validateSeedCorpus(seedCorpus);
@@ -68,7 +80,7 @@ test("published entity requires a valid ISO publishedAt", () => {
   assert.ok(validateSeedCorpus(corpus).errors.some((error) => error.includes(corpus.works[0].slug) && error.includes("valid ISO")));
 });
 
-test("L1 seed verification requires a valid ISO verifiedAt", () => {
+test("legacy L1 source metadata validates an explicitly authored date but does not require one", () => {
   const corpus = structuredClone(seedCorpus);
   const verification = corpus.verifications.find((entry) => entry.level === "L1_verified");
 
@@ -76,6 +88,12 @@ test("L1 seed verification requires a valid ISO verifiedAt", () => {
   verification.verifiedAt = "not-a-date";
   assert.ok(
     validateSeedCorpus(corpus).errors.includes(
+      `verification for ${verification.entitySlug}: L1 record requires a valid ISO verifiedAt`,
+    ),
+  );
+  delete verification.verifiedAt;
+  assert.ok(
+    !validateSeedCorpus(corpus).errors.includes(
       `verification for ${verification.entitySlug}: L1 record requires a valid ISO verifiedAt`,
     ),
   );
@@ -97,11 +115,39 @@ test("the seed corpus includes published scholar and topic graph relations with 
     && relation.suitability === "high"
     && relation.recommendation === "primary"
     && relation.suitabilityNotesEn.trim().length > 0
-    && relation.riskNotesEn.trim().length > 0
+    && !relation.riskNotesEn
+    && relation.riskReview?.contentNature === "research_guidance"
+    && relation.riskReview.reviewReadiness === "blocked"
+    && relation.riskReview.reviewDecision === "pending_review"
     && relation.sourceUrls.length > 0
   )));
   assert.equal(entityDetailHref("scholar", "glen-h-elder-jr"), "/scholars/glen-h-elder-jr");
   assert.equal(entityDetailHref("topic", "educational-transitions-over-time"), "/topics/educational-transitions-over-time");
+});
+
+test("canonical relations retain no unreviewed risk wording and published rows keep neutral pending governance", () => {
+  assert.equal(seedCorpus.topicTheories.length, 24);
+  assert.ok(seedCorpus.topicTheories.every((relation) => !relation.riskNotesEn && !relation.riskNotesZh));
+  const publishedRelations = seedCorpus.topicTheories.filter((relation) => seedCorpus.topics.some((topic) => (
+    topic.slug === relation.topicSlug && topic.status === "published"
+  )));
+  const draftRelations = seedCorpus.topicTheories.filter((relation) => seedCorpus.topics.some((topic) => (
+    topic.slug === relation.topicSlug && topic.status === "draft"
+  )));
+  const reviews = publishedRelations.map((relation) => relation.riskReview);
+
+  assert.equal(publishedRelations.length, 12);
+  assert.equal(draftRelations.length, 12);
+  assert.ok(draftRelations.every((relation) => !relation.riskReview));
+  assert.equal(new Set(reviews.map((review) => review?.claimId)).size, 12);
+  assert.ok(reviews.every((review) => (
+    review?.fieldPath.endsWith(".riskNotesEn")
+    && review.contentNature === "research_guidance"
+    && review.evidenceStatus === "pending_review"
+    && review.reviewReadiness === "blocked"
+    && review.reviewDecision === "pending_review"
+    && Boolean(review.blocker?.trim())
+  )));
 });
 
 test("the teacher life-history ethics source resolves to its publisher DOI record", () => {
@@ -113,7 +159,7 @@ test("the teacher life-history ethics source resolves to its publisher DOI recor
   assert.match(source?.citation || "", /Josselson, R\. \(2007\)/);
 });
 
-test("published topic-theory relations require risk notes", () => {
+test("published topic-theory relations require neutral risk governance but no unreviewed wording", () => {
   const corpus = structuredClone(seedCorpus);
   const relation = corpus.topicTheories.find((entry) => (
     entry.topicSlug === "educational-transitions-over-time"
@@ -121,12 +167,266 @@ test("published topic-theory relations require risk notes", () => {
   ));
 
   assert.ok(relation, "the published Life Course topic relation exists");
-  relation.riskNotesEn = "";
+  delete relation.riskReview;
+  const missingErrors = validateSeedCorpus(corpus).errors;
+  assert.ok(missingErrors.includes(
+    "topic-theory relation educational-transitions-over-time:life-course-theory: published relation requires a complete risk review record",
+  ));
+
+  const invalidCorpus = structuredClone(seedCorpus);
+  const invalidRelation = invalidCorpus.topicTheories.find((entry) => (
+    entry.topicSlug === "educational-transitions-over-time"
+    && entry.theorySlug === "life-course-theory"
+  ));
+  assert.ok(invalidRelation);
+  assert.ok(invalidRelation.riskReview);
+  invalidRelation.riskReview.claimId = "";
   assert.ok(
-    validateSeedCorpus(corpus).errors.includes(
-      "topic-theory relation educational-transitions-over-time:life-course-theory: risk notes are empty",
+    validateSeedCorpus(invalidCorpus).errors.includes(
+      "topic-theory relation educational-transitions-over-time:life-course-theory: risk review claim ID is not the stable relation claim ID",
     ),
   );
+});
+
+test("draft topic-theory relations are not forced to author risk notes", () => {
+  const corpus = structuredClone(seedCorpus);
+  const relation = corpus.topicTheories.find((entry) => corpus.topics.some((topic) => (
+    topic.slug === entry.topicSlug && topic.status === "draft"
+  )));
+
+  assert.ok(relation, "the corpus includes a draft topic-theory relation");
+  delete relation.riskNotesEn;
+  delete relation.riskNotesZh;
+  delete relation.riskReview;
+  assert.deepEqual(validateSeedCorpus(corpus).errors, []);
+});
+
+test("pending risk guidance is fail-closed for persistence and keeps no fabricated review fields", () => {
+  const relation = structuredClone(seedCorpus.topicTheories.find((entry) => (
+    entry.topicSlug === "educational-transitions-over-time"
+    && entry.theorySlug === "life-course-theory"
+  )));
+
+  assert.ok(relation);
+  const review = relation.riskReview;
+  assert.ok(review);
+  assert.equal(review.reviewDecision, "pending_review");
+  assert.ok(review.blocker);
+  assert.equal("reviewerIdentity" in review, false);
+  assert.equal("reviewerRole" in review, false);
+  assert.equal("reviewedAt" in review, false);
+  assert.equal("locator" in review, false);
+  assert.equal(review.reviewReadiness, "blocked");
+  const theorySources = theorySourcesFor(relation);
+  assert.equal(buildTopicTheoryUpdateData(relation, theorySources).riskNotesEn, null);
+  assert.equal(buildTopicTheoryCreateData(relation, theorySources).riskNotesEn, null);
+});
+
+test("accepted risk guidance persists only complete approved wording tied to the relation source URL", () => {
+  const corpus = structuredClone(seedCorpus);
+  const relationIndex = corpus.topicTheories.findIndex((entry) => (
+    entry.topicSlug === "educational-transitions-over-time"
+    && entry.theorySlug === "life-course-theory"
+  ));
+  const relation = corpus.topicTheories[relationIndex];
+
+  assert.ok(relation);
+  assert.ok(relation.riskReview);
+  const reviewIdentity = {
+    claimId: relation.riskReview.claimId,
+    fieldPath: relation.riskReview.fieldPath,
+    contentNature: relation.riskReview.contentNature,
+  } as const;
+  const incompleteRelation = {
+    ...relation,
+    riskNotesEn: "Approved test fixture guidance.",
+    riskReview: {
+      ...reviewIdentity,
+      evidenceStatus: "verified",
+      reviewReadiness: "ready_for_human_review",
+      reviewDecision: "accept_as_worded",
+      approvedWordingEn: "Approved test fixture guidance.",
+    },
+  } as unknown as SeedTopicTheory;
+  corpus.topicTheories[relationIndex] = incompleteRelation;
+  assert.ok(validateSeedCorpus(corpus).errors.some((error) => error.includes("accepted risk review is missing")));
+  assert.equal(buildTopicTheoryUpdateData(incompleteRelation, theorySourcesFor(incompleteRelation, corpus)).riskNotesEn, null);
+
+  const source = corpus.theories
+    .find((theory) => theory.slug === incompleteRelation.theorySlug)
+    ?.content.en.sources?.find((candidate) => incompleteRelation.sourceUrls.includes(candidate.url));
+  assert.ok(source);
+  const approvedWording = "Approved test fixture guidance.";
+  const acceptedRelation = {
+    ...relation,
+    riskNotesEn: approvedWording,
+    riskReview: {
+      ...reviewIdentity,
+      evidenceStatus: "verified",
+      reviewReadiness: "ready_for_human_review",
+      reviewDecision: "accept_as_worded",
+      sourceId: source.id,
+      locator: "test fixture locator",
+      verifiedAt: "2026-08-02",
+      reviewerIdentity: "test fixture methods reviewer",
+      reviewerRole: "methods",
+      reviewedAt: "2026-08-02",
+      rationale: "The test fixture records an explicit methods-aware acceptance rationale.",
+      approvedWordingEn: approvedWording,
+    },
+  } satisfies SeedTopicTheory;
+  corpus.topicTheories[relationIndex] = acceptedRelation;
+  assert.deepEqual(validateSeedCorpus(corpus).errors, []);
+  assert.equal(
+    buildTopicTheoryUpdateData(acceptedRelation, theorySourcesFor(acceptedRelation, corpus)).riskNotesEn,
+    approvedWording,
+  );
+});
+
+test("accepted risk guidance rejects a theory source whose URL is absent from relation sourceUrls", () => {
+  const corpus = structuredClone(seedCorpus);
+  const relationIndex = corpus.topicTheories.findIndex((entry) => (
+    entry.topicSlug === "educational-transitions-over-time"
+    && entry.theorySlug === "life-course-theory"
+  ));
+  const relation = corpus.topicTheories[relationIndex];
+
+  assert.ok(relation?.riskReview);
+  const theorySources = theorySourcesFor(relation, corpus);
+  const mismatchedSource = theorySources.find((source) => !relation.sourceUrls.includes(source.url));
+  assert.ok(mismatchedSource, "the theory fixture includes a source outside this relation");
+  const approvedWording = "Approved test fixture guidance.";
+  const mismatchedRelation = {
+    ...relation,
+    riskNotesEn: approvedWording,
+    riskReview: {
+      claimId: relation.riskReview.claimId,
+      fieldPath: relation.riskReview.fieldPath,
+      contentNature: relation.riskReview.contentNature,
+      evidenceStatus: "verified",
+      reviewReadiness: "ready_for_human_review",
+      reviewDecision: "accept_as_worded",
+      sourceId: mismatchedSource.id,
+      locator: "test fixture locator",
+      verifiedAt: "2026-08-02",
+      reviewerIdentity: "test fixture methods reviewer",
+      reviewerRole: "methods",
+      reviewedAt: "2026-08-02",
+      rationale: "The test fixture deliberately uses a relation-mismatched source.",
+      approvedWordingEn: approvedWording,
+    },
+  } satisfies SeedTopicTheory;
+  corpus.topicTheories[relationIndex] = mismatchedRelation;
+
+  assert.ok(validateSeedCorpus(corpus).errors.includes(
+    "topic-theory relation educational-transitions-over-time:life-course-theory: accepted risk review source URL is not listed in relation sourceUrls",
+  ));
+  assert.equal(buildTopicTheoryUpdateData(mismatchedRelation, theorySources).riskNotesEn, null);
+});
+
+test("accepted wording must match exactly and revision acceptance persists only the approved final wording", () => {
+  const corpus = structuredClone(seedCorpus);
+  const relationIndex = corpus.topicTheories.findIndex((entry) => (
+    entry.topicSlug === "educational-transitions-over-time"
+    && entry.theorySlug === "life-course-theory"
+  ));
+  const relation = corpus.topicTheories[relationIndex];
+
+  assert.ok(relation?.riskReview);
+  const theorySources = theorySourcesFor(relation, corpus);
+  const source = theorySources.find((candidate) => relation.sourceUrls.includes(candidate.url));
+  assert.ok(source);
+  const reviewIdentity = {
+    claimId: relation.riskReview.claimId,
+    fieldPath: relation.riskReview.fieldPath,
+    contentNature: relation.riskReview.contentNature,
+  } as const;
+  const approvedFinalWording = "Approved final test fixture guidance.";
+  const mismatchedWordingRelation = {
+    ...relation,
+    riskNotesEn: "Different persisted test fixture guidance.",
+    riskReview: {
+      ...reviewIdentity,
+      evidenceStatus: "verified",
+      reviewReadiness: "ready_for_human_review",
+      reviewDecision: "accept_as_worded",
+      sourceId: source.id,
+      locator: "test fixture locator",
+      verifiedAt: "2026-08-02",
+      reviewerIdentity: "test fixture methods reviewer",
+      reviewerRole: "methods",
+      reviewedAt: "2026-08-02",
+      rationale: "The test fixture deliberately mismatches approved and persisted wording.",
+      approvedWordingEn: approvedFinalWording,
+    },
+  } satisfies SeedTopicTheory;
+  corpus.topicTheories[relationIndex] = mismatchedWordingRelation;
+  assert.ok(validateSeedCorpus(corpus).errors.includes(
+    "topic-theory relation educational-transitions-over-time:life-course-theory: accepted risk review approved wording must exactly equal riskNotesEn",
+  ));
+  assert.equal(buildTopicTheoryUpdateData(mismatchedWordingRelation, theorySources).riskNotesEn, null);
+
+  const incompleteRevision = {
+    ...relation,
+    riskNotesEn: approvedFinalWording,
+    riskReview: {
+      ...reviewIdentity,
+      evidenceStatus: "verified",
+      reviewReadiness: "ready_for_human_review",
+      reviewDecision: "accept_with_revision",
+      sourceId: source.id,
+      locator: "test fixture locator",
+      verifiedAt: "2026-08-02",
+      reviewerIdentity: "test fixture methods reviewer",
+      reviewerRole: "methods",
+      reviewedAt: "2026-08-02",
+      rationale: "The test fixture records why revision is required.",
+      approvedWordingEn: approvedFinalWording,
+    },
+  } as unknown as SeedTopicTheory;
+  corpus.topicTheories[relationIndex] = incompleteRevision;
+  assert.ok(validateSeedCorpus(corpus).errors.includes(
+    "topic-theory relation educational-transitions-over-time:life-course-theory: accept_with_revision requires a bounded revision instruction",
+  ));
+  assert.equal(buildTopicTheoryUpdateData(incompleteRevision, theorySources).riskNotesEn, null);
+
+  const revisedRelation = {
+    ...relation,
+    riskNotesEn: approvedFinalWording,
+    riskReview: {
+      ...reviewIdentity,
+      evidenceStatus: "verified",
+      reviewReadiness: "ready_for_human_review",
+      reviewDecision: "accept_with_revision",
+      sourceId: source.id,
+      locator: "test fixture locator",
+      verifiedAt: "2026-08-02",
+      reviewerIdentity: "test fixture methods reviewer",
+      reviewerRole: "methods",
+      reviewedAt: "2026-08-02",
+      rationale: "The test fixture records why revision is required.",
+      approvedWordingEn: approvedFinalWording,
+      revisionInstruction: "Replace the unapproved draft with the bounded final fixture wording.",
+    },
+  } satisfies SeedTopicTheory;
+  corpus.topicTheories[relationIndex] = revisedRelation;
+
+  assert.deepEqual(validateSeedCorpus(corpus).errors, []);
+  const persistence = buildTopicTheoryUpdateData(revisedRelation, theorySources);
+  assert.equal(persistence.riskNotesEn, approvedFinalWording);
+  assert.notEqual(persistence.riskNotesEn, revisedRelation.riskReview.revisionInstruction);
+});
+
+test("topic-theory update preserves an absent optional suitabilityNotesZh field", () => {
+  const relation = structuredClone(seedCorpus.topicTheories[0]);
+  delete relation.suitabilityNotesZh;
+  const theorySources = theorySourcesFor(relation);
+
+  const updateData = buildTopicTheoryUpdateData(relation, theorySources);
+  const createData = buildTopicTheoryCreateData(relation, theorySources);
+
+  assert.equal("suitabilityNotesZh" in updateData, false);
+  assert.equal(createData.suitabilityNotesZh, null);
 });
 
 test("bibliographic source records keep their edition and support boundaries", () => {
@@ -143,6 +443,27 @@ test("bibliographic source records keep their edition and support boundaries", (
   assert.ok(bourdieu1986?.supports.some((support) => /does not serve as claim-level proof/i.test(support)));
   assert.equal(goodsonSikes?.source_kind, "library");
   assert.ok(goodsonSikes?.supports.some((support) => /WorldCat\/OCLC bibliographic record/i.test(support)));
+});
+
+test("review-flagged DOI publisher journal and university records do not imply claim-level interpretation", () => {
+  const boundedSourceIds = new Set([
+    "struct-sewell-1992",
+    "cop-wenger-2000",
+    "cop-contu-willmott-2003",
+    "cop-cox-2005",
+    "cop-eberle-etal-2014",
+    "practice-symbolic-power-1979",
+    "social-portes-1998",
+    "social-lin-2001",
+    "social-woolcock-1998",
+  ]);
+  const sources = seedCorpus.theories.flatMap((theory) => theory.content.en.sources ?? []);
+  const reviewedSources = sources.filter((source) => boundedSourceIds.has(source.id));
+
+  assert.deepEqual(new Set(reviewedSources.map((source) => source.id)), boundedSourceIds);
+  assert.ok(reviewedSources.every((source) => source.supports.every((support) => (
+    /bibliographic|source record|editorial|claim-level review pending/i.test(support)
+  ))));
 });
 
 test("Life Course R2 sources are wired into sources, reading path, and L1 verification", () => {
@@ -503,5 +824,294 @@ test("published pathways cannot render draft theories from categories or theory 
       (error) => error.includes(draftOwner.slug) && error.includes(draftTheory.slug) && error.includes("not published"),
     ),
     "draft owners may retain internal references to draft Theories",
+  );
+});
+
+test("canonical genealogy requires published source and target endpoints", () => {
+  for (const endpoint of ["source", "target"] as const) {
+    const statuses = endpoint === "source" ? (["draft"] as const) : (["draft", "archived"] as const);
+    for (const status of statuses) {
+      const corpus = structuredClone(seedCorpus);
+      const relation = corpus.genealogy[0];
+      const endpointSlug = endpoint === "source" ? relation.sourceSlug : relation.targetSlug;
+      const target = corpus.theories.find((theory) => theory.slug === endpointSlug);
+
+      assert.ok(target, `canonical genealogy ${endpoint} endpoint resolves`);
+      target.status = status;
+      delete target.publishedAt;
+
+      const expectedError = endpoint === "source"
+        ? `${relation.id}: canonical genealogy source theory ${endpointSlug} is not published`
+        : `${relation.id}: published genealogy target theory ${endpointSlug} is not published`;
+      assert.ok(
+        validateSeedCorpus(corpus).errors.includes(expectedError),
+        `${relation.id} rejects a ${status} ${endpoint} endpoint with the exact error`,
+      );
+    }
+  }
+});
+
+test("every direct public corpus link rejects draft and archived targets", () => {
+  type UnavailableStatus = "draft" | "archived";
+  type MutationCase = {
+    name: string;
+    mutate: (corpus: SeedCorpus, status: UnavailableStatus) => string;
+  };
+  const makeUnavailable = (
+    record: { status: "draft" | "published" | "archived"; publishedAt?: string },
+    status: UnavailableStatus,
+  ) => {
+    record.status = status;
+    delete record.publishedAt;
+  };
+  const cases: MutationCase[] = [
+    {
+      name: "theory-work",
+      mutate(corpus, status) {
+        const relation = corpus.theoryWorks.find((entry) => (
+          corpus.theories.some((theory) => theory.slug === entry.theorySlug && theory.status === "published")
+          && corpus.works.some((work) => work.slug === entry.workSlug && work.status === "published")
+        ));
+        assert.ok(relation);
+        const target = corpus.works.find((work) => work.slug === relation.workSlug);
+        assert.ok(target);
+        makeUnavailable(target, status);
+        return `theory-work relation ${relation.theorySlug}:${relation.workSlug}: published theory target work ${relation.workSlug} is not published`;
+      },
+    },
+    {
+      name: "theory-content genealogy",
+      mutate(corpus, status) {
+        const owner = corpus.theories.find((theory) => theory.status === "published" && theory.content.en.genealogy.length > 0);
+        assert.ok(owner);
+        const targetSlug = owner.content.en.genealogy[0].related_theory;
+        const target = corpus.theories.find((theory) => theory.slug === targetSlug);
+        assert.ok(target);
+        makeUnavailable(target, status);
+        return `${owner.slug}: published theory content genealogy target ${targetSlug} is not published`;
+      },
+    },
+    {
+      name: "concept related work",
+      mutate(corpus, status) {
+        const owner = corpus.concepts.find((concept) => concept.status === "published" && concept.content.en.related_works.some((entry) => !isFAN133U3Archived("work", entry.work_slug)));
+        assert.ok(owner);
+        const targetSlug = owner.content.en.related_works.find((entry) => !isFAN133U3Archived("work", entry.work_slug))?.work_slug;
+        assert.ok(targetSlug);
+        const target = corpus.works.find((work) => work.slug === targetSlug);
+        assert.ok(target);
+        makeUnavailable(target, status);
+        return `${owner.slug}: published concept related work ${targetSlug} is not published`;
+      },
+    },
+    {
+      name: "concept theory variation",
+      mutate(corpus, status) {
+        const owner = corpus.concepts.find((concept) => concept.status === "published" && concept.content.en.theory_variations.length > 0);
+        assert.ok(owner);
+        const targetSlug = owner.content.en.theory_variations[0].theory_slug;
+        const target = corpus.theories.find((theory) => theory.slug === targetSlug);
+        assert.ok(target);
+        makeUnavailable(target, status);
+        return `${owner.slug}: published concept theory variation ${targetSlug} is not published`;
+      },
+    },
+    {
+      name: "concept related scholar",
+      mutate(corpus, status) {
+        const owner = corpus.concepts.find((concept) => concept.status === "published" && concept.content.en.related_scholars.some((scholar) => (
+          scholar.scholar_slug && corpus.scholars.some((target) => target.slug === scholar.scholar_slug && target.status === "published")
+        )));
+        assert.ok(owner);
+        const targetSlug = owner.content.en.related_scholars.find((scholar) => scholar.scholar_slug)?.scholar_slug;
+        const target = corpus.scholars.find((scholar) => scholar.slug === targetSlug);
+        assert.ok(targetSlug);
+        assert.ok(target);
+        makeUnavailable(target, status);
+        return `${owner.slug}: published concept related scholar ${targetSlug} is not published`;
+      },
+    },
+    {
+      name: "scholar theory",
+      mutate(corpus, status) {
+        const owner = corpus.scholars.find((scholar) => scholar.status === "published" && scholar.content.en.theory_relationships.length > 0);
+        assert.ok(owner);
+        const targetSlug = owner.content.en.theory_relationships[0].theory_slug;
+        const target = corpus.theories.find((theory) => theory.slug === targetSlug);
+        assert.ok(target);
+        makeUnavailable(target, status);
+        return `${owner.slug}: published scholar theory ${targetSlug} is not published`;
+      },
+    },
+    {
+      name: "scholar representative work",
+      mutate(corpus, status) {
+        const owner = corpus.scholars.find((scholar) => scholar.status === "published" && scholar.content.en.representative_works.some((work) => work.work_slug));
+        assert.ok(owner);
+        const targetSlug = owner.content.en.representative_works.find((work) => work.work_slug)?.work_slug;
+        const target = corpus.works.find((work) => work.slug === targetSlug);
+        assert.ok(targetSlug);
+        assert.ok(target);
+        makeUnavailable(target, status);
+        return `${owner.slug}: published scholar representative work ${targetSlug} is not published`;
+      },
+    },
+    {
+      name: "topic pathway category theory",
+      mutate(corpus, status) {
+        const owner = corpus.topics.find((topic) => topic.status === "published");
+        assert.ok(owner);
+        const targetSlug = owner.content.en.question_categories.flatMap((category) => category.theory_slugs)[0];
+        const target = corpus.theories.find((theory) => theory.slug === targetSlug);
+        assert.ok(target);
+        makeUnavailable(target, status);
+        return `${owner.slug}: published pathway category theory ${targetSlug} is not published`;
+      },
+    },
+    {
+      name: "topic pathway theory",
+      mutate(corpus, status) {
+        const owner = corpus.topics.find((topic) => topic.status === "published");
+        assert.ok(owner);
+        const targetSlug = owner.content.en.theory_pathways[0].theory_slug;
+        const target = corpus.theories.find((theory) => theory.slug === targetSlug);
+        assert.ok(target);
+        makeUnavailable(target, status);
+        return `${owner.slug}: published pathway theory ${targetSlug} is not published`;
+      },
+    },
+    ...(["topic", "field", "theory", "scholar", "work", "concept"] as const).map((entityType): MutationCase => ({
+      name: `pathway entry-point ${entityType}`,
+      mutate(corpus, status) {
+        const owner = [...corpus.disciplines, ...corpus.fields, ...corpus.topics].find((entry) => (
+          entry.status === "published"
+          && entry.content.en.entry_points.some((candidate) => candidate.entity_type === entityType
+            && (candidate.entity_type !== "work" && candidate.entity_type !== "concept"
+              || !isFAN133U3Archived(candidate.entity_type, candidate.slug)))
+        ));
+        assert.ok(owner, `the corpus has a published pathway with a ${entityType} entry point`);
+        const entry = owner.content.en.entry_points.find((candidate) => candidate.entity_type === entityType
+          && (candidate.entity_type !== "work" && candidate.entity_type !== "concept"
+            || !isFAN133U3Archived(candidate.entity_type, candidate.slug)));
+        assert.ok(entry);
+        const target = entityType === "topic" ? corpus.topics.find((candidate) => candidate.slug === entry.slug)
+          : entityType === "field" ? corpus.fields.find((candidate) => candidate.slug === entry.slug)
+            : entityType === "theory" ? corpus.theories.find((candidate) => candidate.slug === entry.slug)
+              : entityType === "scholar" ? corpus.scholars.find((candidate) => candidate.slug === entry.slug)
+                : entityType === "work" ? corpus.works.find((candidate) => candidate.slug === entry.slug)
+                  : corpus.concepts.find((candidate) => candidate.slug === entry.slug);
+        assert.ok(target, `${entityType} entry point resolves`);
+        assert.equal(target.status, "published", `${entityType} entry point starts published`);
+        makeUnavailable(target, status);
+        return `${owner.slug}: published pathway entry point ${entityType}:${entry.slug} is not published`;
+      },
+    })),
+    {
+      name: "topic-theory relation",
+      mutate(corpus, status) {
+        const relation = corpus.topicTheories.find((entry) => corpus.topics.some((topic) => topic.slug === entry.topicSlug && topic.status === "published"));
+        assert.ok(relation);
+        const target = corpus.theories.find((theory) => theory.slug === relation.theorySlug);
+        assert.ok(target);
+        makeUnavailable(target, status);
+        return `topic-theory relation ${relation.topicSlug}:${relation.theorySlug}: published topic target theory ${relation.theorySlug} is not published`;
+      },
+    },
+    {
+      name: "canonical genealogy",
+      mutate(corpus, status) {
+        const relation = corpus.genealogy.find((entry) => corpus.theories.some((theory) => theory.slug === entry.sourceSlug && theory.status === "published"));
+        assert.ok(relation);
+        const target = corpus.theories.find((theory) => theory.slug === relation.targetSlug);
+        assert.ok(target);
+        makeUnavailable(target, status);
+        return `${relation.id}: published genealogy target theory ${relation.targetSlug} is not published`;
+      },
+    },
+    {
+      name: "theory-concept relation",
+      mutate(corpus, status) {
+        const relation = corpus.theoryConcepts.find((entry) => (
+          corpus.theories.some((theory) => theory.slug === entry.theorySlug && theory.status === "published")
+          && !isFAN133U3Archived("concept", entry.conceptSlug)
+        ));
+        assert.ok(relation);
+        const target = corpus.concepts.find((concept) => concept.slug === relation.conceptSlug);
+        assert.ok(target);
+        makeUnavailable(target, status);
+        return `theory-concept relation ${relation.theorySlug}:${relation.conceptSlug}: published theory target concept ${relation.conceptSlug} is not published`;
+      },
+    },
+    {
+      name: "theory-scholar relation",
+      mutate(corpus, status) {
+        const relation = corpus.theoryScholars.find((entry) => (
+          corpus.theories.some((theory) => theory.slug === entry.theorySlug && theory.status === "published")
+          && corpus.scholars.some((scholar) => scholar.slug === entry.scholarSlug && scholar.status === "published")
+        ));
+        assert.ok(relation);
+        const target = corpus.scholars.find((scholar) => scholar.slug === relation.scholarSlug);
+        assert.ok(target);
+        makeUnavailable(target, status);
+        return `theory-scholar relation ${relation.theorySlug}:${relation.scholarSlug}: published theory target scholar ${relation.scholarSlug} is not published`;
+      },
+    },
+    {
+      name: "discipline-theory relation",
+      mutate(corpus, status) {
+        const relation = corpus.disciplineTheories.find((entry) => corpus.disciplines.some((discipline) => discipline.slug === entry.disciplineSlug && discipline.status === "published"));
+        assert.ok(relation);
+        const target = corpus.theories.find((theory) => theory.slug === relation.theorySlug);
+        assert.ok(target);
+        makeUnavailable(target, status);
+        return `discipline-theory relation ${relation.disciplineSlug}:${relation.theorySlug}: published discipline target theory ${relation.theorySlug} is not published`;
+      },
+    },
+    {
+      name: "field-theory relation",
+      mutate(corpus, status) {
+        const relation = corpus.fieldTheories.find((entry) => corpus.fields.some((field) => field.slug === entry.fieldSlug && field.status === "published"));
+        assert.ok(relation);
+        const target = corpus.theories.find((theory) => theory.slug === relation.theorySlug);
+        assert.ok(target);
+        makeUnavailable(target, status);
+        return `field-theory relation ${relation.fieldSlug}:${relation.theorySlug}: published field target theory ${relation.theorySlug} is not published`;
+      },
+    },
+  ];
+
+  for (const mutationCase of cases) {
+    for (const status of ["draft", "archived"] as const) {
+      const corpus = structuredClone(seedCorpus);
+      const expectedError = mutationCase.mutate(corpus, status);
+      assert.ok(
+        validateSeedCorpus(corpus).errors.includes(expectedError),
+        `${mutationCase.name} rejects a ${status} target`,
+      );
+    }
+  }
+});
+
+test("a draft owner may retain an authoring reference to a draft target", () => {
+  const corpus = structuredClone(seedCorpus);
+  const draftOwner = structuredClone(corpus.concepts[0]);
+  const draftTarget = corpus.scholars.find((scholar) => scholar.status === "draft");
+
+  assert.ok(draftTarget, "the corpus includes a draft scholar target");
+  draftOwner.slug = "draft-concept-authoring-control";
+  draftOwner.termEn = "Draft concept authoring control";
+  draftOwner.status = "draft";
+  delete draftOwner.publishedAt;
+  draftOwner.content.en.related_scholars = [{
+    name: draftTarget.name,
+    scholar_slug: draftTarget.slug,
+    relevance: "Draft authoring reference.",
+  }];
+  corpus.concepts.push(draftOwner);
+
+  assert.ok(
+    !validateSeedCorpus(corpus).errors.includes(
+      `${draftOwner.slug}: published concept related scholar ${draftTarget.slug} is not published`,
+    ),
   );
 });

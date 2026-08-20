@@ -1,0 +1,4 @@
+interface:
+  display_name: "Content Audit Agent"
+  short_description: "Audit one completed article before implementation and deployment"
+  default_prompt: "Use $content-audit-agent in a separate context to audit exactly one reviewed, polished, and laid-out candidate before the implementation gate."

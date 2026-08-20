@@ -116,12 +116,34 @@ test("published scholar profiles show attribution boundaries and source semantic
     const sourceRegister = page.locator("[data-source-scope='page-source-register']");
     await expect(sourceRegister).toBeVisible();
     await expect(sourceRegister.getByRole("listitem").first()).toBeVisible();
-    await expect(sourceRegister.getByText(/These sources are bibliographic or contextual records registered for this page\. L1 source badges refer to source-level metadata; theory fit, interpretation, and dissertation-use guidance remain editorial synthesis unless claim-level locators are shown\./i)).toBeVisible();
+    await expect(sourceRegister.getByText(/These are listed source records for this page\. A listed source record does not imply claim-level verification\. “Source verified” is reserved for an approved, source-verified, source-backed fact with a reproducible locator and explicit human-review metadata\./i)).toBeVisible();
     await expect(page.getByText(/Source records available · editorial synthesis · claim-level review pending/i)).toBeVisible();
-    await expect(page.getByText(/Source records are listed below\. Bibliographic metadata may be L1 verified; interpretation and research-use guidance remain editorial synthesis unless claim-level locators are shown\./i)).toBeVisible();
+    await expect(page.getByText(/Listed source records do not imply claim-level verification\. Interpretation and research-use guidance remain editorial synthesis unless an approved source-backed fact has a reproducible locator and explicit human-review metadata\./i)).toBeVisible();
     await page.waitForLoadState("networkidle");
   }
 
+  assertBrowserHealth();
+});
+
+test("published topic keeps pending relation risk separate from pathway Boundary content", async ({ page, baseURL }) => {
+  const assertBrowserHealth = watchBrowserHealth(page, baseURL);
+
+  await page.goto("/topics/educational-transitions-over-time", { waitUntil: "domcontentloaded" });
+
+  await expect(page.getByRole("heading", {
+    level: 1,
+    name: "How do educational transitions unfold across time, relationships, and institutions?",
+  })).toBeVisible();
+  const publishedRelations = page.getByRole("heading", { name: "Published topic-theory relations" }).locator("..");
+  const lifeCourseRelation = publishedRelations.locator("article").filter({ hasText: "Life Course Theory" });
+  const riskSurface = lifeCourseRelation.getByText("Risk / Use carefully", { exact: true }).locator("..");
+  await expect(riskSurface).toContainText("Pending human review");
+
+  const theoryComparison = page.getByRole("heading", { name: "Theory comparison" }).locator("..");
+  const lifeCoursePathway = theoryComparison.locator("article").filter({ hasText: "life course theory" });
+  const boundarySurface = lifeCoursePathway.getByText("Boundary", { exact: true }).locator("..");
+  await expect(boundarySurface).toContainText("Does not establish causality from temporal order alone");
+  await page.waitForLoadState("networkidle");
   assertBrowserHealth();
 });
 

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Content Independent Review Agent"
+  short_description: "Independently review content candidates before formal implementation"
+  default_prompt: "Use $content-independent-review-agent in a separate context to review each content-update candidate row by row, then produce the independent review gate report."

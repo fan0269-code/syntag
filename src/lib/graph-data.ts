@@ -2,6 +2,7 @@ import type { PrismaClient } from "@prisma/client";
 import type { GraphMode } from "./api.ts";
 import { getDb } from "./db.ts";
 import { entityDetailHref, isEntityType } from "./entity-routes.ts";
+import { filterPublicGenealogyRelations, publicGenealogyRelationWhere } from "./genealogy-visibility.ts";
 
 const published = "published";
 
@@ -43,8 +44,8 @@ async function getVisualDisciplinesForDb(db: GraphDb): Promise<VisualDiscipline[
           theory: {
             status: published,
             OR: [
-              { sourceRelations: { some: {} } },
-              { targetRelations: { some: {} } },
+              { sourceRelations: { some: publicGenealogyRelationWhere() } },
+              { targetRelations: { some: publicGenealogyRelationWhere() } },
               { scholars: { some: { scholar: { status: published } } } },
               { topics: { some: { topic: { status: published } } } },
             ],
@@ -95,10 +96,14 @@ export async function getGraphDataForDb(db: GraphDb, disciplineSlug: string, mod
 
   if (mode === "genealogy") {
     const relations = await db.theoryGenealogy.findMany({
-      where: { sourceTheoryId: { in: theoryIds }, targetTheoryId: { in: theoryIds } },
+      where: {
+        ...publicGenealogyRelationWhere(),
+        sourceTheoryId: { in: theoryIds },
+        targetTheoryId: { in: theoryIds },
+      },
       orderBy: { strength: "desc" },
     });
-    const edges = relations.map((relation) => ({
+    const edges = filterPublicGenealogyRelations(relations).map((relation) => ({
       id: relation.id,
       source: relation.sourceTheoryId,
       target: relation.targetTheoryId,

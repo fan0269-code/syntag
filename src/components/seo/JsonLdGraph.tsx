@@ -8,7 +8,7 @@ export function JsonLdGraph({ items }: { items: GraphListItem[] }) {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
     name: "Syrtag — Research Theory Knowledge Graph",
-    description: "A source-aware knowledge graph for navigating research theories, scholars, and foundational works.",
+    description: "A source-aware knowledge graph for navigating research theories, scholars, and research works.",
     url: absoluteUrl("/"),
     mainEntity: {
       "@type": "ItemList",

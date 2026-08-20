@@ -8,7 +8,7 @@ import { verifySeededDatabase } from "../src/lib/seed-verification.ts";
 
 const connectionString = process.env.DATABASE_URL;
 
-test("the local seed has the expected published corpus and queryable relations", { skip: !connectionString }, async () => {
+test("the local seed has the expected contracted corpus and fail-closed relations", { skip: !connectionString }, async () => {
   if (!connectionString) return;
 
   const db = new PrismaClient({ adapter: new PrismaPg({ connectionString }) });
@@ -16,18 +16,51 @@ test("the local seed has the expected published corpus and queryable relations",
   try {
     const result = await verifySeededDatabase(db);
 
-    assert.deepEqual(result.disciplineSlugs, ["education", "sociology"]);
-    assert.equal(result.publishedTheoryCount, 12);
-    assert.equal(result.fieldCount, 6);
+    assert.deepEqual(result.disciplineSlugs, []);
+    assert.equal(result.publishedTheoryCount, 0);
+    assert.equal(result.fieldCount, 0);
     assert.equal(result.disciplineTheoryCount, 15);
     assert.equal(result.fieldTheoryCount, 8);
-    assert.equal(result.genealogyCount, 8);
-    assert.equal(result.publishedScholarCount, 7);
-    assert.equal(result.theoryScholarCount, 7);
+    assert.equal(result.genealogyCount, 0);
+    assert.equal(result.publishedScholarCount, 0);
+    assert.equal(result.theoryScholarCount, 0);
     assert.equal(result.totalScholarCount, 10);
-    assert.equal(result.totalTheoryScholarCount, 10);
-    assert.equal(result.publishedTopicCount, 4);
-    assert.equal(result.topicTheoryCount, 12);
+    assert.equal(result.totalTheoryScholarCount, 7);
+    assert.equal(result.publishedTopicCount, 0);
+    assert.equal(result.publishedWorkCount, 0);
+    assert.equal(result.publishedConceptCount, 0);
+    assert.equal(result.archivedFAN247.length, 58);
+    assert.deepEqual(
+      Object.fromEntries(
+        ["discipline", "field", "theory", "work", "concept", "scholar", "topic"].map((entityType) => [
+          entityType,
+          result.archivedFAN247.filter((row) => row.entityType === entityType).length,
+        ]),
+      ),
+      { discipline: 2, field: 6, theory: 12, work: 18, concept: 9, scholar: 7, topic: 4 },
+    );
+    assert.ok(result.archivedFAN247.every((row) => row.status === "archived" && row.publishedAt === null));
+    assert.deepEqual(result.archivedU3Works, [
+      { slug: "equity-sen-1992", status: "archived", publishedAt: null },
+    ]);
+    assert.deepEqual(result.archivedU3Concepts, [
+      { slug: "duality-of-structure", status: "archived", publishedAt: null },
+      { slug: "field", status: "archived", publishedAt: null },
+      { slug: "habitus", status: "archived", publishedAt: null },
+      { slug: "institutional-isomorphism", status: "archived", publishedAt: null },
+      { slug: "mutual-engagement", status: "archived", publishedAt: null },
+      { slug: "professional-learning", status: "archived", publishedAt: null },
+      { slug: "recursive-practice", status: "archived", publishedAt: null },
+      { slug: "rules-and-resources", status: "archived", publishedAt: null },
+      { slug: "shared-repertoire", status: "archived", publishedAt: null },
+      { slug: "symbolic-power", status: "archived", publishedAt: null },
+      { slug: "teacher-professional-identity", status: "archived", publishedAt: null },
+      { slug: "teacher-self-understanding", status: "archived", publishedAt: null },
+      { slug: "trajectory", status: "archived", publishedAt: null },
+      { slug: "transition", status: "archived", publishedAt: null },
+      { slug: "turning-point", status: "archived", publishedAt: null },
+    ]);
+    assert.equal(result.topicTheoryCount, 0);
     assert.equal(result.totalTopicCount, 8);
     assert.equal(result.totalTopicTheoryCount, 24);
     assert.deepEqual(result.enrichmentTopicStatuses, [
@@ -37,22 +70,44 @@ test("the local seed has the expected published corpus and queryable relations",
       { slug: "teacher-professional-learning-and-change", status: "draft" },
     ]);
     assert.deepEqual(result.enrichmentScholarStatuses, [
-      { slug: "etienne-wenger", status: "published" },
-      { slug: "jean-lave", status: "published" },
+      { slug: "etienne-wenger", status: "archived" },
+      { slug: "jean-lave", status: "archived" },
       { slug: "john-w-kingdon", status: "draft" },
-      { slug: "michael-lipsky", status: "published" },
+      { slug: "michael-lipsky", status: "archived" },
     ]);
     assert.deepEqual(result.secondScholarStatuses, [
       { slug: "christopher-day", status: "draft" },
       { slug: "ivor-f-goodson", status: "draft" },
     ]);
-    assert.equal(result.l1VerificationCount, 12);
-    assert.equal(result.searchableTheoryCount, 12);
-    assert.equal(result.searchableScholarCount, 7);
-    assert.equal(result.searchableTopicCount, 4);
-    assert.ok(result.identitySearchCount > 0);
-    assert.ok(result.elderSearchCount > 0);
-    assert.ok(result.transitionTopicSearchCount > 0);
+    assert.equal(
+      await db.theoryScholar.count({
+        where: {
+          OR: [
+            {
+              theory: { slug: "multiple-streams-framework" },
+              scholar: { slug: "john-w-kingdon" },
+            },
+            {
+              theory: { slug: "teacher-life-history-research" },
+              scholar: { slug: "ivor-f-goodson" },
+            },
+            {
+              theory: { slug: "teacher-professional-development-theory" },
+              scholar: { slug: "christopher-day" },
+            },
+          ],
+        },
+      }),
+      0,
+      "retired draft-scholar relations stay out of the canonical database graph",
+    );
+    assert.equal(result.legacySourceMetadataCount, 12);
+    assert.equal(result.searchableTheoryCount, 0);
+    assert.equal(result.searchableScholarCount, 0);
+    assert.equal(result.searchableTopicCount, 0);
+    assert.equal(result.identitySearchCount, 0);
+    assert.equal(result.elderSearchCount, 0);
+    assert.equal(result.transitionTopicSearchCount, 0);
 
     const lifeCourse = await db.theory.findUnique({
       where: { slug: "life-course-theory" },
@@ -80,7 +135,7 @@ test("the local seed has the expected published corpus and queryable relations",
         },
       },
     });
-    assert.equal(sourceVerification?.verifiedAt?.toISOString(), "2026-07-21T00:00:00.000Z");
+    assert.equal(sourceVerification?.verifiedAt, null);
 
     const lifeCourseTopicRelation = await db.topicTheory.findFirst({
       where: {
@@ -94,12 +149,7 @@ test("the local seed has the expected published corpus and queryable relations",
         riskNotesEn: true,
       },
     });
-    assert.deepEqual(lifeCourseTopicRelation, {
-      suitability: "high",
-      recommendation: "primary",
-      suitabilityNotesEn: "Life Course Theory is suitable because the question foregrounds transition timing, linked lives, institutions, and historically situated sequences.",
-      riskNotesEn: "Use carefully when the study has only one cross-sectional snapshot or undated recollections; do not infer life-course causality from temporal order without contextual and relational evidence.",
-    });
+    assert.equal(lifeCourseTopicRelation, null);
   } finally {
     await db.$disconnect();
   }

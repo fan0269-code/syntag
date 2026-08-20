@@ -81,15 +81,24 @@ test("graph data exposes only published disciplines with visual data", async () 
   ]);
 });
 
-test("genealogy mode uses real theory nodes, relation labels, concepts, and canonical links", async () => {
+test("genealogy mode retains published theory nodes while quarantining public relations", async () => {
   const graph = await getGraphDataForDb(fakeDb() as never, "education", "genealogy");
   const theory = graph?.nodes.find((node) => node.type === "theory");
 
   assert.equal(graph?.meta.mode, "genealogy");
   assert.equal(graph?.meta.nodeCount, 2);
-  assert.equal(graph?.edges[0].label, "Life-course analysis informs teacher identity work.");
+  assert.deepEqual(graph?.edges, []);
+  assert.equal(graph?.meta.edgeCount, 0);
+  assert.deepEqual(graph?.meta.relationLabels, []);
   assert.equal(theory?.data?.articleHref, "/theories/life-course-theory");
   assert.deepEqual(theory?.data?.concepts, ["Linked lives"]);
+});
+
+test("genealogy mode excludes relations outside the public visibility allowlist", async () => {
+  const graph = await getGraphDataForDb(fakeDb() as never, "education", "genealogy");
+
+  assert.deepEqual(graph?.edges, []);
+  assert.equal(graph?.meta.edgeCount, 0);
 });
 
 test("scholars mode uses theory-scholar relations instead of reusing the genealogy graph", async () => {

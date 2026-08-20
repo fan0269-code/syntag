@@ -20,7 +20,7 @@ const routeCases: readonly RouteCase[] = [
   {
     name: "home",
     path: "/",
-    h1: /Make a defensible theory choice|Data temporarily unavailable|The knowledge graph is not published yet/i,
+    h1: /Explore theory choices with source-aware guidance|Data temporarily unavailable|The knowledge graph is not published yet/i,
     dataDependent: true,
     primaryAction: { role: "link", name: /Start with a research question/i },
   },
@@ -119,7 +119,7 @@ async function gotoHomeOrUnavailable(page: Page) {
     return "unavailable" as const;
   }
 
-  await expect(page.getByRole("heading", { level: 1, name: /Make a defensible theory choice/i })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: /Explore theory choices with source-aware guidance/i })).toBeVisible();
   return "ready" as const;
 }
 

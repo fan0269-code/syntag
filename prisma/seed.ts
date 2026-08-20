@@ -2,7 +2,11 @@ import { PrismaPg } from "@prisma/adapter-pg";
 import prismaClientPackage from "@prisma/client";
 
 import { seedCorpus, type PublicationStatus } from "../src/data/seed-content.ts";
-import { validateSeedCorpus } from "../src/lib/content-validation.ts";
+import {
+  buildTopicTheoryCreateData,
+  buildTopicTheoryUpdateData,
+  validateSeedCorpus,
+} from "../src/lib/content-validation.ts";
 
 const { PrismaClient } = prismaClientPackage;
 
@@ -210,6 +214,22 @@ async function main() {
     scholarBySlug.set(record.slug, item.id);
   }
 
+  const retiredTheoryScholarRelations = [
+    { theorySlug: "multiple-streams-framework", scholarSlug: "john-w-kingdon" },
+    { theorySlug: "teacher-life-history-research", scholarSlug: "ivor-f-goodson" },
+    { theorySlug: "teacher-professional-development-theory", scholarSlug: "christopher-day" },
+  ] as const;
+  for (const relation of retiredTheoryScholarRelations) {
+    const theoryId = theoryBySlug.get(relation.theorySlug);
+    const scholarId = scholarBySlug.get(relation.scholarSlug);
+    if (!theoryId || !scholarId) {
+      throw new Error(`Retired theory-scholar relation could not be resolved: ${relation.theorySlug} -> ${relation.scholarSlug}`);
+    }
+    await db.theoryScholar.deleteMany({
+      where: { theoryId, scholarId },
+    });
+  }
+
   for (const relation of seedCorpus.theoryScholars) {
     const theoryId = theoryBySlug.get(relation.theorySlug);
     const scholarId = scholarBySlug.get(relation.scholarSlug);
@@ -240,29 +260,21 @@ async function main() {
     topicBySlug.set(record.slug, item.id);
   }
 
+  const theorySourcesBySlug = new Map(
+    seedCorpus.theories.map((theory) => [theory.slug, theory.content.en.sources ?? []] as const),
+  );
   for (const relation of seedCorpus.topicTheories) {
     const topicId = topicBySlug.get(relation.topicSlug);
     const theoryId = theoryBySlug.get(relation.theorySlug);
     if (!topicId || !theoryId) throw new Error("Validated topic-theory relation could not be resolved");
+    const theorySources = theorySourcesBySlug.get(relation.theorySlug) ?? [];
     await db.topicTheory.upsert({
       where: { topicId_theoryId: { topicId, theoryId } },
-      update: {
-        suitability: relation.suitability,
-        suitabilityNotesEn: relation.suitabilityNotesEn,
-        suitabilityNotesZh: relation.suitabilityNotesZh ?? null,
-        riskNotesEn: relation.riskNotesEn,
-        riskNotesZh: relation.riskNotesZh ?? null,
-        recommendation: relation.recommendation,
-      },
+      update: buildTopicTheoryUpdateData(relation, theorySources),
       create: {
         topicId,
         theoryId,
-        suitability: relation.suitability,
-        suitabilityNotesEn: relation.suitabilityNotesEn,
-        suitabilityNotesZh: relation.suitabilityNotesZh ?? null,
-        riskNotesEn: relation.riskNotesEn,
-        riskNotesZh: relation.riskNotesZh ?? null,
-        recommendation: relation.recommendation,
+        ...buildTopicTheoryCreateData(relation, theorySources),
       },
     });
   }
@@ -282,7 +294,7 @@ async function main() {
         level: record.level,
         sources: record.sources,
         notes: record.notes,
-        verifiedAt: record.level === "L1_verified" ? new Date(record.verifiedAt) : null,
+        verifiedAt: record.verifiedAt ? new Date(record.verifiedAt) : null,
       },
       create: {
         entityType: "theory",
@@ -291,7 +303,7 @@ async function main() {
         level: record.level,
         sources: record.sources,
         notes: record.notes,
-        verifiedAt: record.level === "L1_verified" ? new Date(record.verifiedAt) : null,
+        verifiedAt: record.verifiedAt ? new Date(record.verifiedAt) : null,
       },
     });
   }

@@ -1,9 +1,16 @@
-import { getDb } from "../db";
+import type { PrismaClient } from "@prisma/client";
+
+import { getDb } from "../db.ts";
+import { filterPublicGenealogyRelations, publicGenealogyRelationWhere } from "../genealogy-visibility.ts";
 
 const published = "published";
 
 export function getTheoryBySlug(slug: string) {
-  return getDb().theory.findFirst({
+  return getTheoryBySlugForDb(getDb(), slug);
+}
+
+export async function getTheoryBySlugForDb(db: PrismaClient, slug: string) {
+  const theory = await db.theory.findFirst({
     where: { slug, status: published },
     include: {
       scholars: { where: { scholar: { status: published } }, include: { scholar: true } },
@@ -12,15 +19,22 @@ export function getTheoryBySlug(slug: string) {
       fields: { where: { field: { status: published, discipline: { status: published } } }, include: { field: { include: { discipline: true } } } },
       topics: { where: { topic: { status: published } }, include: { topic: true } },
       sourceRelations: {
-        where: { targetTheory: { status: published } },
+        where: { ...publicGenealogyRelationWhere(), targetTheory: { status: published } },
         include: { targetTheory: true, keyScholar: true, keyWork: true },
       },
       targetRelations: {
-        where: { sourceTheory: { status: published } },
+        where: { ...publicGenealogyRelationWhere(), sourceTheory: { status: published } },
         include: { sourceTheory: true, keyScholar: true, keyWork: true },
       },
     },
   });
+
+  if (!theory) return null;
+  return {
+    ...theory,
+    sourceRelations: filterPublicGenealogyRelations(theory.sourceRelations),
+    targetRelations: filterPublicGenealogyRelations(theory.targetRelations),
+  };
 }
 
 export function getTheoriesByDiscipline(disciplineSlug: string) {

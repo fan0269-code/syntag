@@ -92,8 +92,8 @@ export function generateScholarMeta(scholar: Pick<ScholarSeoEntity, "name" | "bi
 }
 
 export function generateWorkMeta(work: Pick<WorkSeoEntity, "title" | "publisher" | "slug">): Metadata {
-  const title = `${work.title} — Foundational Research Work Guide | Syrtag`;
-  return metadataFor({ title, description: createSeoDescription(work.title, "foundational research work guide", work.publisher), path: `/works/${work.slug}` });
+  const title = `${work.title} — Research Work Guide | Syrtag`;
+  return metadataFor({ title, description: createSeoDescription(work.title, "research work guide", work.publisher), path: `/works/${work.slug}` });
 }
 
 export function generateTopicMeta(topic: Pick<TopicSeoEntity, "questionEn" | "slug">): Metadata {
@@ -114,7 +114,7 @@ export function generateFieldMeta(field: Pick<FieldSeoEntity, "titleEn" | "descr
 export function generateHomeMeta(): Metadata {
   return metadataFor({
     title: "Syrtag — Research Theory Knowledge Graph",
-    description: "Explore research theories, scholars, foundational works, and dissertation-ready framework pathways in Syrtag's source-aware knowledge graph.",
+    description: "Explore research theories, scholars, and research works through source-aware pathways for bounded theory selection in Syrtag's knowledge graph.",
     path: "/",
     type: "website",
   });

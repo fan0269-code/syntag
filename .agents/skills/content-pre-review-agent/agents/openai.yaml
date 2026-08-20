@@ -1,0 +1,4 @@
+interface:
+  display_name: "Content Pre-Review Agent"
+  short_description: "Review content updates row by row before human approval"
+  default_prompt: "Use $content-pre-review-agent to independently pre-review each content change against the plan and evidence, then produce a human-gated report."

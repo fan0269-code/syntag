@@ -11,13 +11,14 @@ const legal = [
   ["Privacy", "/privacy"],
   ["Terms", "/terms"],
   ["Editorial Policy", "/editorial-policy"],
+  ["Contact and Corrections", "/corrections"],
 ];
 
 export function Footer() {
   return (
     <footer className="site-footer">
       <div className="site-footer__grid">
-        <div><strong>Syrtag</strong><p>A knowledge graph for research theories and dissertation-ready frameworks.</p></div>
+        <div><strong>Syrtag</strong><p>A source-aware knowledge graph for bounded exploration of research theories.</p></div>
         <nav aria-label="Explore Syrtag"><h2>Quick links</h2>{links.map(([label, href]) => <Link href={href} key={href}>{label}</Link>)}</nav>
         <nav aria-label="Legal information"><h2>Legal</h2>{legal.map(([label, href]) => <Link href={href} key={href}>{label}</Link>)}</nav>
       </div>

@@ -38,7 +38,7 @@ export default async function Home() {
         <header className="home-hero__intro">
           <div>
             <span className="eyebrow">Research theory pathways</span>
-            <h1>Make a defensible theory choice.</h1>
+            <h1>Explore theory choices with source-aware guidance.</h1>
             <p className="lead">Start with a research question, explore connected theories, and follow the sources behind each pathway.</p>
             <div className="home-hero__search">
               <SearchBox

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Syrtag Research"
+  short_description: "Verify Syrtag academic sources and evidence"
+  default_prompt: "Use $syrtag-research to verify sources and produce a traceable evidence pack for this candidate."

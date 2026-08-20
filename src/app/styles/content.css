@@ -13,8 +13,7 @@
 .entity-card__tags span { border: 1px solid var(--border-default); border-radius: var(--radius-tag); color: var(--text-tertiary); font-size: 12px; padding: 2px 6px; }
 .entity-card time { color: var(--text-tertiary); font-size: 12px; white-space: nowrap; }
 .verification-badge { border: 1px solid currentColor; border-radius: var(--radius-tag); display: inline-block; font-size: 12px; line-height: 1.4; padding: 2px 8px; white-space: nowrap; }
-.verification-badge--L1_verified { color: var(--verification-L1); }
-.verification-badge--L2_reviewed { color: var(--verification-L2); }
+.verification-badge--L2_editorial { color: var(--verification-L2); }
 .verification-badge--L3_pending { color: var(--verification-L3); }
 .source-block { background: transparent; border-left: 2px solid var(--border-visible); margin: 44px 0 24px; padding: 4px 0 4px 18px; }
 .source-block h2 { font-size: 16px; margin: 0 0 16px; }

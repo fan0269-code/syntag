@@ -9,12 +9,20 @@ import type { PathwayContent } from "../../templates/pathway-template.ts";
 import { createFirstEnrichmentBatch } from "../content-batches/2026-07-18-first-enrichment.ts";
 import { createGoodsonDayDraftScholarBatch } from "../content-batches/2026-07-19-goodson-day-draft-scholars.ts";
 import { createLifeCourseEvidenceR2Batch } from "../content-batches/2026-07-21-life-course-evidence-r2.ts";
+import { isFAN247Archived, type FAN247VisibilityEntityType } from "../../../lib/fan247-visibility.ts";
+import { FAN_133_U3_ARCHIVED_CONCEPT_SLUGS, FAN_133_U3_ARCHIVED_WORK_SLUGS } from "../../../lib/u3-visibility.ts";
 
 export type PublicationStatus = "draft" | "published" | "archived";
 
 interface SeedPublication {
   status: PublicationStatus;
   publishedAt?: string;
+}
+
+function applyFAN247Visibility<T extends SeedPublication & { slug: string }>(type: FAN247VisibilityEntityType, records: T[]): T[] {
+  return records.map((record) => isFAN247Archived(type, record.slug)
+    ? { ...record, status: "archived", publishedAt: undefined }
+    : record);
 }
 
 export interface SeedDiscipline extends SeedPublication {
@@ -115,17 +123,108 @@ export interface SeedTopic extends SeedPublication {
   content: { en: PathwayContent };
 }
 
-export interface SeedTopicTheory {
+interface TopicTheoryRiskReviewBase {
+  claimId: string;
+  fieldPath: string;
+  contentNature: "research_guidance";
+}
+
+export type PendingTopicTheoryRiskReview = TopicTheoryRiskReviewBase & {
+  evidenceStatus: "pending_review";
+  reviewReadiness: "blocked" | "partially_supported";
+  reviewDecision: "pending_review";
+  blocker: string;
+  sourceId?: never;
+  locator?: never;
+  verifiedAt?: never;
+  reviewerIdentity?: never;
+  reviewerRole?: never;
+  reviewedAt?: never;
+  rationale?: never;
+  approvedWordingEn?: never;
+  revisionInstruction?: never;
+};
+
+interface AcceptedTopicTheoryRiskReviewBase extends TopicTheoryRiskReviewBase {
+  evidenceStatus: "verified" | "partially_supported";
+  reviewReadiness: "ready_for_human_review";
+  sourceId: string;
+  locator: string;
+  verifiedAt: string;
+  reviewerIdentity: string;
+  reviewerRole: "methods";
+  reviewedAt: string;
+  rationale: string;
+  approvedWordingEn: string;
+  blocker?: never;
+}
+
+export type AcceptedTopicTheoryRiskReview = AcceptedTopicTheoryRiskReviewBase & (
+  | {
+    reviewDecision: "accept_as_worded";
+    revisionInstruction?: never;
+  }
+  | {
+    reviewDecision: "accept_with_revision";
+    revisionInstruction: string;
+  }
+);
+
+export type RejectedTopicTheoryRiskReview = TopicTheoryRiskReviewBase & {
+  evidenceStatus: "verified" | "partially_supported" | "blocked";
+  reviewReadiness: "blocked";
+  reviewDecision: "reject";
+  reviewerIdentity: string;
+  reviewerRole: "methods";
+  reviewedAt: string;
+  rationale: string;
+  blocker: string;
+  sourceId?: string;
+  locator?: string;
+  verifiedAt?: string;
+  approvedWordingEn?: never;
+  revisionInstruction?: never;
+};
+
+export type TopicTheoryRiskReview =
+  | PendingTopicTheoryRiskReview
+  | AcceptedTopicTheoryRiskReview
+  | RejectedTopicTheoryRiskReview;
+
+interface SeedTopicTheoryBase {
   topicSlug: string;
   theorySlug: string;
   suitability: "high" | "medium" | "low";
   suitabilityNotesEn: string;
   suitabilityNotesZh?: string;
-  riskNotesEn: string;
-  riskNotesZh?: string;
   recommendation: "primary" | "supporting" | "not_recommended";
   sourceUrls: string[];
   evidenceNotesEn: string;
+}
+
+export type SeedTopicTheory = SeedTopicTheoryBase & (
+  | {
+    riskNotesEn: string;
+    riskNotesZh?: never;
+    riskReview: AcceptedTopicTheoryRiskReview;
+  }
+  | {
+    riskNotesEn?: never;
+    riskNotesZh?: never;
+    riskReview?: PendingTopicTheoryRiskReview | RejectedTopicTheoryRiskReview;
+  }
+);
+
+export function pendingTopicTheoryRiskReview(topicSlug: string, theorySlug: string): PendingTopicTheoryRiskReview {
+  return {
+    claimId: `topic-theory:${topicSlug}:${theorySlug}:risk-notes-en`,
+    fieldPath: `topicTheories[topicSlug="${topicSlug}",theorySlug="${theorySlug}"].riskNotesEn`,
+    contentNature: "research_guidance",
+    evidenceStatus: "pending_review",
+    reviewReadiness: "blocked",
+    reviewDecision: "pending_review",
+    blocker: "A reproducible source locator and explicit methods-aware row-level review decision are still required.",
+  };
 }
 
 interface SeedVerificationBase {
@@ -136,7 +235,7 @@ interface SeedVerificationBase {
 }
 
 export type SeedVerification = SeedVerificationBase & (
-  | { level: "L1_verified"; verifiedAt: string }
+  | { level: "L1_verified"; verifiedAt?: string }
   | { level: "L2_editorial" | "L3_pending"; verifiedAt?: never }
 );
 
@@ -286,7 +385,7 @@ const sources = {
     url: "https://link.springer.com/chapter/10.1007/978-0-306-48247-2_1",
     source_kind: "publisher",
     evidence_level: "L1",
-    supports: ["Historical development", "Life-course principles"],
+    supports: ["Publisher bibliographic record for the handbook chapter", "Life-course history and principles remain editorial synthesis pending claim-level review"],
   },
   lifeCourseShanahan: {
     id: "shanahan-2000-pathways-adulthood",
@@ -294,7 +393,7 @@ const sources = {
     url: "https://www.annualreviews.org/content/journals/10.1146/annurev.soc.26.1.667",
     source_kind: "doi",
     evidence_level: "L1",
-    supports: ["Pathway variability", "Agency within constraints"],
+    supports: ["Journal source record for the article", "Pathway and agency interpretation remains editorial synthesis pending claim-level review"],
   },
   lifeCourseMayer: {
     id: "mayer-2009-new-directions",
@@ -302,7 +401,7 @@ const sources = {
     url: "https://www.annualreviews.org/content/journals/10.1146/annurev.soc.34.040507.134619",
     source_kind: "doi",
     evidence_level: "L1",
-    supports: ["Field development", "Causal and theoretical limitations"],
+    supports: ["Journal source record for the article", "Field-development and limitation interpretation remains editorial synthesis pending claim-level review"],
   },
   lifeCourseAlwin: {
     id: "alwin-2012-life-course-concepts",
@@ -310,7 +409,7 @@ const sources = {
     url: "https://academic.oup.com/psychsocgerontology/article-abstract/67B/2/206/540716",
     source_kind: "doi",
     evidence_level: "L1",
-    supports: ["Conceptual varieties", "Theory-paradigm boundary"],
+    supports: ["Journal source record for the article", "Conceptual-variety and theory-boundary interpretation remains editorial synthesis pending claim-level review"],
   },
   lifeCourseMethods: {
     id: "giele-elder-1998-methods",
@@ -318,11 +417,11 @@ const sources = {
     url: "https://uk.sagepub.com/en-gb/eur/methods-of-life-course-research/book7590",
     source_kind: "publisher",
     evidence_level: "L1",
-    supports: ["Life-history methods", "Retrospective and prospective evidence"],
+    supports: ["Publisher bibliographic record for the methods volume", "Methods interpretation remains editorial synthesis pending claim-level review"],
   },
   teacherIdentity: {
     id: "kelchtermans-2009-teacher-identity",
-    citation: "Kelchtermans, G. (2009). Who I am in how I teach is the message. Teachers and Teaching, 15(2), 257-272.",
+    citation: "Kelchtermans, G. (2009). Who I am in how I teach is the message: self-understanding, vulnerability and reflection. Teachers and Teaching, 15(2), 257–272.",
     url: "https://doi.org/10.1080/13540600902875332",
     source_kind: "doi",
     evidence_level: "L1",
@@ -334,7 +433,7 @@ const sources = {
     url: "https://scholarlypublications.universiteitleiden.nl/handle/1887/11190",
     source_kind: "university",
     evidence_level: "L1",
-    supports: ["Field review", "Definition differences", "Identity characteristics"],
+    supports: ["University repository source record for the article", "Teacher-identity definitions and characteristics remain editorial synthesis pending claim-level review"],
   },
   teacherIdentityLasky: {
     id: "lasky-2005-teacher-identity-agency",
@@ -342,7 +441,7 @@ const sources = {
     url: "https://doi.org/10.1016/j.tate.2005.06.003",
     source_kind: "doi",
     evidence_level: "L1",
-    supports: ["Mediated agency", "Reform context", "Professional vulnerability"],
+    supports: ["DOI bibliographic record for the article", "Agency, reform, and vulnerability interpretation remains editorial synthesis pending claim-level review"],
   },
   teacherIdentityAkkerman: {
     id: "akkerman-meijer-2011-dialogical-identity",
@@ -350,7 +449,7 @@ const sources = {
     url: "https://www.sciencedirect.com/science/article/pii/S0742051X10001502",
     source_kind: "journal",
     evidence_level: "L1",
-    supports: ["Dialogical identity", "Multiplicity and continuity", "I-positions"],
+    supports: ["Journal source record for the article", "Dialogical-identity interpretation remains editorial synthesis pending claim-level review"],
   },
   teacherIdentityBeauchamp: {
     id: "beauchamp-thomas-2009-teacher-identity",
@@ -358,7 +457,7 @@ const sources = {
     url: "https://www.tandfonline.com/doi/abs/10.1080/03057640902902252",
     source_kind: "journal",
     evidence_level: "L1",
-    supports: ["Field overview", "Agency, emotion, narrative, discourse, reflection, and context"],
+    supports: ["Journal source record for the article", "Field-overview interpretation remains editorial synthesis pending claim-level review"],
   },
   teacherIdentityWenger: {
     id: "wenger-1998-communities-practice",
@@ -366,7 +465,7 @@ const sources = {
     url: "https://www.cambridge.org/highereducation/books/communities-of-practice/724C22A03B12D11DFC345EEF0AD3F22A",
     source_kind: "publisher",
     evidence_level: "L1",
-    supports: ["Adjacent communities-of-practice comparison"],
+    supports: ["Publisher bibliographic record for the book", "Adjacent-theory comparison remains editorial synthesis pending claim-level review"],
   },
   structuration: {
     id: "giddens-1984-constitution",
@@ -376,11 +475,11 @@ const sources = {
     evidence_level: "L1",
     supports: ["OpenLibrary bibliographic record for the listed edition", "Library metadata only; structuration interpretation remains editorially reviewed"],
   },
-  structurationCentral: { id: "struct-giddens-1979", citation: "Giddens, A. (1979). Central Problems in Social Theory. University of California Press.", url: "https://www.ucpress.edu/books/central-problems-in-social-theory/paper", source_kind: "publisher", evidence_level: "L1", supports: ["Formation", "Action, structure, power, and time-space"] },
-  structurationConstitution: { id: "struct-giddens-1984", citation: "Giddens, A. (1984). The Constitution of Society: Outline of the Theory of Structuration. University of California Press.", url: "https://www.ucpress.edu/book/9780520057289/the-constitution-of-society", source_kind: "publisher", evidence_level: "L1", supports: ["Integrated formulation", "Rules, resources, duality, and institutions"] },
-  structurationSewell: { id: "struct-sewell-1992", citation: "Sewell, W. H., Jr. (1992). A theory of structure: Duality, agency, and transformation. American Journal of Sociology, 98, 1-29.", url: "https://doi.org/10.1086/229967", source_kind: "doi", evidence_level: "L1", supports: ["Reformulation", "Transformation and agency"] },
-  structurationArcher: { id: "struct-archer-1995", citation: "Archer, M. S. (1995). Realist Social Theory: The Morphogenetic Approach. Cambridge University Press.", url: "https://www.cambridge.org/core/books/abs/realist-social-theory/realism-and-morphogenesis/9519E0707622DA9A324D8D10B1490191", source_kind: "publisher", evidence_level: "L1", supports: ["Morphogenetic alternative", "Analytical separation of structure and agency"] },
-  structurationAshley: { id: "struct-ashley-2010", citation: "Ashley, L. D. (2010). The use of structuration theory to conceptualize alternative practice in education. British Journal of Sociology of Education, 31(3), 337-351.", url: "https://doi.org/10.1080/01425691003700599", source_kind: "doi", evidence_level: "L1", supports: ["Educational application", "Rules and resources"] },
+  structurationCentral: { id: "struct-giddens-1979", citation: "Giddens, A. (1979). Central Problems in Social Theory. University of California Press.", url: "https://www.ucpress.edu/books/central-problems-in-social-theory/paper", source_kind: "publisher", evidence_level: "L1", supports: ["Publisher bibliographic record for the book", "Formation and action-structure interpretation remains editorial synthesis pending claim-level review"] },
+  structurationConstitution: { id: "struct-giddens-1984", citation: "Giddens, A. (1984). The Constitution of Society: Outline of the Theory of Structuration. University of California Press.", url: "https://www.ucpress.edu/book/9780520057289/the-constitution-of-society", source_kind: "publisher", evidence_level: "L1", supports: ["Publisher bibliographic record for the book", "Structuration interpretation remains editorial synthesis pending claim-level review"] },
+  structurationSewell: { id: "struct-sewell-1992", citation: "Sewell, W. H., Jr. (1992). A theory of structure: Duality, agency, and transformation. American Journal of Sociology, 98, 1-29.", url: "https://doi.org/10.1086/229967", source_kind: "doi", evidence_level: "L1", supports: ["DOI bibliographic record for the article", "Reformulation and agency interpretation remains editorial synthesis pending claim-level review"] },
+  structurationArcher: { id: "struct-archer-1995", citation: "Archer, M. S. (1995). Realist Social Theory: The Morphogenetic Approach. Cambridge University Press.", url: "https://www.cambridge.org/core/books/abs/realist-social-theory/realism-and-morphogenesis/9519E0707622DA9A324D8D10B1490191", source_kind: "publisher", evidence_level: "L1", supports: ["Publisher bibliographic record for the book", "Morphogenetic comparison remains editorial synthesis pending claim-level review"] },
+  structurationAshley: { id: "struct-ashley-2010", citation: "Ashley, L. D. (2010). The use of structuration theory to conceptualize alternative practice in education. British Journal of Sociology of Education, 31(3), 337-351.", url: "https://doi.org/10.1080/01425691003700599", source_kind: "doi", evidence_level: "L1", supports: ["DOI bibliographic record for the article", "Educational-application interpretation remains editorial synthesis pending claim-level review"] },
   communities: {
     id: "lave-wenger-1991-situated-learning",
     citation: "Lave, J., & Wenger, E. (1991). Situated Learning: Legitimate Peripheral Participation. Cambridge University Press.",
@@ -390,10 +489,10 @@ const sources = {
     supports: ["Bibliographic metadata for the 1991 book", "Book record used as a source anchor for editorial legitimate-peripheral-participation synthesis; substantive interpretation remains editorially reviewed"],
   },
   communitiesWenger: { id: "cop-wenger-1998", citation: "Wenger, E. (1998). Communities of Practice: Learning, Meaning, and Identity. Cambridge University Press.", url: "https://www.cambridge.org/core/books/communities-of-practice/724C22A03B12D11DFC345EEF0AD3F22A", source_kind: "publisher", evidence_level: "L1", supports: ["Publisher bibliographic record for the 1998 book", "Source-defined vocabulary used in editorial synthesis; fit and risk guidance remain editorial judgments"] },
-  communitiesWengerSystems: { id: "cop-wenger-2000", citation: "Wenger, E. (2000). Communities of practice and social learning systems. Organization, 7(2), 225-246.", url: "https://doi.org/10.1177/135050840072002", source_kind: "doi", evidence_level: "L1", supports: ["Social learning systems", "Boundaries and identity"] },
-  communitiesContu: { id: "cop-contu-willmott-2003", citation: "Contu, A., & Willmott, H. (2003). Re-embedding situatedness: The importance of power relations in learning theory. Organization Science, 14(3), 283-296.", url: "https://pubsonline.informs.org/doi/10.1287/orsc.14.3.283.15167", source_kind: "journal", evidence_level: "L1", supports: ["Power critique"] },
-  communitiesCox: { id: "cop-cox-2005", citation: "Cox, A. (2005). What are communities of practice? A comparative review of four seminal works. Journal of Information Science, 31(6), 527-540.", url: "https://doi.org/10.1177/0165551505057016", source_kind: "doi", evidence_level: "L1", supports: ["Conceptual ambiguity", "Learning, power, and change differences"] },
-  communitiesEberle: { id: "cop-eberle-etal-2014", citation: "Eberle, J., Stegmann, K., & Fischer, F. (2014). Legitimate peripheral participation in communities of practice. Journal of the Learning Sciences, 23(2), 216-244.", url: "https://doi.org/10.1080/10508406.2014.883978", source_kind: "doi", evidence_level: "L1", supports: ["Context-specific access conditions"] },
+  communitiesWengerSystems: { id: "cop-wenger-2000", citation: "Wenger, E. (2000). Communities of practice and social learning systems. Organization, 7(2), 225-246.", url: "https://doi.org/10.1177/135050840072002", source_kind: "doi", evidence_level: "L1", supports: ["DOI bibliographic record for the article", "Social-learning-system and boundary interpretation remains editorial synthesis pending claim-level review"] },
+  communitiesContu: { id: "cop-contu-willmott-2003", citation: "Contu, A., & Willmott, H. (2003). Re-embedding situatedness: The importance of power relations in learning theory. Organization Science, 14(3), 283-296.", url: "https://pubsonline.informs.org/doi/10.1287/orsc.14.3.283.15167", source_kind: "journal", evidence_level: "L1", supports: ["Journal source record for the article", "Power-critique interpretation remains editorial synthesis pending claim-level review"] },
+  communitiesCox: { id: "cop-cox-2005", citation: "Cox, A. (2005). What are communities of practice? A comparative review of four seminal works. Journal of Information Science, 31(6), 527-540.", url: "https://doi.org/10.1177/0165551505057016", source_kind: "doi", evidence_level: "L1", supports: ["DOI bibliographic record for the article", "Conceptual comparison remains editorial synthesis pending claim-level review"] },
+  communitiesEberle: { id: "cop-eberle-etal-2014", citation: "Eberle, J., Stegmann, K., & Fischer, F. (2014). Legitimate peripheral participation in communities of practice. Journal of the Learning Sciences, 23(2), 216-244.", url: "https://doi.org/10.1080/10508406.2014.883978", source_kind: "doi", evidence_level: "L1", supports: ["DOI bibliographic record for the article", "Access-condition interpretation remains editorial synthesis pending claim-level review"] },
   practice: {
     id: "bourdieu-1977-outline-practice",
     citation: "Bourdieu, P. (1977). Outline of a Theory of Practice. Cambridge University Press.",
@@ -402,10 +501,10 @@ const sources = {
     evidence_level: "L1",
     supports: ["Bibliographic metadata for the 1977 book", "Book record used as a source anchor for editorial practice-theory synthesis; substantive interpretation remains editorially reviewed"],
   },
-  practiceLogic: { id: "practice-logic-1990", citation: "Bourdieu, P. (1990). The Logic of Practice. Stanford University Press.", url: "https://www.sup.org/books/sociology/logic-practice", source_kind: "publisher", evidence_level: "L1", supports: ["Practical sense", "Structure, practice, and symbolic domination"] },
+  practiceLogic: { id: "practice-logic-1990", citation: "Bourdieu, P. (1990). The Logic of Practice. Stanford University Press.", url: "https://www.sup.org/books/sociology/logic-practice", source_kind: "publisher", evidence_level: "L1", supports: ["Publisher bibliographic record for the book", "Practice-theory interpretation remains editorial synthesis pending claim-level review"] },
   practiceCapital: { id: "practice-capital-1986", citation: "Bourdieu, P. (1986). The Forms of Capital. In J. G. Richardson (Ed.), Handbook of Theory and Research for the Sociology of Education.", url: "https://publish.illinois.edu/crittheory/files/2023/01/Bourdieu-The-Forms-of-Capital.pdf", source_kind: "university", evidence_level: "L1", supports: ["University-hosted accessible copy for auxiliary reading", "Does not serve as claim-level proof for Syntag's Bourdieu interpretation or theory-fit guidance"] },
-  practiceReflexive: { id: "practice-reflexive-1992", citation: "Bourdieu, P., & Wacquant, L. J. D. (1992). An Invitation to Reflexive Sociology. University of Chicago Press.", url: "https://press.uchicago.edu/ucp/books/book/chicago/I/bo3649674.html", source_kind: "publisher", evidence_level: "L1", supports: ["Field", "Reflexivity and symbolic violence"] },
-  practiceSymbolic: { id: "practice-symbolic-power-1979", citation: "Bourdieu, P. (1979). Symbolic power. Critique of Anthropology, 4(13-14).", url: "https://doi.org/10.1177/0308275X7900401307", source_kind: "doi", evidence_level: "L1", supports: ["Symbolic power"] },
+  practiceReflexive: { id: "practice-reflexive-1992", citation: "Bourdieu, P., & Wacquant, L. J. D. (1992). An Invitation to Reflexive Sociology. University of Chicago Press.", url: "https://press.uchicago.edu/ucp/books/book/chicago/I/bo3649674.html", source_kind: "publisher", evidence_level: "L1", supports: ["Publisher bibliographic record for the book", "Field and reflexivity interpretation remains editorial synthesis pending claim-level review"] },
+  practiceSymbolic: { id: "practice-symbolic-power-1979", citation: "Bourdieu, P. (1979). Symbolic power. Critique of Anthropology, 4(13-14).", url: "https://doi.org/10.1177/0308275X7900401307", source_kind: "doi", evidence_level: "L1", supports: ["DOI bibliographic record for the article", "Symbolic-power interpretation remains editorial synthesis pending claim-level review"] },
   socialCapital: {
     id: "coleman-1988-social-capital",
     citation: "Coleman, J. S. (1988). Social capital in the creation of human capital. American Journal of Sociology, 94, S95-S120.",
@@ -415,21 +514,21 @@ const sources = {
     supports: ["Bibliographic metadata for the 1988 article", "Article record used as a source anchor for editorial social-capital synthesis; substantive interpretation remains editorially reviewed"],
   },
   socialBourdieu: { id: "social-bourdieu-1986", citation: "Bourdieu, P. (1986). The Forms of Capital. In J. G. Richardson (Ed.), Handbook of Theory and Research for the Sociology of Education.", url: "https://publish.illinois.edu/crittheory/files/2023/01/Bourdieu-The-Forms-of-Capital.pdf", source_kind: "university", evidence_level: "L1", supports: ["University-hosted accessible copy for auxiliary reading", "Does not serve as claim-level proof for Bourdieu social-capital interpretation or topic-fit guidance"] },
-  socialPortes: { id: "social-portes-1998", citation: "Portes, A. (1998). Social capital: Its origins and applications in modern sociology. Annual Review of Sociology, 24, 1-24.", url: "https://www.annualreviews.org/content/journals/10.1146/annurev.soc.24.1.1", source_kind: "doi", evidence_level: "L1", supports: ["Competing definitions", "Negative consequences and conceptual stretch"] },
-  socialLin: { id: "social-lin-2001", citation: "Lin, N. (2001). Social Capital: A Theory of Social Structure and Action. Cambridge University Press.", url: "https://doi.org/10.1017/CBO9780511815447", source_kind: "doi", evidence_level: "L1", supports: ["Resources accessed through ties", "Action and social structure"] },
-  socialWoolcock: { id: "social-woolcock-1998", citation: "Woolcock, M. (1998). Social capital and economic development: Toward a theoretical synthesis and policy framework. Theory and Society, 27, 151-208.", url: "https://link.springer.com/article/10.1023/A%3A1006884930135", source_kind: "doi", evidence_level: "L1", supports: ["Collective and policy context"] },
+  socialPortes: { id: "social-portes-1998", citation: "Portes, A. (1998). Social capital: Its origins and applications in modern sociology. Annual Review of Sociology, 24, 1-24.", url: "https://www.annualreviews.org/content/journals/10.1146/annurev.soc.24.1.1", source_kind: "doi", evidence_level: "L1", supports: ["DOI bibliographic record for the article", "Definition and consequence interpretation remains editorial synthesis pending claim-level review"] },
+  socialLin: { id: "social-lin-2001", citation: "Lin, N. (2001). Social Capital: A Theory of Social Structure and Action. Cambridge University Press.", url: "https://doi.org/10.1017/CBO9780511815447", source_kind: "doi", evidence_level: "L1", supports: ["DOI bibliographic record for the book", "Tie-resource interpretation remains editorial synthesis pending claim-level review"] },
+  socialWoolcock: { id: "social-woolcock-1998", citation: "Woolcock, M. (1998). Social capital and economic development: Toward a theoretical synthesis and policy framework. Theory and Society, 27, 151-208.", url: "https://link.springer.com/article/10.1023/A%3A1006884930135", source_kind: "doi", evidence_level: "L1", supports: ["Journal source record for the article", "Collective and policy-context interpretation remains editorial synthesis pending claim-level review"] },
   teacherDevelopment: {
     id: "day-1999-developing-teachers",
     citation: "Day, C. (1999). Developing Teachers: The Challenges of Lifelong Learning. Falmer Press.",
     url: "https://www.routledge.com/Developing-Teachers-The-Challenges-of-Lifelong-Learning/Day/p/book/9780750707480",
     source_kind: "publisher",
     evidence_level: "L1",
-    supports: ["Publisher bibliographic record", "Teacher development"],
+    supports: ["Publisher bibliographic record for the book", "Teacher-development interpretation remains editorial synthesis pending claim-level review"],
   },
-  teacherDevelopmentGuskey: { id: "teacher-development-guskey-2002", citation: "Guskey, T. R. (2002). Professional development and teacher change. Teachers and Teaching, 8(3), 381-391.", url: "https://doi.org/10.1080/135406002100000512", source_kind: "doi", evidence_level: "L1", supports: ["Teacher-change model", "Professional development components"] },
-  teacherDevelopmentClarke: { id: "teacher-development-clarke-hollingsworth-2002", citation: "Clarke, D., & Hollingsworth, H. (2002). Elaborating a model of teacher professional growth. Teaching and Teacher Education, 18(8), 947-967.", url: "https://doi.org/10.1016/S0742-051X(02)00053-7", source_kind: "doi", evidence_level: "L1", supports: ["Interconnected Model of Professional Growth", "Non-linear domains and mediating processes"] },
+  teacherDevelopmentGuskey: { id: "teacher-development-guskey-2002", citation: "Guskey, T. R. (2002). Professional development and teacher change. Teachers and Teaching, 8(3), 381-391.", url: "https://doi.org/10.1080/135406002100000512", source_kind: "doi", evidence_level: "L1", supports: ["DOI bibliographic record for the article", "Teacher-change-model interpretation remains editorial synthesis pending claim-level review"] },
+  teacherDevelopmentClarke: { id: "teacher-development-clarke-hollingsworth-2002", citation: "Clarke, D., & Hollingsworth, H. (2002). Elaborating a model of teacher professional growth. Teaching and Teacher Education, 18(8), 947-967.", url: "https://doi.org/10.1016/S0742-051X(02)00053-7", source_kind: "doi", evidence_level: "L1", supports: ["DOI bibliographic record for the article", "Professional-growth-model interpretation remains editorial synthesis pending claim-level review"] },
   teacherDevelopmentTimperley: { id: "teacher-development-timperley-2007", citation: "Timperley, H., Wilson, A., Barrar, H., & Fung, I. (2007). Teacher Professional Learning and Development: Best Evidence Synthesis Iteration. New Zealand Ministry of Education.", url: "https://www.educationcounts.govt.nz/publications/series/2515/15341", source_kind: "authoritative_web", evidence_level: "L1", supports: ["Professional learning conditions and processes", "Context-sensitive evidence synthesis"] },
-  teacherDevelopmentIdentity: { id: "teacher-development-day-etal-2006", citation: "Day, C., Kington, A., Stobart, G., & Sammons, P. (2006). The personal and professional selves of teachers: Stable and unstable identities. British Educational Research Journal, 32(4), 601-616.", url: "https://doi.org/10.1080/01411920600775316", source_kind: "doi", evidence_level: "L1", supports: ["Stable and unstable personal and professional teacher identities", "Life, work, and context"] },
+  teacherDevelopmentIdentity: { id: "teacher-development-day-etal-2006", citation: "Day, C., Kington, A., Stobart, G., & Sammons, P. (2006). The personal and professional selves of teachers: Stable and unstable identities. British Educational Research Journal, 32(4), 601-616.", url: "https://doi.org/10.1080/01411920600775316", source_kind: "doi", evidence_level: "L1", supports: ["DOI bibliographic record for the article", "Teacher-identity interpretation remains editorial synthesis pending claim-level review"] },
   lifeHistory: {
     id: "goodson-2013-narrative-theory",
     citation: "Goodson, I. F. (2013). Developing Narrative Theory: Life Histories and Personal Representation. Routledge.",
@@ -440,7 +539,7 @@ const sources = {
   },
   lifeHistoryTeachers: { id: "teacher-life-history-goodson-1992", citation: "Goodson, I. F. (Ed.). (1992). Studying Teachers' Lives. Routledge.", url: "https://books.google.com/books/about/Studying_Teachers_Lives.html?id=43MTmQEACAAJ", source_kind: "library", evidence_level: "L1", supports: ["Google Books bibliographic record", "Editor metadata for Ivor Goodson", "Auxiliary bibliographic record only; teacher-life-history interpretation remains editorially reviewed"] },
   lifeHistoryGoodsonSikes: { id: "teacher-life-history-goodson-sikes-2001", citation: "Goodson, I. F., & Sikes, P. (2001). Life History Research in Educational Settings: Learning from Lives. Open University Press.", url: "https://search.worldcat.org/cs/title/Life-history-research-in-educational-settings-%3A-learning-from-lives/oclc/45873740", source_kind: "library", evidence_level: "L1", supports: ["WorldCat/OCLC bibliographic record", "Author metadata for Ivor Goodson and Patricia J. Sikes", "Does not verify broader life-history interpretation or collaboration claims beyond the listed work"] },
-  lifeHistoryJosselson: { id: "teacher-life-history-josselson-2007", citation: "Josselson, R. (2007). The ethical attitude in narrative research: Principles and practicalities. In D. J. Clandinin (Ed.), Handbook of Narrative Inquiry: Mapping a Methodology (pp. 537–566). SAGE Publications.", url: "https://doi.org/10.4135/9781452226552.n21", source_kind: "doi", evidence_level: "L1", supports: ["Narrative research ethics", "Relational mediation"] },
+  lifeHistoryJosselson: { id: "teacher-life-history-josselson-2007", citation: "Josselson, R. (2007). The ethical attitude in narrative research: Principles and practicalities. In D. J. Clandinin (Ed.), Handbook of Narrative Inquiry: Mapping a Methodology (pp. 537–566). SAGE Publications.", url: "https://doi.org/10.4135/9781452226552.n21", source_kind: "doi", evidence_level: "L1", supports: ["DOI bibliographic record for the chapter", "Narrative-ethics interpretation remains editorial synthesis pending claim-level review"] },
   equity: {
     id: "unesco-2020-inclusion-education",
     citation: "UNESCO. (2020). Global Education Monitoring Report 2020: Inclusion and Education—All Means All.",
@@ -450,30 +549,30 @@ const sources = {
     supports: ["Institutional report record", "Educational inclusion and equity context"],
   },
   unescoEducation: { id: "unesco-education", citation: "UNESCO. Education transforms lives.", url: "https://www.unesco.org/en/education", source_kind: "authoritative_web", evidence_level: "L1", supports: ["UNESCO education programme scope", "Lifelong learning, systems, policy, teacher education, access, and quality"] },
-  equityOecd: { id: "equity-oecd-2012", citation: "OECD. (2012). Equity and Quality in Education: Supporting Disadvantaged Students and Schools.", url: "https://doi.org/10.1787/9789264130852-en", source_kind: "doi", evidence_level: "L1", supports: ["Equity and quality policy context", "Disadvantaged students and schools"] },
-  equitySen: { id: "equity-sen-1992", citation: "Sen, A. (1992). Inequality Reexamined. Harvard University Press.", url: "https://www.hup.harvard.edu/books/9780674452560", source_kind: "publisher", evidence_level: "L1", supports: ["Capability and equality framing"] },
-  equityFraser: { id: "equity-fraser-2008", citation: "Fraser, N. (2008). Scales of Justice: Reimagining Political Space in a Globalizing World. Columbia University Press.", url: "https://cup.columbia.edu/book/scales-of-justice/9780231148726", source_kind: "publisher", evidence_level: "L1", supports: ["Redistribution, recognition, and representation"] },
+  equityOecd: { id: "equity-oecd-2012", citation: "OECD. (2012). Equity and Quality in Education: Supporting Disadvantaged Students and Schools.", url: "https://doi.org/10.1787/9789264130852-en", source_kind: "doi", evidence_level: "L1", supports: ["DOI bibliographic record for the report", "Equity-policy interpretation remains editorial synthesis pending claim-level review"] },
+  equitySen: { id: "equity-sen-1992", citation: "Sen, A. (1992). Inequality Reexamined. Harvard University Press.", url: "https://www.hup.harvard.edu/books/9780674452560", source_kind: "publisher", evidence_level: "L1", supports: ["Publisher bibliographic record for the book", "Capability-and-equality interpretation remains editorial synthesis pending claim-level review"] },
+  equityFraser: { id: "equity-fraser-2008", citation: "Fraser, N. (2008). Scales of Justice: Reimagining Political Space in a Globalizing World. Columbia University Press.", url: "https://cup.columbia.edu/book/scales-of-justice/9780231148726", source_kind: "publisher", evidence_level: "L1", supports: ["Publisher bibliographic record for the book", "Justice-dimension interpretation remains editorial synthesis pending claim-level review"] },
   institutional: {
     id: "dimaggio-powell-1983-iron-cage",
     citation: "DiMaggio, P. J., & Powell, W. W. (1983). The iron cage revisited. American Sociological Review, 48(2), 147-160.",
     url: "https://www.jstor.org/stable/2095101",
     source_kind: "journal",
     evidence_level: "L1",
-    supports: ["Bibliographic record", "Institutional isomorphism"],
+    supports: ["Journal bibliographic record for the article", "Institutional-isomorphism interpretation remains editorial synthesis pending claim-level review"],
   },
-  institutionalMeyerRowan: { id: "institutional-meyer-rowan-1977", citation: "Meyer, J. W., & Rowan, B. (1977). Institutionalized organizations: Formal structure as myth and ceremony. American Journal of Sociology, 83(2), 340-363.", url: "https://doi.org/10.1086/226550", source_kind: "doi", evidence_level: "L1", supports: ["Institutional rules", "Legitimacy and decoupling"] },
-  institutionalBarleyTolbert: { id: "institutional-barley-tolbert-1997", citation: "Barley, S. R., & Tolbert, P. S. (1997). Institutionalization and structuration: Studying the links between action and institution. Organization Studies, 18(1), 93-117.", url: "https://doi.org/10.1177/017084069701800106", source_kind: "doi", evidence_level: "L1", supports: ["Institutionalization process", "Institutional and structuration relation"] },
+  institutionalMeyerRowan: { id: "institutional-meyer-rowan-1977", citation: "Meyer, J. W., & Rowan, B. (1977). Institutionalized organizations: Formal structure as myth and ceremony. American Journal of Sociology, 83(2), 340-363.", url: "https://doi.org/10.1086/226550", source_kind: "doi", evidence_level: "L1", supports: ["DOI bibliographic record for the article", "Institutional-rule and decoupling interpretation remains editorial synthesis pending claim-level review"] },
+  institutionalBarleyTolbert: { id: "institutional-barley-tolbert-1997", citation: "Barley, S. R., & Tolbert, P. S. (1997). Institutionalization and structuration: Studying the links between action and institution. Organization Studies, 18(1), 93-117.", url: "https://doi.org/10.1177/017084069701800106", source_kind: "doi", evidence_level: "L1", supports: ["DOI bibliographic record for the article", "Institutionalization-structuration interpretation remains editorial synthesis pending claim-level review"] },
   streetLevel: {
     id: "lipsky-2010-street-level-bureaucracy",
     citation: "Lipsky, M. (2010). Street-Level Bureaucracy: Dilemmas of the Individual in Public Services (30th anniversary expanded ed.). Russell Sage Foundation.",
     url: "https://www.russellsage.org/publications/book/street-level-bureaucracy",
     source_kind: "publisher",
     evidence_level: "L1",
-    supports: ["Publisher bibliographic record", "Street-level bureaucracy"],
+    supports: ["Publisher bibliographic record for the book", "Street-level-bureaucracy interpretation remains editorial synthesis pending claim-level review"],
   },
   streetLevelOjp: { id: "street-lipsky-1998-ojp", citation: "Lipsky, M. (1998). Toward a Theory of Street-Level Bureaucracy. U.S. Office of Justice Programs record.", url: "https://www.ojp.gov/ncjrs/virtual-library/abstracts/toward-theory-street-level-bureaucracy-criminal-justice-system", source_kind: "authoritative_web", evidence_level: "L1", supports: ["Street-level conditions", "Discretion and direct client interaction"] },
-  streetLevelRice: { id: "street-rice-2013", citation: "Rice, D. (2013). Street-level bureaucrats and the welfare state: Toward a micro-institutionalist theory of policy implementation. Administration & Society, 45(9), 1038-1062.", url: "https://doi.org/10.1177/0095399712451895", source_kind: "doi", evidence_level: "L1", supports: ["Street-level and institutional theory relation"] },
-  streetLevelDahlvik: { id: "street-dahlvik-2017", citation: "Dahlvik, J. (2017). Asylum as construction work: Theorizing administrative practices. Migration Studies, 5(3), 369-388.", url: "https://doi.org/10.1093/migration/mnx043", source_kind: "doi", evidence_level: "L1", supports: ["Street-level bureaucracy and structuration application"] },
+  streetLevelRice: { id: "street-rice-2013", citation: "Rice, D. (2013). Street-level bureaucrats and the welfare state: Toward a micro-institutionalist theory of policy implementation. Administration & Society, 45(9), 1038-1062.", url: "https://doi.org/10.1177/0095399712451895", source_kind: "doi", evidence_level: "L1", supports: ["DOI bibliographic record for the article", "Street-level and institutional-theory relation remains editorial synthesis pending claim-level review"] },
+  streetLevelDahlvik: { id: "street-dahlvik-2017", citation: "Dahlvik, J. (2017). Asylum as construction work: Theorizing administrative practices. Migration Studies, 5(3), 369-388.", url: "https://doi.org/10.1093/migration/mnx043", source_kind: "doi", evidence_level: "L1", supports: ["DOI bibliographic record for the article", "Street-level and structuration application remains editorial synthesis pending claim-level review"] },
   multipleStreams: {
     id: "kingdon-1995-agendas-alternatives-openlibrary",
     citation: "Kingdon, J. W. (1995). Agendas, Alternatives, and Public Policies (2nd ed.). HarperCollinsCollege.",
@@ -483,14 +582,14 @@ const sources = {
     supports: ["OpenLibrary bibliographic record for the 1995 second edition", "Does not verify the original 1984 edition, 2011 edition, or Syntag theory-fit guidance"],
   },
   multipleStreamsKingdon: { id: "msf-kingdon-2011", citation: "Kingdon, J. W. (2011 [1984]). Agendas, Alternatives, and Public Policies (updated 2nd ed.). Pearson.", url: "https://www.pearson.com/en-gb/subject-catalog/p/agendas-alternatives-and-public-policies-update-edition-with-an-epilogue-on-health-care-pearson-new-international-edition/P200000004628?view=educator", source_kind: "publisher", evidence_level: "L1", supports: ["Publisher bibliographic record for the 2011 updated edition", "Edition-specific source anchor; substantive Multiple Streams interpretation remains editorially reviewed"] },
-  multipleStreamsZahariadis: { id: "msf-zahariadis-2023", citation: "Zahariadis, N. (2023). Multiple Streams Framework. Encyclopedia of Public Policy.", url: "https://doi.org/10.1007/978-3-030-90434-0_70-1", source_kind: "doi", evidence_level: "L1", supports: ["Policy-process perspective", "Agenda setting and ambiguity"] },
-  multipleStreamsHerweg: { id: "msf-herweg-etal-2018", citation: "Herweg, N., Zahariadis, N., & Zohlnhoefer, R. (2018). The Multiple Streams Framework. In Foundations, Refinements, and Empirical Applications of the Multiple Streams Framework.", url: "https://doi.org/10.4324/9780429494284-2", source_kind: "doi", evidence_level: "L1", supports: ["Framework refinements", "Applications and limitations"] },
-  multipleStreamsPortability: { id: "msf-herweg-etal-2022", citation: "Herweg, N., Zahariadis, N., & Zohlnhoefer, R. (2022). Travelling far and wide? Applying the Multiple Streams Framework to policy-making in autocracies. Politische Vierteljahresschrift, 63(2), 203-223.", url: "https://doi.org/10.1007/s11615-022-00393-8", source_kind: "doi", evidence_level: "L1", supports: ["Cross-system portability boundary", "Institutional context"] },
-  elderSageProfile: { id: "elder-sage-author-profile", citation: "SAGE. Glen H. Elder author profile.", url: "https://us.sagepub.com/en-us/nam/author/glen-h-elder", source_kind: "publisher", evidence_level: "L1", supports: ["Academic positioning", "Life-course research programme", "Representative publications"] },
-  kelchtermansKuProfile: { id: "kelchtermans-ku-leuven-profile", citation: "KU Leuven. Geert Kelchtermans profile, Centre for Educational Innovation and the Development of Teacher and School.", url: "https://ppw.kuleuven.be/onderwijskunde/team/centrum-voor-onderwijsvernieuwing-en-de-ontwikkeling-van-leraar-en-school-cools/00016264", source_kind: "university", evidence_level: "L1", supports: ["Academic positioning", "Teacher and school development research"] },
-  giddensLseProfile: { id: "giddens-lse-profile", citation: "London School of Economics and Political Science. Lord Tony Giddens profile.", url: "https://www.lse.ac.uk/people/lord-tony-giddens", source_kind: "university", evidence_level: "L1", supports: ["Academic positioning", "Sociology career record"] },
-  bourdieuCollegeProfile: { id: "bourdieu-college-france-profile", citation: "Collège de France. Pierre Bourdieu profile.", url: "https://www.college-de-france.fr/fr/personne/pierre-bourdieu", source_kind: "university", evidence_level: "L1", supports: ["Academic positioning", "Sociology chair record"] },
-  bourdieuCollegeChair: { id: "bourdieu-college-france-sociology-chair", citation: "Collège de France. Pierre Bourdieu, Sociology chair record (1982–2001).", url: "https://www.college-de-france.fr/fr/chaire/pierre-bourdieu-sociologie-chaire-statutaire", source_kind: "university", evidence_level: "L1", supports: ["Sociology chair", "Institutional academic record"] },
+  multipleStreamsZahariadis: { id: "msf-zahariadis-2023", citation: "Zahariadis, N. (2023). Multiple Streams Framework. Encyclopedia of Public Policy.", url: "https://doi.org/10.1007/978-3-030-90434-0_70-1", source_kind: "doi", evidence_level: "L1", supports: ["DOI bibliographic record for the encyclopedia entry", "Policy-process interpretation remains editorial synthesis pending claim-level review"] },
+  multipleStreamsHerweg: { id: "msf-herweg-etal-2018", citation: "Herweg, N., Zahariadis, N., & Zohlnhöfer, R. (2018). The Multiple Streams Framework: Foundations, Refinements, and Empirical Applications. In C. M. Weible & P. A. Sabatier (Eds.), Theories of the Policy Process (4th ed., pp. 17–53).", url: "https://doi.org/10.4324/9780429494284-2", source_kind: "doi", evidence_level: "L1", supports: ["DOI bibliographic record for the chapter", "Framework-refinement interpretation remains editorial synthesis pending claim-level review"] },
+  multipleStreamsPortability: { id: "msf-herweg-etal-2022", citation: "Herweg, N., Zahariadis, N., & Zohlnhoefer, R. (2022). Travelling far and wide? Applying the Multiple Streams Framework to policy-making in autocracies. Politische Vierteljahresschrift, 63(2), 203-223.", url: "https://doi.org/10.1007/s11615-022-00393-8", source_kind: "doi", evidence_level: "L1", supports: ["DOI bibliographic record for the article", "Cross-system portability interpretation remains editorial synthesis pending claim-level review"] },
+  elderSageProfile: { id: "elder-sage-author-profile", citation: "SAGE. Glen H. Elder author profile.", url: "https://us.sagepub.com/en-us/nam/author/glen-h-elder", source_kind: "publisher", evidence_level: "L1", supports: ["Publisher profile source record", "Listed positioning and publications do not imply claim-level theory verification"] },
+  kelchtermansKuProfile: { id: "kelchtermans-ku-leuven-profile", citation: "KU Leuven. Geert Kelchtermans profile, Centre for Educational Innovation and the Development of Teacher and School.", url: "https://ppw.kuleuven.be/onderwijskunde/team/centrum-voor-onderwijsvernieuwing-en-de-ontwikkeling-van-leraar-en-school-cools/00016264", source_kind: "university", evidence_level: "L1", supports: ["University profile source record", "Listed positioning does not imply claim-level teacher-identity verification"] },
+  giddensLseProfile: { id: "giddens-lse-profile", citation: "London School of Economics and Political Science. Lord Tony Giddens profile.", url: "https://www.lse.ac.uk/people/lord-tony-giddens", source_kind: "university", evidence_level: "L1", supports: ["University profile source record", "Listed career information does not imply claim-level structuration verification"] },
+  bourdieuCollegeProfile: { id: "bourdieu-college-france-profile", citation: "Collège de France. Pierre Bourdieu profile.", url: "https://www.college-de-france.fr/fr/personne/pierre-bourdieu", source_kind: "university", evidence_level: "L1", supports: ["University profile source record", "Listed academic positioning does not imply claim-level practice-theory verification"] },
+  bourdieuCollegeChair: { id: "bourdieu-college-france-sociology-chair", citation: "Collège de France. Pierre Bourdieu, Sociology chair record (1982–2001).", url: "https://www.college-de-france.fr/fr/chaire/pierre-bourdieu-sociologie-chaire-statutaire", source_kind: "university", evidence_level: "L1", supports: ["University chair source record", "Listed institutional role does not imply claim-level practice-theory verification"] },
 } satisfies Record<string, ContentSource>;
 
 const firstEnrichmentBatch = createFirstEnrichmentBatch(sources);
@@ -1365,7 +1464,7 @@ const topicTheories: SeedTopicTheory[] = [
     theorySlug: "teacher-identity-theory",
     suitability: "high",
     suitabilityNotesEn: "Teacher Identity Theory is suitable because the question asks how teachers interpret, narrate, and negotiate professional selves under changing work conditions.",
-    riskNotesEn: "Use carefully when reform is treated mainly as programme effectiveness or structural implementation; identity evidence must come from teachers' interpreted self-understanding, not demographic labels or attitude items alone.",
+    riskReview: pendingTopicTheoryRiskReview("teachers-professional-identity-during-reform", "teacher-identity-theory"),
     recommendation: "primary",
     sourceUrls: [sources.teacherIdentity.url],
     evidenceNotesEn: "The cited Kelchtermans article anchors the page's account of professional self-understanding and vulnerability; the topic fit is an editorial research-design judgement based on that page content.",
@@ -1375,7 +1474,7 @@ const topicTheories: SeedTopicTheory[] = [
     theorySlug: "teacher-professional-development-theory",
     suitability: "medium",
     suitabilityNotesEn: "Teacher Professional Development Theory can support a distinct question about learning, growth, or practice change during reform; it does not replace an identity lens when professional self-understanding is the explanatory object.",
-    riskNotesEn: "Use carefully when the evidence is only participation, satisfaction, or programme attendance; it should not be primary unless learning processes or practice change are directly evidenced.",
+    riskReview: pendingTopicTheoryRiskReview("teachers-professional-identity-during-reform", "teacher-professional-development-theory"),
     recommendation: "supporting",
     sourceUrls: [sources.teacherDevelopmentClarke.url],
     evidenceNotesEn: "The Clarke and Hollingsworth record supports a named professional-growth model. Its supporting role here is a bounded Syntag editorial judgement.",
@@ -1385,7 +1484,7 @@ const topicTheories: SeedTopicTheory[] = [
     theorySlug: "teacher-life-history-research",
     suitability: "low",
     suitabilityNotesEn: "Teacher Life History Research can supply interpreted narrative material, but it is not recommended as the primary explanatory lens when the question is how professional identity is negotiated.",
-    riskNotesEn: "Use carefully as a narrative-material route rather than a stand-alone explanation of identity negotiation; personal histories should not be treated as transparent causal chronology.",
+    riskReview: pendingTopicTheoryRiskReview("teachers-professional-identity-during-reform", "teacher-life-history-research"),
     recommendation: "not_recommended",
     sourceUrls: [sources.lifeHistoryTeachers.url],
     evidenceNotesEn: "The Goodson record supports life-history inquiry in educational settings; the non-primary recommendation is a bounded Syntag editorial judgement.",
@@ -1395,7 +1494,7 @@ const topicTheories: SeedTopicTheory[] = [
     theorySlug: "life-course-theory",
     suitability: "high",
     suitabilityNotesEn: "Life Course Theory is suitable because the question foregrounds transition timing, linked lives, institutions, and historically situated sequences.",
-    riskNotesEn: "Use carefully when the study has only one cross-sectional snapshot or undated recollections; do not infer life-course causality from temporal order without contextual and relational evidence.",
+    riskReview: pendingTopicTheoryRiskReview("educational-transitions-over-time", "life-course-theory"),
     recommendation: "primary",
     sourceUrls: [sources.lifeCourse.url],
     evidenceNotesEn: "The cited Elder article anchors the page's life-course framing; the topic fit is an editorial judgement constrained to transition-oriented research questions.",
@@ -1405,7 +1504,7 @@ const topicTheories: SeedTopicTheory[] = [
     theorySlug: "teacher-life-history-research",
     suitability: "medium",
     suitabilityNotesEn: "Teacher Life History Research can support interpretation of narrated educational transitions, but it remains a research tradition complement rather than the primary explanatory pathway theory.",
-    riskNotesEn: "Use carefully when narrative meaning is the main evidence; it can enrich transition accounts but should not replace a temporal pathway explanation unless narration itself is the research object.",
+    riskReview: pendingTopicTheoryRiskReview("educational-transitions-over-time", "teacher-life-history-research"),
     recommendation: "supporting",
     sourceUrls: [sources.lifeHistoryTeachers.url],
     evidenceNotesEn: "The Goodson record supports educational life-history inquiry; its supporting role is a bounded Syntag editorial judgement.",
@@ -1415,7 +1514,7 @@ const topicTheories: SeedTopicTheory[] = [
     theorySlug: "multiple-streams-framework",
     suitability: "low",
     suitabilityNotesEn: "Multiple Streams Framework is not recommended as primary because the stated question is about transitions across time and relationships rather than agenda setting or policy choice.",
-    riskNotesEn: "Do not use as primary unless the unit of analysis is agenda setting, policy choice, and coupling around a policy window; it is not a theory of individual educational transitions.",
+    riskReview: pendingTopicTheoryRiskReview("educational-transitions-over-time", "multiple-streams-framework"),
     recommendation: "not_recommended",
     sourceUrls: [sources.multipleStreamsKingdon.url],
     evidenceNotesEn: "The Kingdon publisher record anchors agenda-setting vocabulary; the non-primary recommendation is a bounded Syntag editorial judgement.",
@@ -1425,7 +1524,7 @@ const topicTheories: SeedTopicTheory[] = [
     theorySlug: "structuration-theory",
     suitability: "high",
     suitabilityNotesEn: "Structuration Theory is suitable because the question asks how everyday routines draw on, reproduce, or alter rules and resources.",
-    riskNotesEn: "Use carefully when routines are described only as repeated behaviour; the route needs evidence of rules, resources, recursive practice, and possible reproduction or change.",
+    riskReview: pendingTopicTheoryRiskReview("organizational-routines-and-structural-change", "structuration-theory"),
     recommendation: "primary",
     sourceUrls: [sources.structurationConstitution.url],
     evidenceNotesEn: "The cited Giddens book anchors the page's structuration vocabulary; the topic fit is an editorial judgement for research on recursive practice and structure.",
@@ -1435,7 +1534,7 @@ const topicTheories: SeedTopicTheory[] = [
     theorySlug: "institutional-theory",
     suitability: "medium",
     suitabilityNotesEn: "Institutional Theory can support a distinct question about legitimacy, formal structure, decoupling, or field pressure, but it does not replace a recursive practice mechanism without those conditions.",
-    riskNotesEn: "Use carefully when similarity or policy documents are the only evidence; do not infer institutional pressure or decoupling without mechanism and field-level context.",
+    riskReview: pendingTopicTheoryRiskReview("organizational-routines-and-structural-change", "institutional-theory"),
     recommendation: "supporting",
     sourceUrls: [sources.institutionalMeyerRowan.url],
     evidenceNotesEn: "The Meyer and Rowan DOI supports institutionalised formal-structure vocabulary; the supporting role is a bounded Syntag editorial judgement.",
@@ -1445,7 +1544,7 @@ const topicTheories: SeedTopicTheory[] = [
     theorySlug: "social-capital-theory",
     suitability: "low",
     suitabilityNotesEn: "Social Capital Theory is not recommended as primary where the question does not specify relation-enabled access to or mobilisation of a resource.",
-    riskNotesEn: "Do not use as primary for structural change unless the study specifies ties, resources, access or mobilisation; network language alone is not evidence of social capital.",
+    riskReview: pendingTopicTheoryRiskReview("organizational-routines-and-structural-change", "social-capital-theory"),
     recommendation: "not_recommended",
     sourceUrls: [sources.socialCapital.url],
     evidenceNotesEn: "The Coleman DOI supports a social-structure and action vocabulary; the non-primary recommendation is a bounded Syntag editorial judgement.",
@@ -1455,7 +1554,7 @@ const topicTheories: SeedTopicTheory[] = [
     theorySlug: "practice-theory-bourdieu",
     suitability: "high",
     suitabilityNotesEn: "Bourdieu's practice theory is suitable because the question requires analysis of habitus, capital, field positions, and symbolic recognition.",
-    riskNotesEn: "Use carefully when field relations, valued capitals, recognition, and countercases cannot be evidenced; do not treat social origin or possession of resources as destiny.",
+    riskReview: pendingTopicTheoryRiskReview("inequality-in-educational-and-social-fields", "practice-theory-bourdieu"),
     recommendation: "primary",
     sourceUrls: [sources.practice.url],
     evidenceNotesEn: "The cited Bourdieu book anchors the page's account of habitus, capital, and field; the topic fit is an editorial judgement for inequality questions involving field relations.",
@@ -1465,7 +1564,7 @@ const topicTheories: SeedTopicTheory[] = [
     theorySlug: "social-capital-theory",
     suitability: "medium",
     suitabilityNotesEn: "Social Capital Theory can support a narrower question about relation-enabled access to resources, but it does not replace analysis of field position, capital value, and recognition.",
-    riskNotesEn: "Use carefully as a supporting mechanism only when specific ties and resources are observable; it should not supply the whole inequality explanation or the equity standard.",
+    riskReview: pendingTopicTheoryRiskReview("inequality-in-educational-and-social-fields", "social-capital-theory"),
     recommendation: "supporting",
     sourceUrls: [sources.socialCapital.url],
     evidenceNotesEn: "The Coleman DOI supports a relation-and-resource vocabulary; the supporting role is a bounded Syntag editorial judgement.",
@@ -1475,7 +1574,7 @@ const topicTheories: SeedTopicTheory[] = [
     theorySlug: "communities-of-practice",
     suitability: "low",
     suitabilityNotesEn: "Communities of Practice is not recommended as primary where the required explanation is field position, capital, and recognition rather than sustained participation in a shared practice.",
-    riskNotesEn: "Do not use as primary when the study lacks mutual engagement, joint enterprise, shared repertoire, or learning-through-participation evidence.",
+    riskReview: pendingTopicTheoryRiskReview("inequality-in-educational-and-social-fields", "communities-of-practice"),
     recommendation: "not_recommended",
     sourceUrls: [sources.communitiesWenger.url],
     evidenceNotesEn: "The Wenger publisher record supports social participation and practice vocabulary; the non-primary recommendation is a bounded Syntag editorial judgement.",
@@ -1502,7 +1601,7 @@ function workCandidate(draft: Omit<SeedWork, "content" | "status" | "publishedAt
 const works: SeedWork[] = [
   workCandidate({ slug: "elder-1998-life-course", title: "The Life Course as Developmental Theory", authors: [{ name: "Glen H. Elder Jr." }], year: 1998, publisher: "Child Development", doi: "10.1111/j.1467-8624.1998.tb06128.x", source: sources.lifeCourse, overview: "A life-course framing of development across time, social context, and biography.", coreQuestion: "How can development be understood across lives rather than at one age?", centralArgument: "Developmental pathways must be read in relation to time, social context, and biography rather than as isolated age-bound outcomes.", contribution: "Provides a primary orientation to life-course pathways, transitions, turning points, timing, and linked lives.", readingFocus: ["Identify the distinction between pathway, transition, and turning point.", "Note the limits on inferring causation from temporal order."] }),
   workCandidate({ slug: "beijaard-meijer-verloop-2004-identity", title: "Reconsidering Research on Teachers' Professional Identity", authors: [{ name: "Douwe Beijaard" }, { name: "Paulien C. Meijer" }, { name: "Nico Verloop" }], year: 2004, publisher: "Teaching and Teacher Education", source: sources.teacherIdentityBeijaard, overview: "A field review that differentiates strands of teacher professional-identity research.", coreQuestion: "What has teacher-identity research meant by professional identity?", centralArgument: "Teacher identity is approached through multiple conceptual strands rather than one fixed attribute.", contribution: "Supplies a field-review route for selecting and delimiting a teacher-identity lens.", readingFocus: ["Compare the conceptual strands before adopting an identity definition.", "Do not treat a review as evidence of one universal identity process."] }),
-  workCandidate({ slug: "kelchtermans-2009-teacher-identity", title: "Who I Am in How I Teach Is the Message", authors: [{ name: "Geert Kelchtermans", role: "author" }], year: 2009, publisher: "Teachers and Teaching", doi: "10.1080/13540600902875332", source: sources.teacherIdentity, overview: "A professional self-understanding route into teacher identity.", coreQuestion: "How is teaching connected to a teacher's professional self-understanding?", centralArgument: "Teachers' interpretation of self and work is central to understanding how they teach.", contribution: "Provides a bounded source for teacher self-understanding within the wider identity field.", readingFocus: ["Separate professional self-understanding from a fixed personality trait.", "Use it as one identity lens, not as the whole field."] }),
+  workCandidate({ slug: "kelchtermans-2009-teacher-identity", title: "Who I am in how I teach is the message: self-understanding, vulnerability and reflection", authors: [{ name: "Geert Kelchtermans", role: "author" }], year: 2009, publisher: "Teachers and Teaching", doi: "10.1080/13540600902875332", source: sources.teacherIdentity, overview: "A professional self-understanding route into teacher identity.", coreQuestion: "How is teaching connected to a teacher's professional self-understanding?", centralArgument: "Teachers' interpretation of self and work is central to understanding how they teach.", contribution: "Provides a bounded source for teacher self-understanding within the wider identity field.", readingFocus: ["Separate professional self-understanding from a fixed personality trait.", "Use it as one identity lens, not as the whole field."] }),
   workCandidate({ slug: "struct-giddens-1984", title: "The Constitution of Society: Outline of the Theory of Structuration", authors: [{ name: "Anthony Giddens" }], year: 1984, publisher: "University of California Press", source: sources.structurationConstitution, overview: "The central integrated formulation of Structuration Theory.", coreQuestion: "How are social practices produced and reproduced?", centralArgument: "Recurrent practices draw on and reproduce or modify rules and resources through a duality of structure.", contribution: "Provides the core vocabulary of rules, resources, duality, power, and recursive practice.", readingFocus: ["Trace rules and resources in recurrent practices.", "Do not reduce the theory to a generic structure-agency balance."] }),
   workCandidate({ slug: "lave-wenger-1991-situated-learning", title: "Situated Learning: Legitimate Peripheral Participation", authors: [{ name: "Jean Lave" }, { name: "Etienne Wenger" }], year: 1991, publisher: "Cambridge University Press", doi: "10.1017/CBO9780511815355", source: sources.communities, overview: "A situated-learning account of newcomers' participation in practice.", coreQuestion: "How do newcomers learn through participation in a practice?", centralArgument: "Learning is examined through legitimate peripheral participation in situated social practice.", contribution: "Anchors legitimate peripheral participation and situated learning for Communities of Practice.", readingFocus: ["Examine access, legitimacy, and consequential participation.", "Do not assume a universal novice-to-expert progression."] }),
   workCandidate({ slug: "cop-wenger-1998", title: "Communities of Practice: Learning, Meaning, and Identity", authors: [{ name: "Etienne Wenger" }], year: 1998, publisher: "Cambridge University Press", source: sources.communitiesWenger, overview: "A social-participation formulation of learning, meaning, and identity.", coreQuestion: "How are learning, meaning, and identity organised through social participation?", centralArgument: "Practice, community, meaning, and identity are negotiated through participation rather than formal membership alone.", contribution: "Develops mutual engagement, joint enterprise, and shared repertoire.", readingFocus: ["Test whether sustained practice and participation are evidenced.", "Distinguish a community of practice from a named team or programme."] }),
@@ -1577,35 +1676,31 @@ const theoryConcepts: SeedTheoryConcept[] = concepts.flatMap((concept) => concep
 const verifications: SeedVerification[] = theories.flatMap((entry) => {
   const pageSources = entry.content.en.sources ?? [];
   if (pageSources.length === 0) throw new Error(`${entry.slug} must have an L1 source`);
-  const latestPageVerificationDate = entry.content.en.verification
-    ?.flatMap((verification) => (
-      verification.evidence_level === "L1" && verification.verifiedAt
-        ? [verification.verifiedAt]
-        : []
-    ))
-    .sort()
-    .at(-1) ?? entry.publishedAt ?? publishedAt;
   return [
-    { entitySlug: entry.slug, fieldPath: "content_jsonb.en.sources", level: "L1_verified" as const, sources: pageSources.map((source) => source.url), notes: "Traceable source records reviewed for the page's factual and bibliographic claims.", verifiedAt: latestPageVerificationDate },
+    { entitySlug: entry.slug, fieldPath: "content_jsonb.en.sources", level: "L1_verified" as const, sources: pageSources.map((source) => source.url), notes: "Legacy source metadata retained for compatibility; this is not claim-level source verification." },
     { entitySlug: entry.slug, fieldPath: "content_jsonb.en.fit_and_boundaries", level: "L2_editorial" as const, sources: [], notes: "Editorial explanation and theory-fit judgement." },
     { entitySlug: entry.slug, fieldPath: "content_jsonb.en.research_guidance", level: "L3_pending" as const, sources: [], notes: "Research-design guidance requiring study-specific and supervisor review." },
   ];
 });
 
 export const seedCorpus: SeedCorpus = {
-  disciplines: disciplines.map((record) => ({ ...record, status: "published", publishedAt })),
-  fields: fields.map((record) => ({ ...record, status: "published", publishedAt })),
-  theories,
-  works,
-  concepts,
+  disciplines: applyFAN247Visibility("discipline", disciplines.map((record) => ({ ...record, status: "published", publishedAt }))),
+  fields: applyFAN247Visibility("field", fields.map((record) => ({ ...record, status: "published", publishedAt }))),
+  theories: applyFAN247Visibility("theory", theories),
+  works: applyFAN247Visibility("work", works.map((record) => FAN_133_U3_ARCHIVED_WORK_SLUGS.includes(record.slug as typeof FAN_133_U3_ARCHIVED_WORK_SLUGS[number])
+    ? { ...record, status: "archived", publishedAt: undefined }
+    : record)),
+  concepts: applyFAN247Visibility("concept", concepts.map((record) => FAN_133_U3_ARCHIVED_CONCEPT_SLUGS.includes(record.slug as typeof FAN_133_U3_ARCHIVED_CONCEPT_SLUGS[number])
+    ? { ...record, status: "archived", publishedAt: undefined }
+    : record)),
   theoryWorks,
   theoryConcepts,
   disciplineTheories,
   fieldTheories,
   genealogy,
-  scholars: [...scholars, ...firstEnrichmentBatch.scholars, ...goodsonDayDraftScholarBatch.scholars],
+  scholars: applyFAN247Visibility("scholar", [...scholars, ...firstEnrichmentBatch.scholars, ...goodsonDayDraftScholarBatch.scholars]),
   theoryScholars: [...theoryScholars, ...firstEnrichmentBatch.theoryScholars, ...goodsonDayDraftScholarBatch.theoryScholars],
-  topics: [...topics, ...firstEnrichmentBatch.topics],
+  topics: applyFAN247Visibility("topic", [...topics, ...firstEnrichmentBatch.topics]),
   topicTheories: [...topicTheories, ...firstEnrichmentBatch.topicTheories],
   verifications,
 };
