@@ -1,5 +1,4 @@
 import { KnowledgeGraphExperience, type GraphData } from "@/components/graph/KnowledgeGraphExperience";
-import { DataUnavailableState } from "@/components/common/DataUnavailableState";
 import { PageFrame } from "@/components/common/PageFrame";
 import Link from "next/link";
 import { getGraphData } from "@/lib/graph-data";
@@ -8,6 +7,7 @@ import { resolveHomeGraph } from "@/lib/home-graph";
 import { entityDetailHref, isEntityType } from "@/lib/entity-routes";
 import { JsonLdGraph } from "@/components/seo/JsonLdGraph";
 import { SearchBox } from "@/components/search/SearchBox";
+import { SiteReadingGuide } from "@/components/content/SiteReadingGuide";
 import { generateHomeMeta } from "@/lib/seo";
 
 export const revalidate = 600;
@@ -20,11 +20,23 @@ export default async function Home() {
     process.env.NODE_ENV === "development",
   );
 
-  if (state.kind === "unavailable") {
-    return <PageFrame><DataUnavailableState /></PageFrame>;
-  }
-  if (state.kind === "empty") {
-    return <PageFrame><DataUnavailableState title="The knowledge graph is not published yet" description="Published graph data is not available yet. Please return later or read about Syrtag." /></PageFrame>;
+  if (state.kind === "unavailable" || state.kind === "empty") {
+    const title = state.kind === "empty" ? "The knowledge graph is not published yet" : "Data temporarily unavailable";
+    const lead = state.kind === "empty"
+      ? "Syrtag is a source-aware guide for comparing research theories. This page explains the site while no published graph is available."
+      : "Syrtag could not load the catalog. You can still read what the site is and which pages describe its limits.";
+    return (
+      <PageFrame mainClassName="home-main">
+        <article className="home-reading">
+          <header className="home-reading__header" role="status">
+            <span className="eyebrow">Research theory pathways</span>
+            <h1>{title}</h1>
+            <p className="lead">{lead}</p>
+          </header>
+          <SiteReadingGuide mode={state.kind} />
+        </article>
+      </PageFrame>
+    );
   }
 
   const isDemo = state.kind === "demo";
@@ -69,6 +81,7 @@ export default async function Home() {
           <KnowledgeGraphExperience initialGraph={graph} />
         </section>
       </section>
+      <SiteReadingGuide mode={isDemo ? "demo" : "published"} />
     </PageFrame>
   );
 }
