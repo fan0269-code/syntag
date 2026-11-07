@@ -21,10 +21,10 @@ test("About and Editorial Policy publish the approved identity and responsibilit
   assert.match(about, literalPattern(approvedIdentity));
   assert.match(about, literalPattern(approvedIdentityLimit));
   assert.match(about, literalPattern(approvedResponsibility));
-  assert.match(about, /TODO_OWNER_LEGAL_NAME/);
-  assert.match(about, /TODO_OWNER_OPERATOR_ROLE/);
-  assert.match(about, /TODO_OWNER_JURISDICTION/);
-  assert.match(about, /TODO_SOURCE/);
+  assert.match(about, /Not published\./);
+  assert.match(about, /The entity catalog is empty until records are published/);
+  assert.match(about, /Where to go next/);
+  assert.doesNotMatch(about, /TODO_OWNER_|TODO_SOURCE/);
   assert.doesNotMatch(about, /mailto:|<form|Inc\.|Ltd\.|LLC/);
   assert.match(editorialPolicy, literalPattern(approvedIdentity));
   assert.match(editorialPolicy, literalPattern(approvedResponsibility));
@@ -45,8 +45,9 @@ test("Corrections is an accessible limitations route with exact approved wording
   for (const wording of [approvedContactLimit, approvedCorrectionLimit, approvedResponseLimit]) {
     assert.match(corrections, literalPattern(wording));
   }
-  assert.match(corrections, /TODO_OWNER_CONTACT_CHANNEL/);
-  assert.match(corrections, /TODO_OWNER_CORRECTIONS_PROCESS/);
+  assert.match(corrections, /Not published and not monitored/);
+  assert.match(corrections, /Not established/);
+  assert.doesNotMatch(corrections, /TODO_OWNER_|TODO_SOURCE/);
   assert.doesNotMatch(corrections, /mailto:|<form|Organization|sameAs/);
 });
 

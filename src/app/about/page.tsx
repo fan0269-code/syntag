@@ -4,7 +4,7 @@ import { entityMetadata } from "@/lib/seo";
 
 export const metadata = entityMetadata({
   title: "About Syrtag",
-  description: "What Syrtag publishes, who operates it, and how to read its source boundary.",
+  description: "How Syrtag publishes education and sociology pages. The entity catalog is empty until records are published. No operator identity is listed.",
   path: "/about",
   type: "website",
 });
@@ -14,8 +14,8 @@ export default function AboutPage() {
     <StaticPage
       title="About Syrtag"
       eyebrow="Trust"
-      description="Syrtag is a source-aware navigation site for doctoral research questions."
-      lede="The graph helps a reader move between published pages. It does not replace a summary, a source list, or a verification date."
+      description="Syrtag is a source-aware navigation site for doctoral research questions in education and sociology."
+      lede="No entity pages are published from the current corpus. An empty catalog means those records are draft or archived. It is not a finding about the research literature."
     >
       <p>Syrtag supports source-aware exploration and bounded comparison of theory pathways from a research question.</p>
       <p>We organize theories, scholars, works, concepts, and research topics as one connected knowledge graph. The graph is a navigation surface. Each public page should give enough editorial context to assess a pathway, including the limits of that context.</p>
@@ -27,19 +27,19 @@ export default function AboutPage() {
       <h2>Publisher identity</h2>
       <p>Syrtag is an independent research-navigation project.</p>
       <p>Syrtag does not currently identify a registered entity or an individual operator on the public site.</p>
-      <p>The slots below are unpublished fill-ins. They are not a legal name, a role, or a jurisdiction, and they must not be cited as one.</p>
+      <p>The fields below are unpublished. They are not a legal name, a role, or a jurisdiction, and they must not be cited as one.</p>
       <dl className="owner-slots">
         <div>
           <dt>Legal or operating name</dt>
-          <dd><code>TODO_OWNER_LEGAL_NAME</code> — not published.</dd>
+          <dd>Not published.</dd>
         </div>
         <div>
           <dt>Operator role</dt>
-          <dd><code>TODO_OWNER_OPERATOR_ROLE</code> — not published.</dd>
+          <dd>Not published.</dd>
         </div>
         <div>
           <dt>Jurisdiction</dt>
-          <dd><code>TODO_OWNER_JURISDICTION</code> — not published.</dd>
+          <dd>Not published.</dd>
         </div>
       </dl>
 
@@ -52,7 +52,20 @@ export default function AboutPage() {
 
       <h2>Publication boundary</h2>
       <p>A page is public only when its record status is published. Draft records, archived records, and the local development demo graph are not published scholarship. The current authored corpus keeps entity records in draft or archived state, so a database seeded from that corpus has no public entity pages.</p>
-      <p>Flagship theory, scholar, work, and topic pages are not published from this change. Each substantive claim on those future pages still needs a citable source and a verification date. Those gaps are marked <code>TODO_SOURCE</code> for the operator. They are not articles.</p>
+      <p>Flagship theory, scholar, work, and topic pages are not published from this change. Each substantive claim on a future page still needs a citable source and a verification date. Source gaps kept for the operator are not articles.</p>
+
+      <h2>Where to go next</h2>
+      <p>Search and the indexes list published records only. An empty list is the current catalog. It does not hide a finished article.</p>
+      <p className="site-reading-guide__links">
+        <Link href="/search">Search</Link>
+        <Link href="/topics">Topics</Link>
+        <Link href="/theories">Theories</Link>
+        <Link href="/scholars">Scholars</Link>
+        <Link href="/works">Works</Link>
+        <Link href="/concepts">Concepts</Link>
+        <Link href="/disciplines">Disciplines</Link>
+        <Link href="/fields">Fields</Link>
+      </p>
 
       <h2>Editorial responsibility</h2>
       <p>Syrtag is responsible for the selection, organization, source presentation, editorial synthesis, and correction of content it publishes. It distinguishes source-backed facts from editorial synthesis and research guidance. Its content is an educational navigation resource, not peer review and not a substitute for primary-source reading, disciplinary supervision, or methodological review.</p>

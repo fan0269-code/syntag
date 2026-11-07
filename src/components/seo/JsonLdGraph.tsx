@@ -7,8 +7,8 @@ export function JsonLdGraph({ items }: { items: GraphListItem[] }) {
   return <JsonLd data={{
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    name: "Syrtag — Research Theory Knowledge Graph",
-    description: "A source-aware knowledge graph for navigating research theories, scholars, and research works.",
+    name: "Syrtag — Education and sociology research navigation",
+    description: "Published education and sociology records, including research works. The graph links those pages and is not itself a scholarly article.",
     url: absoluteUrl("/"),
     mainEntity: {
       "@type": "ItemList",

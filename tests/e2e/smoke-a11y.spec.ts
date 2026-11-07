@@ -82,7 +82,7 @@ async function hasUnavailableState(page: Page) {
 
 async function expectUnavailableState(page: Page) {
   await expect(page.getByRole("heading", { name: unavailableHeading }).first()).toBeVisible();
-  await expect(page.getByRole("link", { name: /Return to the knowledge graph|Browse research topics|Browse theories/i }).first()).toBeVisible();
+  await expect(page.getByRole("link", { name: /Return to the homepage|Browse research topics|Browse theories|About the catalog/i }).first()).toBeVisible();
 }
 
 async function expectPrimaryAction(page: Page, route: RouteCase, unavailable: boolean) {

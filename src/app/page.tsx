@@ -4,11 +4,20 @@ import Link from "next/link";
 import { getGraphData } from "@/lib/graph-data";
 import { sampleGraph } from "@/lib/graph-sample";
 import { resolveHomeGraph } from "@/lib/home-graph";
-import { entityDetailHref, isEntityType } from "@/lib/entity-routes";
+import { ENTITY_INDEXES, entityDetailHref, isEntityType } from "@/lib/entity-routes";
 import { JsonLdGraph } from "@/components/seo/JsonLdGraph";
 import { SearchBox } from "@/components/search/SearchBox";
 import { SiteReadingGuide } from "@/components/content/SiteReadingGuide";
 import { generateHomeMeta } from "@/lib/seo";
+
+function CatalogLinks() {
+  return (
+    <nav className="home-catalog-links" aria-label="Published catalogs">
+      {ENTITY_INDEXES.map((item) => <Link key={item.href} href={item.href}>{item.label}</Link>)}
+      <Link href="/about">About the catalog</Link>
+    </nav>
+  );
+}
 
 export const revalidate = 600;
 export const metadata = generateHomeMeta();
@@ -23,8 +32,8 @@ export default async function Home() {
   if (state.kind === "unavailable" || state.kind === "empty") {
     const title = state.kind === "empty" ? "The knowledge graph is not published yet" : "Data temporarily unavailable";
     const lead = state.kind === "empty"
-      ? "Syrtag is a source-aware guide for comparing research theories. This page explains the site while no published graph is available."
-      : "Syrtag could not load the catalog. You can still read what the site is and which pages describe its limits.";
+      ? "This page is the public entrance while no graph is published. Education and sociology records appear here only after they are published. An empty catalog is not a claim about the literature."
+      : "The catalog could not be loaded. Search and the indexes below still open. An unavailable catalog is not a published finding.";
     return (
       <PageFrame mainClassName="home-main">
         <article className="home-reading">
@@ -33,6 +42,14 @@ export default async function Home() {
             <h1>{title}</h1>
             <p className="lead">{lead}</p>
           </header>
+          <div className="home-hero__search">
+            <SearchBox
+              mode="inline"
+              label="Search for a theory, scholar, concept, or research topic"
+              placeholder="Try a theory, scholar, concept, or research topic"
+            />
+          </div>
+          <CatalogLinks />
           <SiteReadingGuide mode={state.kind} />
         </article>
       </PageFrame>
@@ -65,7 +82,7 @@ export default async function Home() {
             </div>
           </div>
           <div className="home-hero__meta" aria-label="Graph summary">
-            <div><strong>{graph.meta.availableDisciplines?.length ?? 2}</strong><span>Discipline entrances</span></div>
+            <div><strong>{graph.meta.availableDisciplines?.length ?? "—"}</strong><span>Discipline entrances</span></div>
             <div><strong>Two-way</strong><span>Trace topics and theories in both directions</span></div>
             <div><strong>Sources</strong><span>Follow the evidence behind each pathway</span></div>
           </div>

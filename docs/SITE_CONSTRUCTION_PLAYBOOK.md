@@ -24,7 +24,7 @@ flowchart LR
 
 ## 2. 当前基线（必须在每轮开始前复核）
 
-2026-11-07 复核：FAN-247 之后，authored seed 中没有 `published` 实体（测试锁定为 draft 7 / archived 74）。下表里“12 个主理论已公开”和“线上 200”是 2026-07 的历史记录，不是本轮事实。广告保持关闭；`public/ads.txt` 与 `google-adsense-account` meta 已从公开信号中移除，以便与 Privacy「未启用广告」一致。生产源站可达性不在本轮修复范围内。旗舰学术页仍是 `TODO_SOURCE`，未写入 seed。
+2026-11-07 复核：FAN-247 之后，authored seed 中没有 `published` 实体（本工作树计数为 published 0 / draft 7 / archived 74）。下表里“12 个主理论已公开”和“线上 200”是 2026-07 的历史记录，不是本轮事实。广告保持关闭；`public/ads.txt` 与 `google-adsense-account` meta 已从公开信号中移除，以便与 Privacy「未启用广告」一致。生产源站可达性不在本轮修复范围内。旗舰学术页仍是未发布模板，未写入 seed。同日审计见 `docs/SITE_AUDIT_2026-11-07.md`：首页与 About 改为空目录叙事，描述不再追加关键词句。该审计不表示现网已更新，也不表示可以申请广告。
 
 | 维度 | 当前事实 | 结论 |
 | --- | --- | --- |
@@ -220,3 +220,4 @@ R4 已完成 corpus 接入、核验日期持久化与本地完整发布门禁；
 | N32 | Life Course R4 本地 corpus 接入 | `createLifeCourseEvidenceR2Batch()` 已收紧为零参数自包含工厂；Life Course 当前工作树含 9 条 source 和 order 1–9 的 reading path，3 条 R2 source 均有页面级 `L1 / verified` 记录。 | 聚焦测试有效 RED（退出码 1）后 GREEN（退出码 0）；`content:check`、typecheck、两文件回归（21/21）与 `git diff --check` 均为 0。未 seed、build、deploy 或线上验证；Elder 1974 与 claim-level locator 仍未解决。 | 2026-07-22 |
 | N33 | Life Course R4 生产发布候选 | 补齐 L1 `verifiedAt` seed 合同与按记录持久化；3 条 R2 source 仍只扩充既有 Life Course 页面，不新增实体、路由、sitemap 或发布状态。用户已授权 PR、合并和 deploy。 | 本机非生产 DB migration in sync，连续两次 seed 与数据库集成回归通过；typecheck、Node 测试 123 通过/1 项按设计留给 build、全仓 lint、content check、生产 build + smoke 1/1 和 Chromium 36/36 均通过。PR、Actions 和公网探针待本提交合并后完成，当前不声明已上线。 | 2026-07-22 |
 | N34 | 广告关闭时的披露一致性 | 在广告脚本保持未加载、`AdSlot` 默认关闭的前提下，移除公开 `ads.txt` 与 `google-adsense-account` meta。Privacy 继续声明未启用广告技术，并写明这两项信号在广告关闭时不发布。不把该选择写成“已申请”或“即将投放”。About 只增加未填写的 `TODO_OWNER_*` 槽位。FAN-247 归档不解除；旗舰页以 `TODO_SOURCE` 留在 `docs/content/2026-11-07-flagship-source-stubs.md`，不进 seed。 | 选择移除过早所有权信号，而不是改写 Privacy 去描述尚未发生的验证或未来广告。生产 521、运营者真实身份、以及有来源的旗舰页仍未解决。本决策不授权 deploy 或 AdSense 申请。 | 2026-11-07 |
+| N35 | 空目录叙事与描述去堆砌 | 公开标题和描述以教育/社会学、published 才出现、目录可以为空、广告关闭为准。`createSeoDescription` 不再为凑长度追加第二句关键词。首页空状态提供搜索和目录链接。检索失败不再指向不存在的 `#graph`。导航补上 disciplines 与 fields，并在 1100px 收进菜单。About 与 corrections 公开文案写 “Not published”，不把槽位代号印进 HTML。不新增 published 实体，不恢复 ads 信号。 | 本轮只改仓内页面与文档。2026-11-07 探测 `https://syrtag.com` 与 `www` 仍为 HTTP 521。语料计数 published 0 / draft 7 / archived 74。深度专题只加未发布模板。不授权合并、部署或广告申请。 | 2026-11-07 |

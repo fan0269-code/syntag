@@ -34,9 +34,10 @@ test("shared navigation and footer expose English accessible landmarks", () => {
     "src/app/styles/shell.css",
   ].map((file) => readFileSync(file, "utf8")).join("\n");
 
-  for (const label of ["Topics", "Theories", "Scholars", "Works", "Concepts", "Pricing"]) {
+  for (const label of ["Topics", "Theories", "Scholars", "Works", "Concepts", "Disciplines", "Fields", "Pricing"]) {
     assert.match(header, new RegExp(`"${label}"`));
   }
+  assert.match(header, /Escape/);
   assert.match(header, /aria-label="Syrtag home"/);
   assert.match(header, /aria-label="Primary navigation"/);
   assert.match(header, /aria-controls="mobile-primary-navigation"/);

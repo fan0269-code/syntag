@@ -19,20 +19,40 @@ function cleanText(value?: string | null) {
   return value?.replace(/\s+/g, " ").trim() ?? "";
 }
 
-/** Creates a human-readable description in the 150–160 character range. */
-export function createSeoDescription(name: string, keyword: string, summary?: string | null) {
-  const lead = cleanText(summary) || `${name} is a research resource for doctoral study.`;
-  let description = `${lead} Explore this ${keyword} through key ideas, research fit, related scholars, and source-aware reading pathways for doctoral work.`;
+const SEO_DESCRIPTION_MAX = 160;
 
-  if (description.length < 150) {
-    description += " Designed for rigorous research planning.";
+/** Trims a description on a word boundary. Does not pad short copy with extra keywords. */
+export function clampSeoDescription(value: string) {
+  const text = cleanText(value);
+  if (text.length <= SEO_DESCRIPTION_MAX) return text;
+
+  const shortened = text.slice(0, SEO_DESCRIPTION_MAX - 1);
+  const finalSpace = shortened.lastIndexOf(" ");
+  const cut = finalSpace > 80 ? finalSpace : SEO_DESCRIPTION_MAX - 1;
+  return `${shortened.slice(0, cut).replace(/[,:;\s]+$/, "")}…`;
+}
+
+function isProseSummary(value: string) {
+  return value.length >= 40 && value.split(" ").filter(Boolean).length >= 8;
+}
+
+/**
+ * Builds one description from the page name and, when present, its own summary.
+ * A real summary is used as written. A missing or fragmentary summary gets a single
+ * type label. Neither path appends a second keyword sentence.
+ */
+export function createSeoDescription(name: string, keyword: string, summary?: string | null) {
+  const lead = cleanText(summary);
+  const subject = cleanText(name);
+  const kind = cleanText(keyword);
+
+  if (isProseSummary(lead)) {
+    const sentence = /[.!?…]$/.test(lead) ? lead : `${lead}.`;
+    return clampSeoDescription(sentence);
   }
 
-  if (description.length <= 160) return description;
-
-  const shortened = description.slice(0, 157);
-  const finalSpace = shortened.lastIndexOf(" ");
-  return `${shortened.slice(0, finalSpace > 130 ? finalSpace : 157).replace(/[,:;\s]+$/, "")}…`;
+  const fragment = lead ? ` ${lead}.` : "";
+  return clampSeoDescription(`${subject} is a ${kind} on Syrtag.${fragment}`);
 }
 
 export function absoluteUrl(path: string) {
@@ -113,8 +133,8 @@ export function generateFieldMeta(field: Pick<FieldSeoEntity, "titleEn" | "descr
 
 export function generateHomeMeta(): Metadata {
   return metadataFor({
-    title: "Syrtag — Research Theory Knowledge Graph",
-    description: "Syrtag is a source-aware navigation site for doctoral research in education and sociology. Public entity pages appear only when published. Advertising is off.",
+    title: "Syrtag — Education and sociology research navigation",
+    description: "Syrtag navigates education and sociology theories. Public pages appear only when published, so the catalog can be empty. Advertising is off.",
     path: "/",
     type: "website",
   });
@@ -135,9 +155,12 @@ export function entityMetadata({
   noindex?: boolean;
 }): Metadata {
   const resolvedTitle = title.includes("| Syrtag") ? title : `${title} | Syrtag`;
+  const supplied = cleanText(description);
   return metadataFor({
     title: resolvedTitle,
-    description: createSeoDescription(title, type === "article" ? "research guide" : "research knowledge resource", description),
+    description: supplied
+      ? clampSeoDescription(supplied)
+      : createSeoDescription(title.replace(/ \| Syrtag$/, ""), type === "article" ? "research guide" : "Syrtag page"),
     path,
     type,
     noindex,

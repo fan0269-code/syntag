@@ -32,11 +32,11 @@ export default function CorrectionsPage() {
       <dl className="owner-slots">
         <div>
           <dt>Contact channel</dt>
-          <dd><code>TODO_OWNER_CONTACT_CHANNEL</code> — not published and not monitored.</dd>
+          <dd>Not published and not monitored.</dd>
         </div>
         <div>
           <dt>Corrections process</dt>
-          <dd><code>TODO_OWNER_CORRECTIONS_PROCESS</code> — not established.</dd>
+          <dd>Not established.</dd>
         </div>
       </dl>
     </StaticPage>

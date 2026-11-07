@@ -37,5 +37,7 @@ test("search page keeps labelled query input and distinct recovery states", () =
   assert.match(searchPage, /Search is temporarily unavailable/);
   assert.match(searchPage, /href="\/topics"/);
   assert.match(searchPage, /href="\/theories"/);
-  assert.match(searchPage, /href="\/#graph"/);
+  assert.match(searchPage, /href="\/"/);
+  assert.match(searchPage, /Return to the homepage/);
+  assert.doesNotMatch(searchPage, /href="\/#graph"/);
 });
