@@ -4,17 +4,20 @@ import Link from "next/link";
 import { getGraphData } from "@/lib/graph-data";
 import { sampleGraph } from "@/lib/graph-sample";
 import { resolveHomeGraph } from "@/lib/home-graph";
-import { ENTITY_INDEXES, entityDetailHref, isEntityType } from "@/lib/entity-routes";
+import { entityDetailHref, isEntityType } from "@/lib/entity-routes";
 import { JsonLdGraph } from "@/components/seo/JsonLdGraph";
 import { SearchBox } from "@/components/search/SearchBox";
 import { SiteReadingGuide } from "@/components/content/SiteReadingGuide";
 import { generateHomeMeta } from "@/lib/seo";
 
-function CatalogLinks() {
+function ReadNext() {
   return (
-    <nav className="home-catalog-links" aria-label="Published catalogs">
-      {ENTITY_INDEXES.map((item) => <Link key={item.href} href={item.href}>{item.label}</Link>)}
-      <Link href="/about">About the catalog</Link>
+    <nav className="home-catalog-links" aria-label="Read next">
+      <Link href="/about">About</Link>
+      <Link href="/editorial-policy">Editorial policy</Link>
+      <Link href="/privacy">Privacy</Link>
+      <Link href="/corrections">Contact and corrections</Link>
+      <Link href="/pricing">Pricing</Link>
     </nav>
   );
 }
@@ -30,10 +33,12 @@ export default async function Home() {
   );
 
   if (state.kind === "unavailable" || state.kind === "empty") {
-    const title = state.kind === "empty" ? "The knowledge graph is not published yet" : "Data temporarily unavailable";
+    const title = state.kind === "empty"
+      ? "Syrtag is a source-aware map for doctoral research in education and sociology."
+      : "Data temporarily unavailable";
     const lead = state.kind === "empty"
-      ? "This page is the public entrance while no graph is published. Education and sociology records appear here only after they are published. An empty catalog is not a claim about the literature."
-      : "The catalog could not be loaded. Search and the indexes below still open. An unavailable catalog is not a published finding.";
+      ? "No published graph is available yet. Syrtag only shows records with status published after source-backed human review."
+      : "The catalog could not be loaded. This is an availability state, not a published finding.";
     return (
       <PageFrame mainClassName="home-main">
         <article className="home-reading">
@@ -42,6 +47,13 @@ export default async function Home() {
             <h1>{title}</h1>
             <p className="lead">{lead}</p>
           </header>
+          {state.kind === "empty" && (
+            <section>
+              <h2>Current publication status</h2>
+              <p>The knowledge graph is not published yet. An empty catalog means drafts, archived seed, and local demo data are withheld. It does not mean the literature does not exist.</p>
+              <p>While the public graph is empty, read About and Editorial policy for the education and sociology scope and the sourcing rules.</p>
+            </section>
+          )}
           <div className="home-hero__search">
             <SearchBox
               mode="inline"
@@ -49,7 +61,8 @@ export default async function Home() {
               placeholder="Try a theory, scholar, concept, or research topic"
             />
           </div>
-          <CatalogLinks />
+          <h2>Read next</h2>
+          <ReadNext />
           <SiteReadingGuide mode={state.kind} />
         </article>
       </PageFrame>

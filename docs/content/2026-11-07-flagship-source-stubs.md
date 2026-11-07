@@ -64,6 +64,17 @@ Do not copy archived seed prose into these slots and call it published. Research
 | Verification date | `TODO_SOURCE` |
 | Publication status | not created; must remain unpublished |
 
+## Candidate directions
+
+These are a review queue, not pages and not seed rows. Do not publish one until its sources, verification date, and human review exist.
+
+| Direction | Example question | Status |
+| --- | --- | --- |
+| Teacher identity and professional learning | What theoretical frameworks are used to study teacher identity? | Not publish until sources |
+| Communities of practice and situated learning | How does communities of practice relate to workplace learning research? | Not publish until sources |
+| Life course and sociology of education | How do life-course perspectives frame educational inequality questions? | Not publish until sources. A prior Life Course batch is not a published page. |
+| Education policy and agenda setting | Which agenda-setting or policy theories fit an education-policy question? | Not publish until sources. Do not un-archive a record to fill this row. |
+
 ## Deep topic template
 
 Use this only after a human reviewer accepts sources. It is not a page, not a seed row, and not an indexable article. One education or sociology topic at a time. Do not clone it to fill the topic index.

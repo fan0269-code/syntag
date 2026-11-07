@@ -2,7 +2,12 @@ import Link from "next/link";
 import { StaticPage } from "@/components/content/StaticPage";
 import { entityMetadata } from "@/lib/seo";
 
-export const metadata = entityMetadata({ title: "Editorial policy", description: "How Syrtag researches, verifies, and updates theory content.", path: "/editorial-policy", type: "website" });
+export const metadata = entityMetadata({
+  title: "Editorial policy — Sources, synthesis, and review status | Syrtag",
+  description: "Syrtag separates listed sources, editorial synthesis, and material awaiting review. No peer-review committee is claimed.",
+  path: "/editorial-policy",
+  type: "website",
+});
 
 export default function EditorialPolicyPage() {
   return (
@@ -13,6 +18,7 @@ export default function EditorialPolicyPage() {
       <h2>Sources and review status</h2>
       <p>Syrtag distinguishes listed sources, editorial synthesis, research guidance, and material awaiting review. A source list does not mean that every claim on a page has completed claim-level review.</p>
       <p>Where evidence is incomplete, content should be presented with a limited review status rather than as a settled academic conclusion.</p>
+      <p>A substantive claim needs a source URL, a source type, and a verification date. Wikidata and general encyclopedias may help discovery, but they must not be the sole support for a substantive claim.</p>
       <h2>Current editorial capacity</h2>
       <p>Syrtag does not claim to operate a peer-review committee, a fixed review cycle, or a public correction form. Those processes will be described only if they are established.</p>
       <p>Syrtag does not currently operate a public correction-intake channel. Do not submit personal or sensitive information. A correction route will be published only after a monitored channel and data-handling process are established.</p>

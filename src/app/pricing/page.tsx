@@ -2,10 +2,10 @@ import { StaticPage } from "@/components/content/StaticPage";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { absoluteUrl, entityMetadata } from "@/lib/seo";
 
-const description = "Published Syrtag pages are free to read. Pro and Scholar plans are not for sale.";
+const description = "Syrtag Free covers published navigation. Pro and Scholar are planned and not available for purchase.";
 
 export const metadata = entityMetadata({
-  title: "Pricing",
+  title: "Pricing — Free navigation; Pro planned | Syrtag",
   description,
   path: "/pricing",
   type: "website",

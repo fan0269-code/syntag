@@ -4,7 +4,7 @@ export const runtime = "edge";
 
 export function GET(request: Request) {
   const url = new URL(request.url);
-  const title = url.searchParams.get("title")?.slice(0, 120) || "Education and sociology research navigation";
+  const title = url.searchParams.get("title")?.slice(0, 120) || "Doctoral theory navigation (education & sociology)";
   const kind = url.searchParams.get("kind")?.slice(0, 60) || "Syrtag";
 
   return new ImageResponse(

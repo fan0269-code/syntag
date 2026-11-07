@@ -172,7 +172,8 @@ test("home fails closed when no entity graph is published", async ({ page, baseU
 
   await page.goto("/", { waitUntil: "domcontentloaded" });
 
-  await expect(page.getByRole("heading", { level: 1, name: "The knowledge graph is not published yet" })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: /source-aware map for doctoral research in education and sociology/i })).toBeVisible();
+  await expect(page.getByText("The knowledge graph is not published yet")).toBeVisible();
   await expect(page.getByRole("region", { name: /Research theory knowledge graph/i })).toHaveCount(0);
   for (const topic of topicCases) {
     await expect(page.getByText(topic.question, { exact: true })).toHaveCount(0);

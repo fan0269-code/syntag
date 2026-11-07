@@ -17,7 +17,7 @@ export function EntityIndexPage({ type, title, description, items }: { type: Ent
       ) : (
         <section className="catalog-empty">
           <h2>No published {title.toLowerCase()} yet.</h2>
-          <p>Nothing of this type is in the public catalog. That is a publication-status fact, not a claim about the research literature. A page needs a readable summary, citable sources, and a verification date before it can be published.</p>
+          <p>Indexes list only published records. Return later, or read how publication status works on About. Draft, archived, and local demo records are not published scholarship.</p>
           <p><Link href="/about">About this boundary</Link> · <Link href="/editorial-policy">Editorial policy</Link></p>
         </section>
       )}

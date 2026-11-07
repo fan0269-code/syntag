@@ -10,7 +10,8 @@ Snippets should match the page a person actually gets. Syrtag is an education an
 ## Title
 
 - One subject, then `| Syrtag` or the site title pattern already used by `src/lib/seo.ts`.
-- The homepage title names the product and the scope: education and sociology research navigation.
+- The homepage title names doctoral theory navigation and the education and sociology scope. The description defines the product, says public pages appear only when published, and says the catalog may be empty.
+- While the catalog is empty, the homepage “Read next” links go to About, Editorial policy, Privacy, Corrections, and Pricing. Do not pitch entity indexes as a populated library.
 - About, privacy, terms, corrections, and editorial policy use their page name. Do not append "guide", "framework", and "doctoral" to a trust page.
 - Entity titles may include the record's own name. Do not add a second keyword phrase that the record does not use.
 

@@ -43,10 +43,11 @@ test("home metadata and OG URLs resolve to Syrtag's production domain", () => {
   const metadata = generateHomeMeta();
   const description = String(metadata.description);
   assert.equal(metadata.alternates?.canonical, "https://syrtag.com/");
-  assert.match(String(metadata.title), /Education and sociology research navigation/);
-  assert.match(description, /catalog can be empty/);
-  assert.match(description, /Advertising is off/);
-  assert.doesNotMatch(description, /AdSense|Explore this|keyword/i);
+  assert.match(String(metadata.title), /Doctoral theory navigation \(education & sociology\)/);
+  assert.match(description, /Public pages appear only when published/);
+  assert.match(description, /catalog may be empty/);
+  assert.match(description, /education and sociology/i);
+  assert.doesNotMatch(description, /AdSense|Explore this|74 published|all disciplines/i);
   assert.ok(description.length <= 160);
   assert.match(ogImageUrl("Life Course Theory", "Research guide"), /^https:\/\/syrtag\.com\/api\/og\?/);
 });

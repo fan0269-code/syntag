@@ -5,7 +5,7 @@ type ReadingMode = "published" | "demo" | "empty" | "unavailable";
 const modeCopy: Record<ReadingMode, string> = {
   published: "The graph on this page is drawn from published records. Open a linked page for its summary and sources. The graph is a way to move between those pages. It is not itself a scholarly article.",
   demo: "The graph on this page is local development sample data. It is labeled as a demo and is not published scholarship.",
-  empty: "No published graph is available. Indexes may also be empty. An empty catalog means records have not been published. It does not mean a theory was rejected, and it does not turn seed data into a public finding.",
+  empty: "No published graph is available yet. Syrtag only shows records with status published after source-backed human review. An empty catalog means drafts, archived seed, and local demo data are withheld, not that the literature does not exist.",
   unavailable: "The catalog could not be loaded. Please try again shortly. This notice is an availability state. It is not a statement that research has been published or withdrawn.",
 };
 
@@ -24,11 +24,12 @@ export function SiteReadingGuide({ mode }: { mode: ReadingMode }) {
       <p>Advertising is off. Syrtag does not load an advertising script, and it does not ask you to click an advertisement. The about, privacy, and contact pages describe the current boundary, including operator details that are still unpublished.</p>
       <p className="site-reading-guide__links">
         <Link href="/about">About</Link>
+        <Link href="/editorial-policy">Editorial policy</Link>
         <Link href="/privacy">Privacy</Link>
         <Link href="/terms">Terms</Link>
-        <Link href="/editorial-policy">Editorial policy</Link>
         <Link href="/corrections">Contact and corrections</Link>
-        <Link href="/topics">Published topics</Link>
+        <Link href="/pricing">Pricing</Link>
+        {(mode === "published" || mode === "demo") && <Link href="/topics">Published topics</Link>}
       </p>
     </section>
   );

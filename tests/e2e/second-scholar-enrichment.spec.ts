@@ -52,7 +52,8 @@ for (const scholar of draftScholarCases) {
     await expect(await sitemap.text()).not.toContain(`/scholars/${scholar.slug}`);
 
     await page.goto("/", { waitUntil: "domcontentloaded" });
-    await expect(page.getByRole("heading", { level: 1, name: "The knowledge graph is not published yet" })).toBeVisible();
+    await expect(page.getByRole("heading", { level: 1, name: /source-aware map for doctoral research in education and sociology/i })).toBeVisible();
+    await expect(page.getByText("The knowledge graph is not published yet")).toBeVisible();
     await expect(page.getByRole("region", { name: /Research theory knowledge graph/i })).toHaveCount(0);
     await expect(page.getByText(scholar.name, { exact: true })).toHaveCount(0);
     assertBrowserHealth();

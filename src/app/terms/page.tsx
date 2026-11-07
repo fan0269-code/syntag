@@ -3,8 +3,8 @@ import { StaticPage } from "@/components/content/StaticPage";
 import { entityMetadata } from "@/lib/seo";
 
 export const metadata = entityMetadata({
-  title: "Terms of use",
-  description: "What Syrtag provides, and the limits on relying on it.",
+  title: "Terms — Educational navigation, not professional advice | Syrtag",
+  description: "Syrtag provides educational navigation for research theories. Verify primary sources. Not a substitute for supervision, peer review, or professional advice.",
   path: "/terms",
   type: "website",
 });
@@ -17,6 +17,8 @@ export default function TermsPage() {
       description="Informational pages for research navigation. Not a credential, a journal, or a writing service."
     >
       <p>Syrtag content is provided for informational and educational purposes. Verify scholarly claims with original sources and your institution&apos;s guidance before relying on them in research work.</p>
+      <h2>User responsibility</h2>
+      <p>Check the original works and your supervisor before treating a pathway as a dissertation frame. Read the <Link href="/editorial-policy">editorial policy</Link> for how sources and limited review are labeled, and the <Link href="/corrections">corrections</Link> page for the current contact limit.</p>
 
       <h2>What Syrtag provides</h2>
       <p>Syrtag provides informational pages and, when records are published, a graph for moving among those pages. It is a study aid for reading and comparing research theories. The intended public scope is education and sociology.</p>
