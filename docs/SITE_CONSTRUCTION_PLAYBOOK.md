@@ -24,6 +24,8 @@ flowchart LR
 
 ## 2. 当前基线（必须在每轮开始前复核）
 
+2026-11-07 复核：FAN-247 之后，authored seed 中没有 `published` 实体（测试锁定为 draft 7 / archived 74）。下表里“12 个主理论已公开”和“线上 200”是 2026-07 的历史记录，不是本轮事实。广告保持关闭；`public/ads.txt` 与 `google-adsense-account` meta 已从公开信号中移除，以便与 Privacy「未启用广告」一致。生产源站可达性不在本轮修复范围内。旗舰学术页仍是 `TODO_SOURCE`，未写入 seed。
+
 | 维度 | 当前事实 | 结论 |
 | --- | --- | --- |
 | 前端 | 首页、静态说明页、七类实体索引与详情路由、图谱组件和 SEO 基础均已存在；C7 后本地构建生成 92 个页面。 | 具备进入全站内容质量与发布验收的页面骨架。 |
@@ -217,3 +219,4 @@ R4 已完成 corpus 接入、核验日期持久化与本地完整发布门禁；
 | N31 | Life Course R3 source-pool 与 R4 接入边界 | R3 已在 `7c468ea` 准备 3 条 L1 ContentSource，并补全 Day et al. 2006 canonical 标题；source-pool 尚未接入 `lifeCourseContent`，所以公开页面、数据库和 static routes 均未因这 3 条来源改变。 | 旧 R4 提示词错误地把 `entities.ts` 的 `sources` 当作包含新键的 `LifeCourseEvidenceR2SourcePool`，且限定只改 `entities.ts`，实际无法通过类型检查。R4 改为先把 batch 收紧为零参数自包含工厂，再接入 source、reading path 和页面级 verification，并以目标测试、`content:check`、typecheck 为门禁。 | 2026-07-22 |
 | N32 | Life Course R4 本地 corpus 接入 | `createLifeCourseEvidenceR2Batch()` 已收紧为零参数自包含工厂；Life Course 当前工作树含 9 条 source 和 order 1–9 的 reading path，3 条 R2 source 均有页面级 `L1 / verified` 记录。 | 聚焦测试有效 RED（退出码 1）后 GREEN（退出码 0）；`content:check`、typecheck、两文件回归（21/21）与 `git diff --check` 均为 0。未 seed、build、deploy 或线上验证；Elder 1974 与 claim-level locator 仍未解决。 | 2026-07-22 |
 | N33 | Life Course R4 生产发布候选 | 补齐 L1 `verifiedAt` seed 合同与按记录持久化；3 条 R2 source 仍只扩充既有 Life Course 页面，不新增实体、路由、sitemap 或发布状态。用户已授权 PR、合并和 deploy。 | 本机非生产 DB migration in sync，连续两次 seed 与数据库集成回归通过；typecheck、Node 测试 123 通过/1 项按设计留给 build、全仓 lint、content check、生产 build + smoke 1/1 和 Chromium 36/36 均通过。PR、Actions 和公网探针待本提交合并后完成，当前不声明已上线。 | 2026-07-22 |
+| N34 | 广告关闭时的披露一致性 | 在广告脚本保持未加载、`AdSlot` 默认关闭的前提下，移除公开 `ads.txt` 与 `google-adsense-account` meta。Privacy 继续声明未启用广告技术，并写明这两项信号在广告关闭时不发布。不把该选择写成“已申请”或“即将投放”。About 只增加未填写的 `TODO_OWNER_*` 槽位。FAN-247 归档不解除；旗舰页以 `TODO_SOURCE` 留在 `docs/content/2026-11-07-flagship-source-stubs.md`，不进 seed。 | 选择移除过早所有权信号，而不是改写 Privacy 去描述尚未发生的验证或未来广告。生产 521、运营者真实身份、以及有来源的旗舰页仍未解决。本决策不授权 deploy 或 AdSense 申请。 | 2026-11-07 |

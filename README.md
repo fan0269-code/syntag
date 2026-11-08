@@ -1,36 +1,59 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Syrtag
 
-## Getting Started
+Syrtag is a source-aware knowledge graph for doctoral research navigation. It helps a reader move from a research question to theories, scholars, works, concepts, and topics, then back to the sources behind those pages.
 
-First, run the development server:
+The graph is a way to move between published pages. It does not replace a readable summary, a source list, or a verification date. Public routes show a record only when its status is `published`. Draft records, archived records, and the local development demo graph are not published scholarship.
+
+The intended public scope is education and sociology. Other disciplines are not offered as published coverage.
+
+Advertising is off. This repository does not claim that Google AdSense has approved the site, and it does not claim that production is healthy.
+
+`AGENTS.md` is the authority for repository conventions, content citation rules, and release practice. This README is a product and local-setup guide.
+
+## Stack
+
+- Next.js 16 App Router and React
+- TypeScript
+- PostgreSQL through Prisma 7
+- React Query for client graph updates
+- Tailwind CSS 4
+- Node tests (`node:test`) and Chromium Playwright checks
+
+## Run locally
+
+Copy environment variables into an untracked `.env`. Local database commands need `DATABASE_URL`. Do not commit credentials.
 
 ```bash
+npm install
+npm run db:migrate
+npm run db:seed
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Then open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+The authored seed keeps entity records in `draft` or `archived` state. A fresh seed therefore does not create public entity pages. In development, the homepage may show a clearly marked demo graph when no published graph is available. Production must not present that demo as published content.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Do not run `npm run db:reset` against a shared or production database.
 
-## Learn More
+## Checks
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+npm test
+npm run lint
+npm run typecheck
+npm run content:check
+npm run build
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Static entity routes are derived from published slugs at build time. When a database is part of the check, migrate and seed before building. `npm run test:e2e` runs only after a fresh production build.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Advertising boundary
 
-## Deploy on Vercel
+No advertising script is loaded. `AdSlot` stays off unless a caller passes `enabled`. The public site does not publish an `ads.txt` publisher line or a `google-adsense-account` meta tag while ads remain off. Privacy must be updated in the same change that ever turns advertising on.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## What this repository does not do
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- It does not submit an AdSense application.
+- It does not deploy the site. Production hosting, including any origin outage, is an operator task.
+- It does not invent a legal entity, contact channel, or scholarly citation. Unpublished operator slots are marked `TODO_OWNER_*`. Source gaps for future flagship pages are marked `TODO_SOURCE` in `docs/content/2026-11-07-flagship-source-stubs.md`.

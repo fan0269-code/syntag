@@ -7,6 +7,7 @@ const heights: Record<AdPlacement, string> = {
 };
 
 export function AdSlot({ placement, enabled = false }: { placement: AdPlacement; enabled?: boolean }) {
+  // Advertising stays off unless a caller enables a slot in the same change that updates Privacy.
   if (!enabled) return null;
 
   return (

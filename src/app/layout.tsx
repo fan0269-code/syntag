@@ -23,9 +23,6 @@ export const metadata: Metadata = {
   ...generateHomeMeta(),
   metadataBase: new URL("https://syrtag.com"),
   openGraph: { ...generateHomeMeta().openGraph, siteName: "Syrtag" },
-  other: {
-    "google-adsense-account": "ca-pub-3018617123550799",
-  },
 };
 
 export default function RootLayout({

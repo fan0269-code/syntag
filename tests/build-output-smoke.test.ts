@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 import { seedCorpus } from "../src/data/seed-content.ts";
@@ -79,12 +80,11 @@ test("production build contains core public route artifacts", {
   assert.match(robots, /Sitemap: https:\/\/syrtag\.com\/sitemap\.xml/);
 });
 
-test("production build exposes AdSense ownership signals", {
+test("production build does not expose AdSense ownership signals while ads are off", {
   skip: process.env.BUILD_OUTPUT_SMOKE_REQUIRED !== "1" && "runs after next build via npm run build",
 }, async () => {
   const home = await readFile(homeUrl, "utf8");
-  const adsTxt = await readFile(adsTxtUrl, "utf8");
 
-  assert.match(home, /<meta name="google-adsense-account" content="ca-pub-3018617123550799"\/>/);
-  assert.equal(adsTxt, "google.com, pub-3018617123550799, DIRECT, f08c47fec0942fa0\n");
+  assert.doesNotMatch(home, /google-adsense-account|ca-pub-|adsbygoogle|googlesyndication/);
+  assert.equal(existsSync(adsTxtUrl), false);
 });

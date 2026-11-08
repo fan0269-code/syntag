@@ -114,7 +114,7 @@ export function generateFieldMeta(field: Pick<FieldSeoEntity, "titleEn" | "descr
 export function generateHomeMeta(): Metadata {
   return metadataFor({
     title: "Syrtag — Research Theory Knowledge Graph",
-    description: "Explore research theories, scholars, and research works through source-aware pathways for bounded theory selection in Syrtag's knowledge graph.",
+    description: "Syrtag is a source-aware navigation site for doctoral research in education and sociology. Public entity pages appear only when published. Advertising is off.",
     path: "/",
     type: "website",
   });
