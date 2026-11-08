@@ -4,7 +4,7 @@ import { entityMetadata } from "@/lib/seo";
 
 export const metadata = entityMetadata({
   title: "About Syrtag — What we publish and what we don't | Syrtag",
-  description: "What Syrtag is for, how published differs from draft or demo, and how source boundaries are read. Operator identity is published only when the owner fills it.",
+  description: "Education and sociology only. Pages appear only when published, and advertising is off. Operator identity stays unpublished until the owner fills it.",
   path: "/about",
   type: "website",
 });
@@ -19,15 +19,16 @@ export default function AboutPage() {
     >
       <h2>What this site is</h2>
       <p>Syrtag is a source-aware knowledge graph for doctoral research navigation. It connects theories, scholars, works, concepts, and topics so a reader can move from a research question to related pathways, and then to the sources behind each published page. The graph is a navigation surface, not a substitute for reading primary literature or working with a supervisor.</p>
+      <p>Syrtag is not a journal, a writing service, a degree or admissions broker, or a credentialing body.</p>
       <h2>Who Syrtag is for</h2>
       <p>Syrtag is for researchers who need a bounded map of theoretical frameworks, especially in education and sociology, before committing to a dissertation framing. It is not a ghostwriting service, a degree or admissions broker, a journal, or a credentialing body.</p>
       <h2>Scope</h2>
-      <p>The intended public scope is education and sociology. Other disciplines are not presented as published coverage.</p>
+      <p>The intended public scope is education and sociology only. Psychology, management, and other disciplines are not presented as published coverage.</p>
 
       <h2>Publisher identity</h2>
       <p>Syrtag is an independent research-navigation project.</p>
       <p>Syrtag does not currently identify a registered entity or an individual operator on the public site.</p>
-      <p>The fields below are unpublished. They are not a legal name, a role, or a jurisdiction, and they must not be cited as one.</p>
+      <p>The fields below stay unfinished until the owner fills them. They are not a legal name, a role, or a jurisdiction, and they must not be cited as one.</p>
       <dl className="owner-slots">
         <div>
           <dt>Legal or operating name</dt>

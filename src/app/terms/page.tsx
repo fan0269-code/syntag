@@ -14,9 +14,11 @@ export default function TermsPage() {
     <StaticPage
       title="Terms of use"
       eyebrow="Trust"
-      description="Informational pages for research navigation. Not a credential, a journal, or a writing service."
+      description="Educational navigation for research theories. Not professional advice."
+      lede="Syrtag is educational navigation only. It is not supervision, peer review, or professional advice."
     >
-      <p>Syrtag content is provided for informational and educational purposes. Verify scholarly claims with original sources and your institution&apos;s guidance before relying on them in research work.</p>
+      <h2>Nature of the service</h2>
+      <p>Syrtag content is provided for informational and educational purposes. Verify scholarly claims against primary sources, and check them with your supervisor, before relying on them in research work.</p>
       <h2>User responsibility</h2>
       <p>Check the original works and your supervisor before treating a pathway as a dissertation frame. Read the <Link href="/editorial-policy">editorial policy</Link> for how sources and limited review are labeled, and the <Link href="/corrections">corrections</Link> page for the current contact limit.</p>
 

@@ -3,8 +3,8 @@ import { StaticPage } from "@/components/content/StaticPage";
 import { entityMetadata } from "@/lib/seo";
 
 export const metadata = entityMetadata({
-  title: "Privacy — Measurement boundary | Syrtag",
-  description: "Syrtag does not use third-party behavioural analytics or tracking cookies. Advertising technology is not enabled. This page will be updated before that changes.",
+  title: "Privacy — No ads or tracking cookies enabled | Syrtag",
+  description: "No third-party behavioural ads or tracking cookies are enabled. Advertising technology is off. This page will be updated before that changes.",
   path: "/privacy",
   type: "website",
 });
@@ -15,9 +15,10 @@ export default function PrivacyPage() {
       title="Privacy"
       eyebrow="Trust"
       description="Advertising, email, and tracking cookies are not enabled."
+      lede="No third-party behavioural ads or tracking cookies are enabled today. This page will be updated before that changes."
     >
       <h2>Current measurement boundary</h2>
-      <p>Syrtag does not use third-party on-site behavioural analytics. It does not collect research questions or raw site-search terms for analytics.</p>
+      <p>Syrtag does not use third-party behavioural advertising, and it does not use third-party on-site behavioural analytics. It does not collect research questions or raw site-search terms for analytics.</p>
       <p>Google Search Console is an external, aggregate search-performance tool. It can report how pages appear in Google Search; it is not used to collect a visitor&apos;s research question inside Syrtag.</p>
 
       <h2>Services not enabled</h2>

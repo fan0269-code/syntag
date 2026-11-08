@@ -7,7 +7,7 @@ export function EntityIndexPage({ type, title, description, items }: { type: Ent
   return (
     <section className="content-layout entity-index">
       <header className="entity-page__hero">
-        <span>Browse</span>
+        <span>Published index</span>
         <h1>{title}</h1>
         <p>{description}</p>
         <p>Syrtag lists a record here only when its status is published. The intended scope is education and sociology. Draft, archived, and local demo records are omitted and are not published scholarship.</p>
@@ -17,8 +17,8 @@ export function EntityIndexPage({ type, title, description, items }: { type: Ent
       ) : (
         <section className="catalog-empty">
           <h2>No published {title.toLowerCase()} yet.</h2>
-          <p>Indexes list only published records. Return later, or read how publication status works on About. Draft, archived, and local demo records are not published scholarship.</p>
-          <p><Link href="/about">About this boundary</Link> · <Link href="/editorial-policy">Editorial policy</Link></p>
+          <p>Indexes list only published records and may be empty. An empty list means nothing of this type is published. It does not mean the literature lacks the subject. Draft, archived, and local demo records are not published scholarship.</p>
+          <p><Link href="/about">About</Link> · <Link href="/editorial-policy">Editorial policy</Link></p>
         </section>
       )}
     </section>

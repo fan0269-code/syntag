@@ -47,6 +47,7 @@ test("home metadata and OG URLs resolve to Syrtag's production domain", () => {
   assert.match(description, /Public pages appear only when published/);
   assert.match(description, /catalog may be empty/);
   assert.match(description, /education and sociology/i);
+  assert.match(description, /Advertising is off/);
   assert.doesNotMatch(description, /AdSense|Explore this|74 published|all disciplines/i);
   assert.ok(description.length <= 160);
   assert.match(ogImageUrl("Life Course Theory", "Research guide"), /^https:\/\/syrtag\.com\/api\/og\?/);

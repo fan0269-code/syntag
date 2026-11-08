@@ -34,24 +34,26 @@ export default async function Home() {
 
   if (state.kind === "unavailable" || state.kind === "empty") {
     const title = state.kind === "empty"
-      ? "Syrtag is a source-aware map for doctoral research in education and sociology."
+      ? "The knowledge graph is not published yet"
       : "Data temporarily unavailable";
     const lead = state.kind === "empty"
-      ? "No published graph is available yet. Syrtag only shows records with status published after source-backed human review."
+      ? "Syrtag is a source-aware map for doctoral research in education and sociology. It is not a journal or a writing service."
       : "The catalog could not be loaded. This is an availability state, not a published finding.";
     return (
       <PageFrame mainClassName="home-main">
         <article className="home-reading">
           <header className="home-reading__header" role="status">
-            <span className="eyebrow">Research theory pathways</span>
+            <span className="eyebrow">Education and sociology</span>
             <h1>{title}</h1>
             <p className="lead">{lead}</p>
           </header>
           {state.kind === "empty" && (
             <section>
               <h2>Current publication status</h2>
-              <p>The knowledge graph is not published yet. An empty catalog means drafts, archived seed, and local demo data are withheld. It does not mean the literature does not exist.</p>
-              <p>While the public graph is empty, read About and Editorial policy for the education and sociology scope and the sourcing rules.</p>
+              <p>No published graph is available yet. Syrtag only shows records with status published after source-backed human review.</p>
+              <p>An empty catalog means drafts, archived seed, and local demo data are withheld. It does not mean the literature does not exist.</p>
+              <p>While the public graph is empty, read <Link href="/about">About</Link> and <Link href="/editorial-policy">Editorial policy</Link> for the education and sociology scope and the sourcing rules.</p>
+              <p>Search and the catalog indexes use that same rule. Each index lists only published records and may be empty.</p>
             </section>
           )}
           <div className="home-hero__search">

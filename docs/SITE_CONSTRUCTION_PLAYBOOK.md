@@ -28,6 +28,8 @@ flowchart LR
 
 2026-11-08：Owner 林文授权把生产托管从自建 SSH 改为 Vercel。仓库已去掉 push 到 `main` 时 SSH 到旧主机的 workflow。`https://syrtag.com` 仍要等 Vercel 项目、托管 Postgres、`prisma migrate deploy` 和 Cloudflare DNS 由林文在控制台完成，步骤见 `docs/deploy-vercel.md`。本变更不灌入公开内容，不开启广告，合并本身不表示现网已恢复。
 
+2026-11-08（P0 信任文案）：林文批准开工，旗舰范围定为 N=8（缺口表 #1–#8；#9 延后），但本轮只改首页、信任页和七个索引的诚实空态。不把 P1 实体写入 seed，不把任何记录改为 `published`。广告保持关闭。`https://syrtag.com` 与 `www` 仍是 HTTP 521，合并不等于线上可检。About 的法定名称、角色和辖区仍是未填写槽位，公开页写 “Not published.”，不编造主体。
+
 | 维度 | 当前事实 | 结论 |
 | --- | --- | --- |
 | 前端 | 首页、静态说明页、七类实体索引与详情路由、图谱组件和 SEO 基础均已存在；C7 后本地构建生成 92 个页面。 | 具备进入全站内容质量与发布验收的页面骨架。 |
