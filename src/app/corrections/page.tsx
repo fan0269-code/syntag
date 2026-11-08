@@ -21,6 +21,7 @@ export default function CorrectionsPage() {
       <p>A registered entity or individual operator appears on the About page only when the owner fills those slots. Unfinished slots are not a legal name, and they are not a contact address.</p>
       <h2>Correction status</h2>
       <p>Syrtag does not currently operate a public correction-intake channel. Do not submit personal or sensitive information. A correction route will be published only after a monitored channel and data-handling process are established.</p>
+      <p>The correction intake is unpublished. Do not send personal or sensitive data to an unpublished intake. This page is not a form, and it does not offer an address.</p>
       <h2>Response timeframe</h2>
       <p>No response or resolution timeframe is currently promised.</p>
 

@@ -134,7 +134,7 @@ export function generateFieldMeta(field: Pick<FieldSeoEntity, "titleEn" | "descr
 export function generateHomeMeta(): Metadata {
   return metadataFor({
     title: "Syrtag — Doctoral theory navigation (education & sociology)",
-    description: "Syrtag maps doctoral theories in education and sociology. Public pages appear only when published, so the catalog may be empty.",
+    description: "Source-aware navigation for education and sociology. Public pages appear only when published, so the catalog may be empty. Advertising is off.",
     path: "/",
     type: "website",
   });
