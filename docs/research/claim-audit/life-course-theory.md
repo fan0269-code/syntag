@@ -200,3 +200,41 @@ This materialization repairs the independent-review input contract only. It does
 | `reviewer-field integrity` | PASS — no reviewer identity, role, date, or decision was inferred |
 
 The frozen upstream D3 review remains the governing evidence reconciliation: Life Course `15 PASS / 15 FAIL / 53 BLOCKED` across 83 audited identifiers. This pack does not silently rewrite that independent-review count.
+
+## 9. F0 abstract-narrowing addendum (2026-11-08)
+
+> Access / verification date: 2026-11-08
+>
+> Decision: `corpus_narrowed_for_human_review`
+>
+> Publication boundary unchanged: FAN-247 still archives the Life Course cluster. This addendum records re-verified public abstracts and the implemented corpus omission of blocker-only claims. Human reviewer fields remain empty. No U3 publication authorization is implied.
+
+### 9.1 Newly reproducible locators
+
+| Source ID | Locator re-verified 2026-11-08 | Effect on F0 corpus |
+| --- | --- | --- |
+| `elder-1998-life-course` | Publisher/DOI Abstract | Definition, origins, history (1960s formation), historical-context / life-span / life-pattern concepts |
+| `elder-johnson-crosnoe-2003-life-course` | Springer chapter Abstract | History precursor row; life-histories/trajectories concept; Johnson/Crosnoe attribution |
+| `shanahan-2000-pathways-adulthood` | Annual Reviews Abstract | Pathway variability; agency within structured opportunities/limits; Shanahan attribution |
+
+### 9.2 Implemented omissions (no public wording)
+
+Former blocker-only inventory items remain **omitted** from the narrowed public page rather than rephrased from secondary memory:
+
+- Named five-principle consolidation as source-backed history
+- Depression-cohort mechanism narrative without lawful full text
+- Mayer causal-limit and Alwin terminological-variety source-backed criticisms
+- Exact Elder principle names (life-span / time-and-place / timing / linked lives / agency) as a verified five-set
+- Turning-point / linked-lives definitions that required chapter body locators
+
+### 9.3 Human-review status after F0 narrowing
+
+| Field | Value |
+| --- | --- |
+| `reviewer_identity` | `not_assigned` |
+| `reviewer_role` | `not_assigned` |
+| `reviewed_at` | `not_assigned` |
+| `review_decision` | `pending_review` |
+| FAN-247 / `published` | unchanged (archived) |
+
+Checklist: `docs/research/human-review/2026-11-08-f0-life-course-human-review-checklist.md`.

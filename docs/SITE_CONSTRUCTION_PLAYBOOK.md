@@ -28,6 +28,8 @@ flowchart LR
 
 2026-11-08：Owner 林文授权把生产托管从自建 SSH 改为 Vercel。仓库已去掉 push 到 `main` 时 SSH 到旧主机的 workflow。`https://syrtag.com` 仍要等 Vercel 项目、托管 Postgres、`prisma migrate deploy` 和 Cloudflare DNS 由林文在控制台完成，步骤见 `docs/deploy-vercel.md`。本变更不灌入公开内容，不开启广告，合并本身不表示现网已恢复。
 
+2026-11-08 F0：按主人「先完成 F0、图谱稍后」推进 Life Course 旗舰簇。`life-course-theory` / `elder-1998-life-course` / `glen-h-elder-jr` / `educational-transitions-over-time` 正文已按可复现公开摘要收窄；Mayer/Alwin 全文本主张与五原则具名清单已从拟公开措辞中省略。FAN-247 仍强制 archived（published 0 / draft 7 / archived 74）。Topic–theory 风险人审与 U3 解档未做。计划与人审清单见 `docs/roadmaps/2026-11-08-f0-life-course-flagship.md` 与 `docs/research/human-review/2026-11-08-f0-life-course-human-review-checklist.md`。
+
 | 维度 | 当前事实 | 结论 |
 | --- | --- | --- |
 | 前端 | 首页、静态说明页、七类实体索引与详情路由、图谱组件和 SEO 基础均已存在；C7 后本地构建生成 92 个页面。 | 具备进入全站内容质量与发布验收的页面骨架。 |
@@ -223,3 +225,4 @@ R4 已完成 corpus 接入、核验日期持久化与本地完整发布门禁；
 | N33 | Life Course R4 生产发布候选 | 补齐 L1 `verifiedAt` seed 合同与按记录持久化；3 条 R2 source 仍只扩充既有 Life Course 页面，不新增实体、路由、sitemap 或发布状态。用户已授权 PR、合并和 deploy。 | 本机非生产 DB migration in sync，连续两次 seed 与数据库集成回归通过；typecheck、Node 测试 123 通过/1 项按设计留给 build、全仓 lint、content check、生产 build + smoke 1/1 和 Chromium 36/36 均通过。PR、Actions 和公网探针待本提交合并后完成，当前不声明已上线。 | 2026-07-22 |
 | N34 | 广告关闭时的披露一致性 | 在广告脚本保持未加载、`AdSlot` 默认关闭的前提下，移除公开 `ads.txt` 与 `google-adsense-account` meta。Privacy 继续声明未启用广告技术，并写明这两项信号在广告关闭时不发布。不把该选择写成“已申请”或“即将投放”。About 只增加未填写的 `TODO_OWNER_*` 槽位。FAN-247 归档不解除；旗舰页以 `TODO_SOURCE` 留在 `docs/content/2026-11-07-flagship-source-stubs.md`，不进 seed。 | 选择移除过早所有权信号，而不是改写 Privacy 去描述尚未发生的验证或未来广告。生产 521、运营者真实身份、以及有来源的旗舰页仍未解决。本决策不授权 deploy 或 AdSense 申请。 | 2026-11-07 |
 | N35 | 空目录叙事与描述去堆砌 | 公开标题和描述以教育/社会学、published 才出现、目录可以为空、广告关闭为准。`createSeoDescription` 不再为凑长度追加第二句关键词。首页空状态提供搜索和目录链接。检索失败不再指向不存在的 `#graph`。导航补上 disciplines 与 fields，并在 1100px 收进菜单。About 与 corrections 公开文案写 “Not published”，不把槽位代号印进 HTML。不新增 published 实体，不恢复 ads 信号。 | 本轮只改仓内页面与文档。2026-11-07 探测 `https://syrtag.com` 与 `www` 仍为 HTTP 521。语料计数 published 0 / draft 7 / archived 74。深度专题只加未发布模板。不授权合并、部署或广告申请。 | 2026-11-07 |
+| N36 | F0 Life Course 摘要收窄（不解档） | 主人指示先完成 F0、图谱稍后。选定 Life Course 簇；按 2026-11-08 可复现公开摘要收窄 theory/work/scholar/topic 措辞；省略五原则具名清单与 Mayer/Alwin 全文本主张；FAN-247 保持 archived。 | 人审清单与预审已写；topic risk 与行级人审未签字；不解档、不部署、不开广告。Obsidian 同步路径在本云环境不可用，清单留在仓内 `docs/research/human-review/`。 | 2026-11-08 |
