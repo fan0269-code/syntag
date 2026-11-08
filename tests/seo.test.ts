@@ -66,7 +66,7 @@ test("work detail, index, fallback, SEO, and graph copy stay research-work neutr
 
   assert.doesNotMatch(detailSource, /JsonLdBook|components\/seo\/JsonLdBook/);
   assert.match(detailSource, /kind="Research work"/);
-  assert.match(indexSource, /published research works/);
+  assert.match(indexSource, /research works that currently have published status/);
   assert.match(indexDataSource, /publisher \|\| "Published research work\."/);
   assert.match(indexDataSource, /\["Research work"\]/);
   assert.match(graphSource, /research works/);

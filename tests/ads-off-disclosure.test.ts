@@ -37,6 +37,8 @@ test("home, indexes, and the product README describe the ads-off publication bou
   assert.match(guide, /not published scholarship/);
   assert.match(guide, /education and sociology/);
   assert.match(guide, /Advertising is off/);
+  assert.match(guide, /Topics index/);
+  assert.doesNotMatch(guide, /Published topics/);
   assert.match(index, /No published \{title\.toLowerCase\(\)\} yet\./);
   assert.match(index, /not published scholarship/);
   assert.match(header, /\["About", "\/about"\]/);

@@ -23,7 +23,7 @@ export default function PrivacyPage() {
       <h2>Services not enabled</h2>
       <p>Syrtag has not enabled advertising technology, email services, or tracking cookies. This page will be updated before those practices change.</p>
       <p>No advertising script is loaded. While advertising stays off, the site does not publish an ads.txt publisher authorization and does not publish a google-adsense-account metadata tag. Either signal would be added only in the same change that updates this page, and only if the operator later chooses to serve ads.</p>
-      <p>Syrtag does not ask visitors to click advertisements. Navigation labels are not advertisements. The <Link href="/about">about</Link> page states the same advertising boundary in plain language.</p>
+      <p>Syrtag does not ask visitors to click advertisements. Navigation labels are not advertisements. The <Link href="/about">about</Link> page repeats the same advertising-off boundary in plain language.</p>
 
       <h2>What this page does not promise</h2>
       <p>This page describes current site behavior. It is not a notice that an advertising partner is already receiving visitor data, and it is not consent language for personalized ads. If advertising is enabled later, this page has to name the cookies, identifiers, and partners involved before any tag loads.</p>

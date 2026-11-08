@@ -6,7 +6,11 @@ export const metadata = entityMetadata({ title: "Editorial policy", description:
 
 export default function EditorialPolicyPage() {
   return (
-    <StaticPage title="Editorial policy">
+    <StaticPage
+      title="Editorial policy"
+      eyebrow="Trust"
+      description="How Syrtag distinguishes sources, synthesis, and unpublished material."
+    >
       <h2>Responsibility</h2>
       <p>Syrtag is an independent research-navigation project.</p>
       <p>Syrtag is responsible for the selection, organization, source presentation, editorial synthesis, and correction of content it publishes. It distinguishes source-backed facts from editorial synthesis and research guidance. Its content is an educational navigation resource, not peer review and not a substitute for primary-source reading, disciplinary supervision, or methodological review.</p>

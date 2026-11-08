@@ -25,6 +25,9 @@ test("About and Editorial Policy publish the approved identity and responsibilit
   assert.match(about, /TODO_OWNER_OPERATOR_ROLE/);
   assert.match(about, /TODO_OWNER_JURISDICTION/);
   assert.match(about, /TODO_SOURCE/);
+  assert.match(about, /Advertising is off/);
+  assert.match(about, /not currently published/);
+  assert.doesNotMatch(about, /from this change/);
   assert.doesNotMatch(about, /mailto:|<form|Inc\.|Ltd\.|LLC/);
   assert.match(editorialPolicy, literalPattern(approvedIdentity));
   assert.match(editorialPolicy, literalPattern(approvedResponsibility));

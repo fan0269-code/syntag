@@ -28,7 +28,7 @@ export default function TermsPage() {
       <p>Only records with status published are public. Seed data, draft records, archived records, and the local development demo graph are not published scholarship, even when they exist in the repository or in a development database.</p>
 
       <h2>Advertising</h2>
-      <p>Syrtag does not currently serve advertisements. The <Link href="/privacy">privacy page</Link> is the measurement and advertising boundary. Pricing describes access that exists today and labels anything else as not available.</p>
+      <p>Advertising is off. Syrtag does not currently serve advertisements and does not load an advertising script. The <Link href="/privacy">privacy page</Link> and the <Link href="/about">about page</Link> state the same advertising boundary. Pricing describes free access without a paywall and labels paid plans as not available; it does not claim that a full published catalog already exists.</p>
     </StaticPage>
   );
 }

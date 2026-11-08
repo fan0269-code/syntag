@@ -4,5 +4,5 @@ import { EntityIndexPage } from "@/components/content/EntityIndexPage";
 import { DATA_UNAVAILABLE, loadDataPage } from "@/lib/data-page";
 import { getPublishedIndex } from "@/lib/entities/indexes";
 import { entityMetadata } from "@/lib/seo";
-export const metadata = entityMetadata({ title: "Fields", description: "Browse published research fields and their theory pathways.", path: "/fields", type: "website" });
-export default async function FieldsIndexPage() { const items = await loadDataPage(() => getPublishedIndex("field")); return <PageFrame>{items === DATA_UNAVAILABLE ? <DataUnavailableState /> : <EntityIndexPage type="field" title="Fields" description="Browse published research fields and their theory pathways." items={items} />}</PageFrame>; }
+export const metadata = entityMetadata({ title: "Fields", description: "Browse research fields that currently have published status.", path: "/fields", type: "website" });
+export default async function FieldsIndexPage() { const items = await loadDataPage(() => getPublishedIndex("field")); return <PageFrame>{items === DATA_UNAVAILABLE ? <DataUnavailableState /> : <EntityIndexPage type="field" title="Fields" description="Browse research fields that currently have published status. An empty list means none are published yet." items={items} />}</PageFrame>; }

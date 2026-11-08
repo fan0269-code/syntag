@@ -21,14 +21,14 @@ export function SiteReadingGuide({ mode }: { mode: ReadingMode }) {
       <h2>Scope</h2>
       <p>The intended public scope is education and sociology. Syrtag does not present psychology, management, or any other discipline as published coverage.</p>
       <h2>Trust and advertising</h2>
-      <p>Advertising is off. Syrtag does not load an advertising script, and it does not ask you to click an advertisement. The about, privacy, and contact pages describe the current boundary, including operator details that are still unpublished.</p>
+      <p>Advertising is off. Syrtag does not load an advertising script, and it does not ask you to click an advertisement. The about and privacy pages state the same advertising boundary. Contact and operator slots that are still unpublished appear on the about and contact and corrections pages.</p>
       <p className="site-reading-guide__links">
         <Link href="/about">About</Link>
         <Link href="/privacy">Privacy</Link>
         <Link href="/terms">Terms</Link>
         <Link href="/editorial-policy">Editorial policy</Link>
         <Link href="/corrections">Contact and corrections</Link>
-        <Link href="/topics">Published topics</Link>
+        <Link href="/topics">Topics index</Link>
       </p>
     </section>
   );
