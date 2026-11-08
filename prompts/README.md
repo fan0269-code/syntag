@@ -1,8 +1,43 @@
 # Codex 提示词使用说明
 
-## 2026-08-03 至 2026-08-09：内容治理七窗口
+## 当前执行入口（2026-11-08）：内容优化下一阶段
 
-以下七个提示词必须按顺序进入七个独立窗口，不得同时执行：
+图谱后置。先按下列窗口执行；总计划：
+
+```text
+docs/roadmaps/2026-11-08-content-optimization-and-next-phase.md
+```
+
+```text
+W1  prompts/16-w1-f0-human-review.md
+W2  prompts/17-w2-f0-unarchive-allowlist.md
+W3  prompts/18-w3-published-surface-honesty.md
+W4  prompts/19-w4-f1-life-course-concepts.md
+W5  prompts/20-w5-teacher-identity-abstract-narrowing.md
+W6  prompts/21-w6-phase-closeout.md
+```
+
+执行规则：
+
+- 每个窗口先读 `AGENTS.md`、`CLAUDE.md`、总计划和两份内容标准。
+- W1 必须获得真人逐条决定；Agent 不得代审、不得解档。
+- W2 没有 W1 的书面 U3 授权就必须停止。
+- W1 阻塞时：停止 W2/W3；W4/W5 仍可做收窄（保持 archived）。
+- W4 与 W5 默认可与 W1 并行，但不得抢先 published。
+- W6 只选择一个下一包，不执行该包。
+- 研究、人审、corpus 实施、本地验证、commit、deployment 分开报告。
+- 本阶段不申请 AdSense、不换图谱库、不扩 Psychology/Management、不解档整科。
+
+写作与更新规范：
+
+```text
+docs/standards/content-writing-standard.md
+docs/standards/content-update-standard.md
+```
+
+## 2026-08-03 至 2026-08-09：内容治理七窗口（历史）
+
+以下七个提示词已完成其规划周期，**不再作为当前入口**。需要对照旧 claim ledger 时只读查阅，且仍须按原顺序理解依赖：
 
 ```text
 Day 1  prompts/09-day1-p0-source-risk-hardening-closure.md
