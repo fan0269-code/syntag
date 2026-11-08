@@ -27,7 +27,9 @@ test("theory metadata has a canonical URL, social image, and crawler directives"
   const robots = typeof metadata.robots === "object" ? metadata.robots : undefined;
 
   assert.match(String(metadata.title), /Life Course Theory/);
-  assert.ok((metadata.description?.length ?? 0) >= 150);
+  assert.match(String(metadata.description), /historical time, social ties, and life transitions/);
+  assert.doesNotMatch(String(metadata.description), /Explore this theoretical framework|Designed for rigorous research planning/);
+  assert.ok((metadata.description?.length ?? 0) > 0);
   assert.ok((metadata.description?.length ?? 0) <= 160);
   assert.equal(metadata.alternates?.canonical, "https://syrtag.com/theories/life-course-theory");
   assert.equal(socialImage?.width, 1200);
@@ -39,7 +41,14 @@ test("theory metadata has a canonical URL, social image, and crawler directives"
 
 test("home metadata and OG URLs resolve to Syrtag's production domain", () => {
   const metadata = generateHomeMeta();
+  const description = String(metadata.description);
   assert.equal(metadata.alternates?.canonical, "https://syrtag.com/");
+  assert.match(String(metadata.title), /Doctoral theory navigation \(education & sociology\)/);
+  assert.match(description, /Public pages appear only when published/);
+  assert.match(description, /catalog may be empty/);
+  assert.match(description, /education and sociology/i);
+  assert.doesNotMatch(description, /AdSense|Explore this|74 published|all disciplines/i);
+  assert.ok(description.length <= 160);
   assert.match(ogImageUrl("Life Course Theory", "Research guide"), /^https:\/\/syrtag\.com\/api\/og\?/);
 });
 

@@ -3,8 +3,8 @@ import { StaticPage } from "@/components/content/StaticPage";
 import { entityMetadata } from "@/lib/seo";
 
 export const metadata = entityMetadata({
-  title: "Privacy",
-  description: "What Syrtag does not collect, and the current advertising boundary.",
+  title: "Privacy — Measurement boundary | Syrtag",
+  description: "Syrtag does not use third-party behavioural analytics or tracking cookies. Advertising technology is not enabled. This page will be updated before that changes.",
   path: "/privacy",
   type: "website",
 });

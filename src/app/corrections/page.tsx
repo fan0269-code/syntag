@@ -18,6 +18,7 @@ export default function CorrectionsPage() {
     >
       <h2>Contact status</h2>
       <p>Syrtag does not currently publish or represent an email address or form as a monitored contact channel.</p>
+      <p>A registered entity or individual operator appears on the About page only when the owner fills those slots. Unfinished slots are not a legal name, and they are not a contact address.</p>
       <h2>Correction status</h2>
       <p>Syrtag does not currently operate a public correction-intake channel. Do not submit personal or sensitive information. A correction route will be published only after a monitored channel and data-handling process are established.</p>
       <h2>Response timeframe</h2>
@@ -32,11 +33,11 @@ export default function CorrectionsPage() {
       <dl className="owner-slots">
         <div>
           <dt>Contact channel</dt>
-          <dd><code>TODO_OWNER_CONTACT_CHANNEL</code> — not published and not monitored.</dd>
+          <dd>Not published and not monitored.</dd>
         </div>
         <div>
           <dt>Corrections process</dt>
-          <dd><code>TODO_OWNER_CORRECTIONS_PROCESS</code> — not established.</dd>
+          <dd>Not established.</dd>
         </div>
       </dl>
     </StaticPage>

@@ -110,7 +110,11 @@
 .catalog-empty { margin: 8px 0 32px; max-width: 68ch; }
 .catalog-empty h2 { font-size: 1.35rem; line-height: 1.3; margin: 0 0 10px; }
 .catalog-empty p { color: var(--text-secondary); line-height: 1.7; margin: 0 0 12px; }
+.entity-index.content-layout { max-width: var(--container-page); }
+.entity-index .entity-page__hero,
+.entity-index .catalog-empty { max-width: 68ch; }
 .entity-index .entity-page__hero > p + p { margin-top: 12px; }
+.static-page .entity-page__hero h1 { max-width: 22ch; }
 .home-reading { max-width: 72ch; }
 .home-reading__header h1 { font-size: clamp(2rem, 4vw, 2.75rem); line-height: 1.15; max-width: 22ch; }
 .site-reading-guide__links { display: flex; flex-wrap: wrap; gap: 8px 16px; }

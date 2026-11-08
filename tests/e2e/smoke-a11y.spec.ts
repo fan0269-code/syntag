@@ -20,7 +20,7 @@ const routeCases: readonly RouteCase[] = [
   {
     name: "home",
     path: "/",
-    h1: /Explore theory choices with source-aware guidance|Data temporarily unavailable|The knowledge graph is not published yet/i,
+    h1: /Syrtag is a source-aware map for doctoral research|Explore theory choices with source-aware guidance|Data temporarily unavailable|The knowledge graph is not published yet/i,
     dataDependent: true,
     primaryAction: { role: "link", name: /Start with a research question/i },
   },
@@ -82,7 +82,7 @@ async function hasUnavailableState(page: Page) {
 
 async function expectUnavailableState(page: Page) {
   await expect(page.getByRole("heading", { name: unavailableHeading }).first()).toBeVisible();
-  await expect(page.getByRole("link", { name: /Return to the knowledge graph|Browse research topics|Browse theories/i }).first()).toBeVisible();
+  await expect(page.getByRole("link", { name: /Return to the homepage|Browse research topics|Browse theories|About|Editorial policy/i }).first()).toBeVisible();
 }
 
 async function expectPrimaryAction(page: Page, route: RouteCase, unavailable: boolean) {

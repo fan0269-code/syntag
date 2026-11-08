@@ -10,6 +10,18 @@ import { SearchBox } from "@/components/search/SearchBox";
 import { SiteReadingGuide } from "@/components/content/SiteReadingGuide";
 import { generateHomeMeta } from "@/lib/seo";
 
+function ReadNext() {
+  return (
+    <nav className="home-catalog-links" aria-label="Read next">
+      <Link href="/about">About</Link>
+      <Link href="/editorial-policy">Editorial policy</Link>
+      <Link href="/privacy">Privacy</Link>
+      <Link href="/corrections">Contact and corrections</Link>
+      <Link href="/pricing">Pricing</Link>
+    </nav>
+  );
+}
+
 export const revalidate = 600;
 export const metadata = generateHomeMeta();
 
@@ -21,10 +33,12 @@ export default async function Home() {
   );
 
   if (state.kind === "unavailable" || state.kind === "empty") {
-    const title = state.kind === "empty" ? "The knowledge graph is not published yet" : "Data temporarily unavailable";
+    const title = state.kind === "empty"
+      ? "Syrtag is a source-aware map for doctoral research in education and sociology."
+      : "Data temporarily unavailable";
     const lead = state.kind === "empty"
-      ? "Syrtag is a source-aware guide for comparing research theories. This page explains the site while no published graph is available."
-      : "Syrtag could not load the catalog. You can still read what the site is and which pages describe its limits.";
+      ? "No published graph is available yet. Syrtag only shows records with status published after source-backed human review."
+      : "The catalog could not be loaded. This is an availability state, not a published finding.";
     return (
       <PageFrame mainClassName="home-main">
         <article className="home-reading">
@@ -33,6 +47,22 @@ export default async function Home() {
             <h1>{title}</h1>
             <p className="lead">{lead}</p>
           </header>
+          {state.kind === "empty" && (
+            <section>
+              <h2>Current publication status</h2>
+              <p>The knowledge graph is not published yet. An empty catalog means drafts, archived seed, and local demo data are withheld. It does not mean the literature does not exist.</p>
+              <p>While the public graph is empty, read About and Editorial policy for the education and sociology scope and the sourcing rules.</p>
+            </section>
+          )}
+          <div className="home-hero__search">
+            <SearchBox
+              mode="inline"
+              label="Search for a theory, scholar, concept, or research topic"
+              placeholder="Try a theory, scholar, concept, or research topic"
+            />
+          </div>
+          <h2>Read next</h2>
+          <ReadNext />
           <SiteReadingGuide mode={state.kind} />
         </article>
       </PageFrame>
@@ -65,7 +95,7 @@ export default async function Home() {
             </div>
           </div>
           <div className="home-hero__meta" aria-label="Graph summary">
-            <div><strong>{graph.meta.availableDisciplines?.length ?? 2}</strong><span>Discipline entrances</span></div>
+            <div><strong>{graph.meta.availableDisciplines?.length ?? "—"}</strong><span>Discipline entrances</span></div>
             <div><strong>Two-way</strong><span>Trace topics and theories in both directions</span></div>
             <div><strong>Sources</strong><span>Follow the evidence behind each pathway</span></div>
           </div>
