@@ -1,0 +1,5 @@
+Installed from https://github.com/heydamir/unslop
+Tree: https://github.com/heydamir/unslop/tree/main/skills/unslop
+Commit: a6f121eee5f29c2f74976b75456feae8b66afb3a
+License: CC BY 4.0
+Author: Damir Sokolovsky (https://x.com/heydamir)
