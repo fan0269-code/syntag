@@ -2,9 +2,13 @@
   "name": "syrtag",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": "22.x"
+  },
   "scripts": {
     "dev": "next dev",
-    "build": "next build && BUILD_OUTPUT_SMOKE_REQUIRED=1 node --experimental-strip-types --test tests/build-output-smoke.test.ts",
+    "build": "prisma generate && next build && BUILD_OUTPUT_SMOKE_REQUIRED=1 node --experimental-strip-types --test tests/build-output-smoke.test.ts",
+    "vercel-build": "node scripts/vercel-build.mjs && next build",
     "typecheck": "tsc --noEmit",
     "start": "next start",
     "lint": "eslint",
@@ -13,6 +17,7 @@
     "test:e2e": "playwright test",
     "content:check": "node --experimental-strip-types src/lib/content-onboarding.ts",
     "db:migrate": "npx prisma migrate dev",
+    "db:migrate:deploy": "prisma migrate deploy",
     "db:push": "npx prisma db push",
     "db:seed": "npx prisma db seed",
     "db:reset": "npx prisma migrate reset",

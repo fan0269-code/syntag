@@ -24,7 +24,9 @@ flowchart LR
 
 ## 2. 当前基线（必须在每轮开始前复核）
 
-2026-11-07 复核：FAN-247 之后，authored seed 中没有 `published` 实体（本工作树计数为 published 0 / draft 7 / archived 74）。下表里“12 个主理论已公开”和“线上 200”是 2026-07 的历史记录，不是本轮事实。广告保持关闭；`public/ads.txt` 与 `google-adsense-account` meta 已从公开信号中移除，以便与 Privacy「未启用广告」一致。生产源站可达性不在本轮修复范围内。旗舰学术页仍是未发布模板，未写入 seed。同日审计见 `docs/SITE_AUDIT_2026-11-07.md`：首页与 About 改为空目录叙事，描述不再追加关键词句。该审计不表示现网已更新，也不表示可以申请广告。
+2026-11-07 复核：FAN-247 之后，authored seed 中没有 `published` 实体（本工作树计数为 published 0 / draft 7 / archived 74）。下表里“12 个主理论已公开”和“线上 200”是 2026-07 的历史记录，不是本轮事实。广告保持关闭；`public/ads.txt` 与 `google-adsense-account` meta 已从公开信号中移除，以便与 Privacy「未启用广告」一致。旗舰学术页仍是未发布模板，未写入 seed。同日审计见 `docs/SITE_AUDIT_2026-11-07.md`：首页与 About 改为空目录叙事，描述不再追加关键词句。该审计不表示现网已更新，也不表示可以申请广告。
+
+2026-11-08：Owner 林文授权把生产托管从自建 SSH 改为 Vercel。仓库已去掉 push 到 `main` 时 SSH 到旧主机的 workflow。`https://syrtag.com` 仍要等 Vercel 项目、托管 Postgres、`prisma migrate deploy` 和 Cloudflare DNS 由林文在控制台完成，步骤见 `docs/deploy-vercel.md`。本变更不灌入公开内容，不开启广告，合并本身不表示现网已恢复。
 
 | 维度 | 当前事实 | 结论 |
 | --- | --- | --- |
@@ -37,7 +39,7 @@ flowchart LR
 | 内容阅读 | N4b 将正文稳定在 720px、行高 1.7，并为实体正文增加桌面 sticky / 移动折叠 TOC；来源改为脚注式，标题区显示深度与核验徽章。 | 代表理论页与通用实体页共用阅读基线，无新增依赖。 |
 | UI 与无障碍 | N27 已完成首页搜索、图谱键盘/触控等价路径、单树响应式 TOC、页面来源/核验范围、44px 控件、Next font、禁用广告空状态及 375/768/769/1024/1440 响应式修正。 | PR #6 已发布；Chromium Playwright + axe 20/20 通过，线上代表页无横向溢出、console/page error 或 first-party 4xx/5xx。 |
 | 工程门禁 | `typecheck`、`.next` 产物冒烟和 Chromium Playwright + axe 已纳入本地命令；E2E preflight 只验证新鲜生产构建，不隐式运行数据库或 build。 | 本地 `npm test` 114 项中 113 通过、0 失败、1 项既有构建后 skip；93/93 build、产物 smoke 1/1、E2E 20/20 通过。 |
-| 部署与回滚 | 部署保留上一 commit 的 `.next` 快照；本地存活检查失败会自动回滚，GitHub Actions 另做 3 次公网探测并在失败时远程回滚。回滚恢复旧 commit、依赖与 `.next` 后重启并健康检查；数据库迁移保持前向执行，因此生产迁移必须向后兼容旧应用快照。 | 批次 3C 仅完成本地源码与测试，未触发生产部署，不表示线上已更新。 |
+| 部署与回滚 | 生产部署改由 Vercel Git 集成负责。`.github/workflows/deploy-production.yml` 已删除，push 到 `main` 不再 SSH。`ops/deploy-production.sh` 与 `ops/rollback-production.sh` 默认拒绝执行。Vercel 回滚是在控制台 Promote 上一份 deployment。数据库迁移只向前，禁止 `db:reset`。 | 控制台、数据库和 DNS 仍要林文手动完成。合并 PR 本身不恢复现网。 |
 | 内容录入流 | `npm run content:check` 复用 `validateSeedCorpus()` 并增加批次规则：每个实体需有 slug、英文标题与可追溯来源，D3 需有 genealogy；不可核验或缺 D3 谱系者强制降为 draft 并从公开 static params 排除。 | 批次 3D 建立本地校验流，未扩展 Education/Sociology 之外的公开内容。 |
 | 信息架构 | `/theories`、`/scholars`、`/works`、`/concepts`、`/topics`、`/disciplines`、`/fields` 索引与详情路由均进入当前构建。 | Works、Concepts、四个既有 Scholar 页，以及主题、学科和领域页均已具备可浏览的内容路径；C8 验收其全站可达性。 |
 | 学科范围 | 内容事实源和公开静态参数仅覆盖 Education 与 Sociology。 | Psychology 与 Management 继续不进入本轮公开内容承诺。 |

@@ -1,0 +1,19 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "nextjs",
+  "buildCommand": "npm run vercel-build",
+  "redirects": [
+    {
+      "source": "/",
+      "has": [{ "type": "host", "value": "www.syrtag.com" }],
+      "destination": "https://syrtag.com",
+      "permanent": true
+    },
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "www.syrtag.com" }],
+      "destination": "https://syrtag.com/:path*",
+      "permanent": true
+    }
+  ]
+}

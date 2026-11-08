@@ -1,6 +1,13 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
+# Retired with the self-hosted deploy. Vercel rollback is a dashboard promotion.
+# See docs/deploy-vercel.md. This script refuses to run unless explicitly allowed.
+if [ "${SYRTAG_ALLOW_SELF_HOST_DEPLOY:-}" != "1" ]; then
+  echo "Retired: syrtag.com production hosting is Vercel. See docs/deploy-vercel.md." >&2
+  exit 1
+fi
+
 APP_DIR="/var/www/syrtag.com/app"
 BASE_DIR="/var/www/syrtag.com"
 BACKUP_DIR="${BASE_DIR}/backups"

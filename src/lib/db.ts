@@ -38,13 +38,39 @@ export function isDatabaseUnavailableError(error: unknown) {
     })();
 }
 
+type RuntimePoolConfig = {
+  connectionString: string;
+  max?: number;
+  idleTimeoutMillis?: number;
+  connectionTimeoutMillis?: number;
+  allowExitOnIdle?: boolean;
+};
+
+/** One connection per Vercel instance. Local processes keep the driver default pool. */
+export function prismaPoolConfig(
+  connectionString: string,
+  env: { VERCEL?: string } = { VERCEL: process.env.VERCEL },
+): RuntimePoolConfig {
+  if (env.VERCEL === "1") {
+    return {
+      connectionString,
+      max: 1,
+      idleTimeoutMillis: 5_000,
+      connectionTimeoutMillis: 10_000,
+      allowExitOnIdle: true,
+    };
+  }
+
+  return { connectionString };
+}
+
 export function createPrismaClient(connectionString = process.env.DATABASE_URL) {
   if (!connectionString) {
     return undefined;
   }
 
   return new PrismaClient({
-    adapter: new PrismaPg({ connectionString }),
+    adapter: new PrismaPg(prismaPoolConfig(connectionString)),
     log: process.env.NODE_ENV === "development" ? ["error"] : ["error"],
   });
 }
