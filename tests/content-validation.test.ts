@@ -486,13 +486,17 @@ test("Life Course R2 sources are wired into sources, reading path, and L1 verifi
     assert.ok(readingSourceIds.includes(sourceId), `${sourceId} appears in the reading path`);
     assert.ok(verifiedSourceIds.includes(sourceId), `${sourceId} has L1 verified page verification`);
   }
-  assert.equal(sourceIds.length, 9, "Life Course has nine sources");
-  assert.equal(readingSourceIds.length, 9, "Life Course has nine reading-path entries");
+  // F0 narrowing keeps abstract-backed primary sources + R2 bibliographic identities;
+  // Mayer/Alwin full-text rows stay out of the public source/reading lists until locators exist.
+  assert.equal(sourceIds.length, 7, "Life Course has seven sources after F0 abstract narrowing");
+  assert.equal(readingSourceIds.length, 7, "Life Course has seven reading-path entries after F0 abstract narrowing");
   assert.deepEqual(
     lifeCourse.content.en.reading_path?.map((entry) => entry.order),
-    [1, 2, 3, 4, 5, 6, 7, 8, 9],
+    [1, 2, 3, 4, 5, 6, 7],
     "Life Course reading-path orders are unique and sequential",
   );
+  assert.ok(!sourceIds.includes("mayer-2009-new-directions"), "Mayer remains omitted without full-text locator");
+  assert.ok(!sourceIds.includes("alwin-2012-life-course-concepts"), "Alwin remains omitted without full-text locator");
 });
 
 test("three flagship checks retain genealogy, fit boundaries, paths, operationalization, and sources", () => {
