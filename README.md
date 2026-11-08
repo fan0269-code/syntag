@@ -2,7 +2,7 @@
 
 Syrtag is a source-aware knowledge graph for doctoral research navigation. It helps a reader move from a research question to theories, scholars, works, concepts, and topics, then back to the sources behind those pages.
 
-The graph is a way to move between published pages. It does not replace a readable summary, a source list, or a verification date. Public routes show a record only when its status is `published`. Draft records, archived records, and the local development demo graph are not published scholarship.
+When records are published, the graph is a way to move between those pages. It does not replace a readable summary, a source list, or a verification date. Public routes show a record only when its status is `published`. Draft records, archived records, and the local development demo graph are not published scholarship.
 
 The intended public scope is education and sociology. Other disciplines are not offered as published coverage.
 
@@ -56,4 +56,4 @@ No advertising script is loaded. `AdSlot` stays off unless a caller passes `enab
 
 - It does not submit an AdSense application.
 - It does not deploy the site. Production hosting, including any origin outage, is an operator task.
-- It does not invent a legal entity, contact channel, or scholarly citation. Unpublished operator slots are marked `TODO_OWNER_*`. Source gaps for future flagship pages are marked `TODO_SOURCE` in `docs/content/2026-11-07-flagship-source-stubs.md`.
+- It does not invent a legal entity, contact channel, or scholarly citation. About and Corrections show unpublished operator slots as “Not published.” Source gaps for future flagship pages stay outside the seed corpus in `docs/content/2026-11-07-flagship-source-stubs.md` and must not be treated as articles.

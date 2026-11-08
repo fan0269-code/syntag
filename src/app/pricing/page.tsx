@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { StaticPage } from "@/components/content/StaticPage";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { absoluteUrl, entityMetadata } from "@/lib/seo";
@@ -60,6 +61,7 @@ export default function PricingPage() {
       </div>
       <h2>What stays open</h2>
       <p>Pages that Syrtag has published stay free to read, including trust pages and any entity page that passes the publication boundary. An empty catalog is still free to read. It is not a paid tier, and it is not a promise that entity pages already exist. Pro and Scholar cannot be purchased.</p>
+      <p>Advertising is off. See the <Link href="/privacy">privacy page</Link> and the <Link href="/about">about page</Link> for the advertising and publication boundaries.</p>
     </StaticPage>
   );
 }
