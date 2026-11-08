@@ -1,37 +1,34 @@
 @import "tailwindcss";
 
 /* ============================================
-   Syrtag Design Tokens
-   Warm Luminous Glass × Knowledge Graph
+   Syrtag design tokens
+   Warm paper, ink, one blue accent.
+   Chrome stays quiet. Color in the graph names a node or an edge.
    ============================================ */
 
 :root {
   color-scheme: light;
 
-  /* Background - Warm Luminous Glass */
+  /* Background — warm paper */
   --bg-page: #f4efe2;
   --bg-surface: #fffdf8;
   --bg-elevated: #fffdf8;
-  --bg-glass: rgba(255, 253, 248, 0.68);
-  --bg-glass-strong: rgba(255, 253, 248, 0.80);
-  --blur-glass: 18px;
 
-  /* Text - warm ink */
+  /* Text — three roles from one warm ink ramp */
   --text-primary: #2c2722;
   --text-secondary: #6b6256;
   --text-tertiary: #746a5d;
 
-  /* Accent */
+  /* Accent — used for links, the primary action, and the logo node */
   --accent-primary: #1a4d7f;
   --accent-on: #fffdf8;
   --accent-warm: #965900;
   --accent-subtle: rgba(26, 77, 127, 0.12);
 
-  /* Border */
-  --border-hair: rgba(44, 39, 34, 0.10);
-  --border-default: rgba(44, 39, 34, 0.16);
-  --border-visible: rgba(44, 39, 34, 0.16);
-  --border-glow: rgba(26, 77, 127, 0.22);
+  /* Hairlines — ink at 8% and 10% */
+  --border-hair: rgba(44, 39, 34, 0.08);
+  --border-default: rgba(44, 39, 34, 0.10);
+  --border-visible: rgba(44, 39, 34, 0.10);
 
   /* Semantic - Status and Fit */
   --status-success: #17784c;
@@ -101,17 +98,18 @@
   --focus-ring-width: 2px;
   --focus-ring-offset: 3px;
 
-  /* Radius */
-  --radius-card: 22px;
-  --radius-tag: 14px;
+  /* Radius — inner = outer − padding, never below 4 */
+  --radius-card: 16px;
+  --radius-control: 8px;
+  --radius-tag: 6px;
   --radius-pill: 999px;
 
-  /* Shadows */
-  --shadow-card: 0 12px 34px rgba(44, 39, 34, 0.08);
-  --shadow-elevated: 0 24px 70px rgba(44, 39, 34, 0.14);
+  /* Shadows — neutral, soft, small */
+  --shadow-card: 0 1px 2px rgba(44, 39, 34, 0.05);
+  --shadow-elevated: 0 8px 24px rgba(44, 39, 34, 0.06);
 
   /* Motion */
-  --motion-ease-standard: cubic-bezier(.2, .8, .2, 1);
+  --motion-ease-standard: cubic-bezier(0.22, 1, 0.36, 1);
   --motion-duration-fast: 160ms;
   --motion-duration-base: 220ms;
   --motion-duration-slow: 300ms;
@@ -125,10 +123,7 @@
    Base Styles
    ============================================ */
 body {
-  background:
-    radial-gradient(circle at 76% 12%, rgba(26, 77, 127, 0.12), transparent 30rem),
-    radial-gradient(circle at 16% 26%, rgba(150, 89, 0, 0.08), transparent 28rem),
-    var(--bg-page);
+  background: var(--bg-page);
   color: var(--text-primary);
   font-family: var(--font-body);
   font-size: var(--type-base);
@@ -140,7 +135,7 @@ body {
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-heading);
   line-height: var(--leading-tight);
-  font-weight: 600;
+  font-weight: 500;
 }
 
 h1 { font-size: clamp(32px, 5vw, 56px); }

@@ -7,21 +7,21 @@
 
 .search-box__inline-form {
   align-items: end;
-  background: rgba(255, 253, 248, .74);
+  background: var(--bg-page);
   border: 1px solid var(--border-default);
-  border-radius: var(--radius-tag);
+  border-radius: 12px;
   display: grid;
   gap: 8px;
   min-width: 0;
-  padding: 10px;
+  padding: 8px;
 }
 
 .search-box__label {
   color: var(--text-secondary);
   display: block;
   font-size: 12px;
-  font-weight: 600;
-  line-height: 1.35;
+  font-weight: 400;
+  line-height: 16px;
 }
 
 .search-box__inline-form input,
@@ -34,7 +34,7 @@
 .search-page .search-page__form input {
   background: var(--bg-surface);
   border: 1px solid var(--border-visible);
-  border-radius: 6px;
+  border-radius: 4px;
   color: var(--text-primary);
   min-width: 0;
   padding: 0 12px;
@@ -45,11 +45,12 @@
 .search-page .search-page__form button {
   background: var(--accent-primary);
   border: 1px solid var(--accent-primary);
-  border-radius: 6px;
+  border-radius: 4px;
   color: var(--accent-on);
   cursor: pointer;
   font: inherit;
-  font-weight: 650;
+  font-weight: 500;
+  transition: background-color 160ms var(--motion-ease-standard), transform 160ms var(--motion-ease-standard);
   min-height: var(--control-height);
   padding: 0 16px;
 }
@@ -57,14 +58,18 @@
 .search-box__inline-form:focus-within,
 .search-page .search-page__form:focus-within {
   border-color: var(--accent-primary);
-  box-shadow: 0 0 0 3px var(--accent-subtle);
+}
+
+.search-box__inline-form button:active,
+.search-page .search-page__form button:active {
+  transform: scale(0.98);
 }
 
 .search-page form {
   align-items: center;
   border: 1px solid var(--border-visible);
   display: flex;
-  margin-top: 26px;
+  margin-top: 24px;
   padding: 0 12px;
 }
 
@@ -74,7 +79,7 @@
   color: var(--accent-on);
   cursor: pointer;
   font: inherit;
-  font-weight: 600;
+  font-weight: 500;
   min-height: var(--control-height);
   padding: 0 12px;
 }
@@ -84,13 +89,14 @@
   display: grid;
   gap: 8px;
   margin-top: var(--space-6);
-  padding: 10px;
+  border-radius: 12px;
+  padding: 8px;
 }
 
 .search-page .search-page__form label {
   color: var(--text-secondary);
   font-size: var(--type-sm);
-  font-weight: 600;
+  font-weight: 400;
 }
 
 .search-page__prompt,
@@ -115,12 +121,12 @@
 
 .search-page__recovery-links {
   display: grid;
-  gap: 7px;
+  gap: 8px;
   list-style: none;
   padding-left: var(--space-4);
 }
 
-.search-group { margin: 38px 0; }
+.search-group { margin: 40px 0; }
 
 @media (min-width: 769px) {
   .search-box__inline-form,

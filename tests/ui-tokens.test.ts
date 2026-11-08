@@ -99,6 +99,27 @@ test("low fit text color keeps WCAG AA contrast on warm surfaces", () => {
   assert.ok(contrastRatio(fitLow, bgPage) >= 4.5, "--fit-low must be AA on --bg-page");
 });
 
+test("shared chrome stays on warm paper with quiet type and no glass", () => {
+  assert.equal(tokenValue("--bg-page"), "#f4efe2");
+  assert.equal(tokenValue("--bg-surface"), "#fffdf8");
+  assert.equal(tokenValue("--text-primary"), "#2c2722");
+  assert.equal(tokenValue("--accent-primary"), "#1a4d7f");
+  assert.equal(tokenValue("--radius-card"), "16px");
+  assert.equal(tokenValue("--radius-control"), "8px");
+  assert.equal(tokenValue("--radius-tag"), "6px");
+  assert.match(styles, /--motion-ease-standard:\s*cubic-bezier\(0\.22,\s*1,\s*0\.36,\s*1\)/);
+  assert.match(styles, /h1,\s*h2,\s*h3,\s*h4,\s*h5,\s*h6\s*\{[\s\S]*?font-weight:\s*500/);
+  assert.doesNotMatch(styles, /backdrop-filter/);
+  assert.doesNotMatch(styles, /radial-gradient/);
+  assert.doesNotMatch(styles, /--border-glow/);
+  assert.doesNotMatch(styles, /--bg-glass/);
+  assert.doesNotMatch(styles, /text-transform:\s*uppercase/);
+  assert.doesNotMatch(styles, /font-weight:\s*(65|68|7|8|9)\d*/);
+  assert.ok(contrastRatio("#fffdf8", "#1a4d7f") >= 4.5, "text on the accent must be AA");
+  assert.ok(contrastRatio("#746a5d", "#f4efe2") >= 4.5, "muted text must be AA on the page");
+  assert.ok(contrastRatio("#746a5d", "#fffdf8") >= 4.5, "muted text must be AA on a card");
+});
+
 test("fonts are self-hosted through next/font rather than CSS Google imports", () => {
   assert.doesNotMatch(styles, /@import\s+url\(["']?https:\/\/fonts\.googleapis\.com/i);
   assert.doesNotMatch(styles, /fonts\.gstatic\.com/i);
