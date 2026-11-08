@@ -1,7 +1,7 @@
 # Flagship source stubs
 
 > Status: not in the seed corpus. Not published. Not a scholarly article.
-> Date: 2026-11-07
+> Date: 2026-11-07；2026-11-08 增补 F0 候选身份
 > Boundary: FAN-247 remains in force. Do not flip archived or draft seed records to `published` to fill these slots.
 
 These stubs name the pages an operator would need before treating the public catalog as reviewable reading. They contain no academic claims. Every substantive sentence is `TODO_SOURCE` until a primary or authoritative source, a locator, and a verification date exist.
@@ -70,9 +70,9 @@ These are a review queue, not pages and not seed rows. Do not publish one until 
 
 | Direction | Example question | Status |
 | --- | --- | --- |
-| Teacher identity and professional learning | What theoretical frameworks are used to study teacher identity? | Not publish until sources |
+| Teacher identity and professional learning | What theoretical frameworks are used to study teacher identity? | F2 候选：`teacher-identity-theory` 仍 archived。先走 `prompts/20-w5-teacher-identity-abstract-narrowing.md`，不解档。 |
 | Communities of practice and situated learning | How does communities of practice relate to workplace learning research? | Not publish until sources |
-| Life course and sociology of education | How do life-course perspectives frame educational inequality questions? | Not publish until sources. A prior Life Course batch is not a published page. |
+| Life course and sociology of education | How do life-course perspectives frame educational inequality questions? | F0 候选身份（仍 unpublished）：topic `educational-transitions-over-time`；theory `life-course-theory`；scholar `glen-h-elder-jr`；work `elder-1998-life-course`。摘要收窄见 PR #18；人审与解档见 `prompts/16` 与 `prompts/17`。拷贝 archived 正文不等于发表。 |
 | Education policy and agenda setting | Which agenda-setting or policy theories fit an education-policy question? | Not publish until sources. Do not un-archive a record to fill this row. |
 
 ## Deep topic template
