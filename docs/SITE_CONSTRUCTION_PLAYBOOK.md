@@ -30,6 +30,8 @@ flowchart LR
 
 2026-11-08（P0 信任文案）：林文批准开工，旗舰范围定为 N=8（缺口表 #1–#8；#9 延后），但本轮只改首页、信任页和七个索引的诚实空态。不把 P1 实体写入 seed，不把任何记录改为 `published`。广告保持关闭。`https://syrtag.com` 与 `www` 仍是 HTTP 521，合并不等于线上可检。About 的法定名称、角色和辖区仍是未填写槽位，公开页写 “Not published.”，不编造主体。
 
+2026-11-08（界面去模板化）：共享版式改为安静的暖纸与墨色，去掉玻璃模糊、色块光晕和全大写字距标签。诚实空态、信任文案、`Not published.` 和广告关闭保持不变。不灌入旗舰实体。合并不等于现网恢复，生产域仍是 HTTP 521。技能副本在 `.cursor/skills/unslop/`，署名 Damir Sokolovsky / https://github.com/heydamir/unslop （CC BY 4.0）。
+
 | 维度 | 当前事实 | 结论 |
 | --- | --- | --- |
 | 前端 | 首页、静态说明页、七类实体索引与详情路由、图谱组件和 SEO 基础均已存在；C7 后本地构建生成 92 个页面。 | 具备进入全站内容质量与发布验收的页面骨架。 |
@@ -225,3 +227,4 @@ R4 已完成 corpus 接入、核验日期持久化与本地完整发布门禁；
 | N33 | Life Course R4 生产发布候选 | 补齐 L1 `verifiedAt` seed 合同与按记录持久化；3 条 R2 source 仍只扩充既有 Life Course 页面，不新增实体、路由、sitemap 或发布状态。用户已授权 PR、合并和 deploy。 | 本机非生产 DB migration in sync，连续两次 seed 与数据库集成回归通过；typecheck、Node 测试 123 通过/1 项按设计留给 build、全仓 lint、content check、生产 build + smoke 1/1 和 Chromium 36/36 均通过。PR、Actions 和公网探针待本提交合并后完成，当前不声明已上线。 | 2026-07-22 |
 | N34 | 广告关闭时的披露一致性 | 在广告脚本保持未加载、`AdSlot` 默认关闭的前提下，移除公开 `ads.txt` 与 `google-adsense-account` meta。Privacy 继续声明未启用广告技术，并写明这两项信号在广告关闭时不发布。不把该选择写成“已申请”或“即将投放”。About 只增加未填写的 `TODO_OWNER_*` 槽位。FAN-247 归档不解除；旗舰页以 `TODO_SOURCE` 留在 `docs/content/2026-11-07-flagship-source-stubs.md`，不进 seed。 | 选择移除过早所有权信号，而不是改写 Privacy 去描述尚未发生的验证或未来广告。生产 521、运营者真实身份、以及有来源的旗舰页仍未解决。本决策不授权 deploy 或 AdSense 申请。 | 2026-11-07 |
 | N35 | 空目录叙事与描述去堆砌 | 公开标题和描述以教育/社会学、published 才出现、目录可以为空、广告关闭为准。`createSeoDescription` 不再为凑长度追加第二句关键词。首页空状态提供搜索和目录链接。检索失败不再指向不存在的 `#graph`。导航补上 disciplines 与 fields，并在 1100px 收进菜单。About 与 corrections 公开文案写 “Not published”，不把槽位代号印进 HTML。不新增 published 实体，不恢复 ads 信号。 | 本轮只改仓内页面与文档。2026-11-07 探测 `https://syrtag.com` 与 `www` 仍为 HTTP 521。语料计数 published 0 / draft 7 / archived 74。深度专题只加未发布模板。不授权合并、部署或广告申请。 | 2026-11-07 |
+| N36 | 共享界面去模板化 | 保留暖纸、墨色、衬线标题和蓝色强调。去掉玻璃模糊、背景色晕、字标光环、全大写宽字距标签和过重字重。图谱节点色仍表示类型。空态与信任文案不改，不发布实体，不开广告。 | 见 `docs/roadmaps/2026-11-08-unslop-ui-chrome.md`。合并不恢复 `syrtag.com`。 | 2026-11-08 |

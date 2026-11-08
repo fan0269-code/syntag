@@ -11,7 +11,7 @@ Use the tokens and components already in the app. Do not introduce a second visu
 
 - Warm paper background, ink text, and one blue accent. Tokens live in `src/app/globals.css` (`--bg-page`, `--text-primary`, `--accent-primary`, `--control-height`).
 - Headings use the serif display font. Body uses the sans font loaded in `src/app/layout.tsx`.
-- Surfaces are quiet: hairline borders, soft cards, no neon graph chrome on reading pages.
+- Surfaces are quiet: warm paper, hairline borders, soft cards. No glass blur, hue washes, glowing marks, or neon graph chrome on reading pages. The blue accent marks links, the primary action, and the flat node beside the wordmark.
 - Advertising UI stays invisible while ads are off. Do not design ad placeholders into a page.
 
 ## Layout
