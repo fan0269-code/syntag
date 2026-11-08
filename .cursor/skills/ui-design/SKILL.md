@@ -18,14 +18,14 @@ Use the tokens and components already in the app. Do not introduce a second visu
 
 - Reading prose stays near 68 characters. Theory and trust pages use the article column.
 - Catalog indexes may use the wider page container so cards can sit in a row. The introductory paragraph still stays narrow.
-- The primary header lists real routes only: topics, theories, scholars, works, concepts, disciplines, fields, about, pricing, and search. Collapse that list into the menu once it no longer fits (currently 1100px).
+- The primary header is Browse (entity indexes), About, and Search. Pricing lives in the footer until a plan can be purchased. Collapse Browse into the menu at 768px.
 - Framework Builder is planned and `noindex`. Do not add it to the primary navigation.
 - Controls that a person taps use at least `--control-height` (44px), including icon buttons, search submits, and retry buttons.
 - Keep a skip link to `#main-content` and a visible `:focus-visible` ring.
 
 ## States
 
-- Empty, unavailable, and not-found states say what happened and offer a real next link: search, a catalog index, the homepage, or About.
+- Empty, unavailable, and not-found states use the same left-aligned reading column. They say what happened and offer a real next link: search, a catalog index, the homepage, or About.
 - Do not label a recovery link as a knowledge graph unless that graph is on the page.
 - The development demo graph is labeled as demo data. Production empty and unavailable states never show it.
 - An empty catalog is a publication-status message. It is not an error banner and not a teaser for unpublished articles.

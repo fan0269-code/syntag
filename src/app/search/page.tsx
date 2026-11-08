@@ -58,7 +58,7 @@ export default async function SearchPage({ searchParams }: PageProps<"/search">)
           </section>
         )}
         {unavailable ? (
-          <section className="route-error" role="status">
+          <section className="route-notice" role="status">
             <p>Your query is still in the search box. Try again shortly, or open a catalog. This is an availability state, not a published result.</p>
             <p><Link href="/">Return to the homepage</Link> · <Link href="/topics">Browse research topics</Link> · <Link href="/about">About Syrtag</Link></p>
           </section>

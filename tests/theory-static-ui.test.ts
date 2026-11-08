@@ -84,7 +84,7 @@ test("StaticPage supports an optional hierarchy and Pricing describes only curre
 test("brand copy promises source-aware exploration rather than dissertation readiness", () => {
   const source = brandPromiseSources();
 
-  assert.match(source, /Explore theory choices with source-aware guidance/);
+  assert.match(source, /Map a doctoral theory choice in education and sociology/);
   assert.match(source, /bounded/i);
   assert.doesNotMatch(source, /Make a defensible theory choice|dissertation-ready framework/i);
 });

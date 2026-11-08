@@ -55,7 +55,8 @@ test("canvas opens details on a tap rather than pointerdown and stops continuous
   assert.match(canvas, /if \(active\?\.kind !== "node" \|\| active\.moved \|\| !active\.nodeId\) return;/);
   assert.match(canvas, /if \(node\?\.id === active\.nodeId\) selectNode\(node\)/);
   assert.match(canvas, /window\.matchMedia\("\(prefers-reduced-motion: reduce\)"\)/);
-  assert.match(canvas, /const floatY = reducedMotion \? 0/);
-  assert.match(canvas, /context\.lineDashOffset = reducedMotion \? 0/);
-  assert.match(canvas, /if \(!reducedMotion\) animationFrame = window\.requestAnimationFrame\(draw\)/);
+  assert.match(canvas, /graph-canvas__stage/);
+  assert.match(canvas, /window\.requestAnimationFrame\(draw\)/);
+  assert.doesNotMatch(canvas, /floatY/);
+  assert.doesNotMatch(canvas, /lineDashOffset/);
 });

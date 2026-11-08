@@ -10,20 +10,11 @@ import { SearchBox } from "@/components/search/SearchBox";
 import { SiteReadingGuide } from "@/components/content/SiteReadingGuide";
 import { generateHomeMeta } from "@/lib/seo";
 
-function ReadNext() {
-  return (
-    <nav className="home-catalog-links" aria-label="Read next">
-      <Link href="/about">About</Link>
-      <Link href="/editorial-policy">Editorial policy</Link>
-      <Link href="/privacy">Privacy</Link>
-      <Link href="/corrections">Contact and corrections</Link>
-      <Link href="/pricing">Pricing</Link>
-    </nav>
-  );
-}
-
 export const revalidate = 600;
 export const metadata = generateHomeMeta();
+
+const searchLabel = "Search published theories, scholars, and topics";
+const searchPlaceholder = "Theory, scholar, or topic";
 
 export default async function Home() {
   const state = await resolveHomeGraph(
@@ -43,7 +34,7 @@ export default async function Home() {
       <PageFrame mainClassName="home-main">
         <article className="home-reading">
           <header className="home-reading__header" role="status">
-            <span className="eyebrow">Education and sociology</span>
+            <span className="eyebrow">Publication status</span>
             <h1>{title}</h1>
             <p className="lead">{lead}</p>
           </header>
@@ -59,12 +50,10 @@ export default async function Home() {
           <div className="home-hero__search">
             <SearchBox
               mode="inline"
-              label="Search for a theory, scholar, concept, or research topic"
-              placeholder="Try a theory, scholar, concept, or research topic"
+              label={searchLabel}
+              placeholder={searchPlaceholder}
             />
           </div>
-          <h2>Read next</h2>
-          <ReadNext />
           <SiteReadingGuide mode={state.kind} />
         </article>
       </PageFrame>
@@ -76,37 +65,31 @@ export default async function Home() {
 
   return (
     <PageFrame mainClassName="home-main">
-      {isDemo && <p className="route-error" role="status">Demo graph: local development sample data only. It is not published content.</p>}
+      {isDemo && <p className="home-demo-note" role="status">Demo graph: local development sample data only. It is not published content.</p>}
       {!isDemo && <JsonLdGraph items={graph.nodes.map((node) => ({ name: node.label, href: node.data?.articleHref ?? (node.data?.slug && isEntityType(node.type) ? entityDetailHref(node.type, node.data.slug) : undefined), description: node.data?.summary }))} />}
       <section className="home-hero" aria-label="Syrtag theory pathways">
         <header className="home-hero__intro">
           <div>
             <span className="eyebrow">Research theory pathways</span>
-            <h1>Explore theory choices with source-aware guidance.</h1>
-            <p className="lead">Start with a research question, explore connected theories, and follow the sources behind each pathway.</p>
+            <h1>Map a doctoral theory choice in education and sociology.</h1>
+            <p className="lead">Compare connected theories, then open the sources behind each path.</p>
             <div className="home-hero__search">
               <SearchBox
                 mode="inline"
-                label="Search for a theory, scholar, concept, or research topic"
-                placeholder="Try a theory, scholar, concept, or research topic"
+                label={searchLabel}
+                placeholder={searchPlaceholder}
               />
             </div>
             <div className="home-hero__actions">
-              <Link className="btn btn-primary" href="/topics">Start with a research question</Link>
               <Link className="btn" href="#graph">Explore the theory graph</Link>
             </div>
-          </div>
-          <div className="home-hero__meta" aria-label="Graph summary">
-            <div><strong>{graph.meta.availableDisciplines?.length ?? "—"}</strong><span>Discipline entrances</span></div>
-            <div><strong>Two-way</strong><span>Trace topics and theories in both directions</span></div>
-            <div><strong>Sources</strong><span>Follow the evidence behind each pathway</span></div>
           </div>
         </header>
         <section id="graph" tabIndex={-1} aria-label="Interactive theory graph" className="home-graph-shell">
           <div className="home-graph-card__toolbar">
             <div>
-              <h2>Explore the theory graph</h2>
-              <p>Choose a discipline and explore relationships among research topics, theories, scholars, works, and concepts.</p>
+              <h2>Theory graph</h2>
+              <p>Education genealogy from published or demo records. Open a node for its summary, then follow the linked page.</p>
             </div>
             <div className="home-graph-card__status">{graph.meta.nodeCount} nodes · {graph.meta.edgeCount} relationships</div>
           </div>

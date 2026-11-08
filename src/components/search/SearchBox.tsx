@@ -7,8 +7,8 @@ export type SearchBoxProps = {
 };
 
 export function SearchBox({
-  label = "Search Syrtag",
-  placeholder = "e.g. teacher identity",
+  label = "Search published theories, scholars, and topics",
+  placeholder = "Theory, scholar, or topic",
 }: SearchBoxProps) {
   const reactId = useId();
   const inputId = `${reactId}-search-query`;

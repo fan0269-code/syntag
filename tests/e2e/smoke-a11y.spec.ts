@@ -20,9 +20,9 @@ const routeCases: readonly RouteCase[] = [
   {
     name: "home",
     path: "/",
-    h1: /Syrtag is a source-aware map for doctoral research|Explore theory choices with source-aware guidance|Data temporarily unavailable|The knowledge graph is not published yet/i,
+    h1: /Syrtag is a source-aware map for doctoral research|Map a doctoral theory choice in education and sociology|Data temporarily unavailable|The knowledge graph is not published yet/i,
     dataDependent: true,
-    primaryAction: { role: "link", name: /Start with a research question/i },
+    primaryAction: { role: "link", name: /Explore the theory graph|About|Editorial policy/i },
   },
   {
     name: "search",
@@ -119,7 +119,7 @@ async function gotoHomeOrUnavailable(page: Page) {
     return "unavailable" as const;
   }
 
-  await expect(page.getByRole("heading", { level: 1, name: /Explore theory choices with source-aware guidance/i })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: /Map a doctoral theory choice in education and sociology/i })).toBeVisible();
   return "ready" as const;
 }
 
@@ -169,7 +169,7 @@ test("home inline search submits to the search route", async ({ page, baseURL })
     return;
   }
 
-  await page.getByLabel(/Search for a theory, scholar, concept, or research topic/i).fill("teacher identity");
+  await page.getByLabel(/Search published theories, scholars, and topics/i).fill("teacher identity");
   await Promise.all([
     page.waitForURL(/\/search\?q=teacher\+identity|\/search\?q=teacher%20identity/),
     page.getByRole("button", { name: /^Search$/i }).click(),

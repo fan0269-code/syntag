@@ -15,8 +15,8 @@ const plans = [
   {
     name: "Free",
     availability: "Available now",
-    access: "No account or payment required",
-    details: "Search, trust pages, and any catalog page that is actually published",
+    access: "No account or payment required.",
+    details: "Search, trust pages, and any catalog page that is actually published.",
   },
   {
     name: "Pro",
@@ -48,16 +48,14 @@ export default function PricingPage() {
         url: absoluteUrl("/pricing"),
         isPartOf: { "@type": "WebSite", name: "Syrtag", url: absoluteUrl("/") },
       }} />
-      <div className="responsive-table pricing-table" aria-label="Syrtag access status">
+      <ul className="access-list" aria-label="Syrtag access status">
         {plans.map((plan) => (
-          <article key={plan.name}>
+          <li key={plan.name}>
             <strong>{plan.name}</strong>
-            <span><b>Status</b>{plan.availability}</span>
-            <span><b>Access</b>{plan.access}</span>
-            <span><b>Details</b>{plan.details}</span>
-          </article>
+            <span>{plan.availability}. {plan.access} {plan.details}</span>
+          </li>
         ))}
-      </div>
+      </ul>
       <h2>What stays open</h2>
       <p>Pages that Syrtag has published stay free to read, including trust pages and any entity page that passes the publication boundary. An empty catalog is still free to read. It is not a paid tier, and it is not a promise that entity pages already exist. Pro and Scholar cannot be purchased.</p>
     </StaticPage>

@@ -38,7 +38,7 @@ flowchart LR
 | 内容 | `src/data/seed-content.ts` 是唯一 production manifest，当前公开范围仍为 Education 与 Sociology 的 12 个主理论（D3×2、D2×4、D1×6）。R4 已在当前工作树把 R3 的 3 条 Life Course R2 L1 source 接入 `lifeCourseContent.sources`、reading path 和页面 verification，并完成本地发布门禁。 | 既有公开内容边界不变；目前只能确认本地发布候选通过，PR、生产部署和公网验证完成前不声称已上线。 |
 | 数据库 | Prisma schema、迁移与幂等 seed 已存在；当前本机非生产数据库已完成 migration、连续两次 seed 和持久化日期集成核验。生产数据库状态须由本次 production workflow 与公网探针验证。 | 本地数据链路已验证，不能据此提前宣称生产数据已同步。 |
 | 图谱与搜索 | 真实数据、不可用状态、图谱与搜索的自动化测试在当前本地测试集内通过。 | C1 不扩大图谱/搜索范围；完整浏览器验收留给 C8。 |
-| 图谱渲染 | `GraphCanvas` 使用原生 2D Canvas 与 `requestAnimationFrame` 自绘，依赖中无 React Flow/Sigma.js；N22 已回写该有意决策。 | 批次 3A 仅对齐文档与现实，未改渲染代码。 |
+| 图谱渲染 | `GraphCanvas` 的可见图是 SVG 墨线；透明 canvas 仍作指针/键盘命中层，并在舞台尺寸就绪后静帧 `clearRect`。依赖中无 React Flow/Sigma.js；N22/N38。 | N38 把可见绘制从易被清空的 2D 位图改为纸面 SVG，不引入图库。 |
 | 图谱交互 | N4a 已增加相邻边加粗、邻居高亮与无关节点 30% 淡化；点击改为轻量详情卡，12 节点布局收紧，移动端以图谱上方折叠控制条暴露三种模式。 | 空图和错误状态复用 `DataUnavailableState`；生产 demo 边界保持不变。 |
 | 内容阅读 | N4b 将正文稳定在 720px、行高 1.7，并为实体正文增加桌面 sticky / 移动折叠 TOC；来源改为脚注式，标题区显示深度与核验徽章。 | 代表理论页与通用实体页共用阅读基线，无新增依赖。 |
 | UI 与无障碍 | N27 已完成首页搜索、图谱键盘/触控等价路径、单树响应式 TOC、页面来源/核验范围、44px 控件、Next font、禁用广告空状态及 375/768/769/1024/1440 响应式修正。 | PR #6 已发布；Chromium Playwright + axe 20/20 通过，线上代表页无横向溢出、console/page error 或 first-party 4xx/5xx。 |
@@ -228,3 +228,4 @@ R4 已完成 corpus 接入、核验日期持久化与本地完整发布门禁；
 | N34 | 广告关闭时的披露一致性 | 在广告脚本保持未加载、`AdSlot` 默认关闭的前提下，移除公开 `ads.txt` 与 `google-adsense-account` meta。Privacy 继续声明未启用广告技术，并写明这两项信号在广告关闭时不发布。不把该选择写成“已申请”或“即将投放”。About 只增加未填写的 `TODO_OWNER_*` 槽位。FAN-247 归档不解除；旗舰页以 `TODO_SOURCE` 留在 `docs/content/2026-11-07-flagship-source-stubs.md`，不进 seed。 | 选择移除过早所有权信号，而不是改写 Privacy 去描述尚未发生的验证或未来广告。生产 521、运营者真实身份、以及有来源的旗舰页仍未解决。本决策不授权 deploy 或 AdSense 申请。 | 2026-11-07 |
 | N35 | 空目录叙事与描述去堆砌 | 公开标题和描述以教育/社会学、published 才出现、目录可以为空、广告关闭为准。`createSeoDescription` 不再为凑长度追加第二句关键词。首页空状态提供搜索和目录链接。检索失败不再指向不存在的 `#graph`。导航补上 disciplines 与 fields，并在 1100px 收进菜单。About 与 corrections 公开文案写 “Not published”，不把槽位代号印进 HTML。不新增 published 实体，不恢复 ads 信号。 | 本轮只改仓内页面与文档。2026-11-07 探测 `https://syrtag.com` 与 `www` 仍为 HTTP 521。语料计数 published 0 / draft 7 / archived 74。深度专题只加未发布模板。不授权合并、部署或广告申请。 | 2026-11-07 |
 | N36 | 共享界面去模板化 | 保留暖纸、墨色、衬线标题和蓝色强调。去掉玻璃模糊、背景色晕、字标光环、全大写宽字距标签和过重字重。图谱节点色仍表示类型。空态与信任文案不改，不发布实体，不开广告。 | 见 `docs/roadmaps/2026-11-08-unslop-ui-chrome.md`。合并不恢复 `syrtag.com`。 | 2026-11-08 |
+| N38 | UI polish（去玻璃、收导航） | 在 N36 纸面基线上收导航：Browse + About + Search，Pricing 只留页脚。空/不可用/404 共用左对齐阅读栏。图谱舞台用 SVG 画节点和边；canvas 只作命中层并静帧 clearRect。不发布内容、不开广告、不部署。 | 见本 PR 的 lint、typecheck、Node 测试与本地 1440/375 截图。 | 2026-11-08 |
