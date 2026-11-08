@@ -19,6 +19,10 @@ Advertising is off. This repository does not claim that Google AdSense has appro
 - Tailwind CSS 4
 - Node tests (`node:test`) and Chromium Playwright checks
 
+## Production hosting
+
+Production is intended to run on Vercel. The cutover steps, environment variables, and database migration command are in [`docs/deploy-vercel.md`](docs/deploy-vercel.md). Connecting the repository does not create a database or change Cloudflare DNS. `https://syrtag.com` stays on the current origin until those console steps are done.
+
 ## Run locally
 
 Copy environment variables into an untracked `.env`. Local database commands need `DATABASE_URL`. Do not commit credentials.
@@ -55,5 +59,5 @@ No advertising script is loaded. `AdSlot` stays off unless a caller passes `enab
 ## What this repository does not do
 
 - It does not submit an AdSense application.
-- It does not deploy the site. Production hosting, including any origin outage, is an operator task.
+- It does not create the Vercel project, the Postgres database, or DNS records. Those steps are an operator task, written in `docs/deploy-vercel.md`.
 - It does not invent a legal entity, contact channel, or scholarly citation. Unpublished operator slots are marked `TODO_OWNER_*`. Source gaps for future flagship pages are marked `TODO_SOURCE` in `docs/content/2026-11-07-flagship-source-stubs.md`.

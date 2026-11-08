@@ -8,6 +8,8 @@ export default defineConfig({
     seed: "node --experimental-strip-types prisma/seed.ts",
   },
   datasource: {
-    url: process.env.DATABASE_URL,
+    // CLI migrations need a direct connection. The Next.js runtime uses
+    // DATABASE_URL (pooled on Vercel) through the driver adapter in src/lib/db.ts.
+    url: process.env.DIRECT_URL || process.env.DATABASE_URL,
   },
 });
