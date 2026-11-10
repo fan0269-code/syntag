@@ -32,6 +32,8 @@ flowchart LR
 
 2026-11-08（界面去模板化）：共享版式改为安静的暖纸与墨色，去掉玻璃模糊、色块光晕和全大写字距标签。诚实空态、信任文案、`Not published.` 和广告关闭保持不变。不灌入旗舰实体。合并不等于现网恢复，生产域仍是 HTTP 521。技能副本在 `.cursor/skills/unslop/`，署名 Damir Sokolovsky / https://github.com/heydamir/unslop （CC BY 4.0）。
 
+2026-11-10（P1 旗舰草稿）：缺口表 #1–#8 已写入 `src/data/corpus/content-batches/2026-11-10-p1-flagship-drafts.ts`，状态全部为 `draft`。公开 `published` 仍为 0。#9 未写。未运行 seed，未把任何记录改为 `published`。广告保持关闭。这批草稿不是已发布内容，合并不等于可申广告。
+
 | 维度 | 当前事实 | 结论 |
 | --- | --- | --- |
 | 前端 | 首页、静态说明页、七类实体索引与详情路由、图谱组件和 SEO 基础均已存在；C7 后本地构建生成 92 个页面。 | 具备进入全站内容质量与发布验收的页面骨架。 |

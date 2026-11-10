@@ -1,7 +1,8 @@
 # Flagship source stubs
 
-> Status: not in the seed corpus. Not published. Not a scholarly article.
+> Status: the empty slots below are not pages. Not published. Not a scholarly article.
 > Date: 2026-11-07
+> 2026-11-10: gap-table items #1–#8 now have draft corpus rows in `src/data/corpus/content-batches/2026-11-10-p1-flagship-drafts.ts`. Those rows stay `draft`. Item #9 is not in that batch. This stub file is not those rows.
 > Boundary: FAN-247 remains in force. Do not flip archived or draft seed records to `published` to fill these slots.
 
 These stubs name the pages an operator would need before treating the public catalog as reviewable reading. They contain no academic claims. Every substantive sentence is `TODO_SOURCE` until a primary or authoritative source, a locator, and a verification date exist.

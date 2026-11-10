@@ -34,7 +34,7 @@ test("the seed corpus satisfies the structural content contract", () => {
         seedCorpus.theories.filter((theory) => theory.depth === depth).length,
       ]),
     ),
-    { D1: 6, D2: 4, D3: 2 },
+    { D1: 6, D2: 8, D3: 2 },
   );
   for (const theory of seedCorpus.theories) {
     for (const block of requiredTheoryBlocks(theory.depth)) {
@@ -558,7 +558,12 @@ test("the four D2 theories satisfy the C3 research-design contract", () => {
     "practice-theory-bourdieu",
     "social-capital-theory",
   ];
-  const d2Theories = seedCorpus.theories.filter((theory) => theory.depth === "D2");
+  const d2Theories = expected.map((slug) => {
+    const theory = seedCorpus.theories.find((entry) => entry.slug === slug);
+    assert.ok(theory, `${slug} remains in the historical D2 set`);
+    assert.equal(theory.depth, "D2");
+    return theory;
+  });
 
   assert.deepEqual(d2Theories.map((theory) => theory.slug), expected);
   for (const theory of d2Theories) {
@@ -628,7 +633,10 @@ test("the C5 works and concepts layer is source-complete, linked, and deduplicat
   const conceptSlugs = new Set(seedCorpus.concepts.map((concept) => concept.slug));
   const theorySlugs = new Set(seedCorpus.theories.map((theory) => theory.slug));
 
-  assert.equal(seedCorpus.works.length, 19, "the reviewed first batch publishes only the 19 source-complete work candidates");
+  const p1DraftWorkSlug = "beijaard-meijer-verloop-2004-reconsidering";
+  const historicalWorks = seedCorpus.works.filter((work) => work.slug !== p1DraftWorkSlug);
+  assert.equal(historicalWorks.length, 19, "the reviewed first batch still has its 19 source-complete work candidates");
+  assert.equal(seedCorpus.works.find((work) => work.slug === p1DraftWorkSlug)?.status, "draft");
   assert.ok(seedCorpus.concepts.length >= 20 && seedCorpus.concepts.length <= 24, "the first concept layer is deliberately deduplicated");
   assert.equal(workSlugs.size, seedCorpus.works.length, "work candidates have unique slugs");
   assert.equal(conceptSlugs.size, seedCorpus.concepts.length, "concept candidates have unique slugs");
@@ -645,13 +653,28 @@ test("the C5 works and concepts layer is source-complete, linked, and deduplicat
   }
 
   const relatedWorkSlugs = new Set(seedCorpus.concepts.flatMap((concept) => concept.content.en.related_works.map((entry) => entry.work_slug)));
-  assert.deepEqual(relatedWorkSlugs, workSlugs, "every published work has at least one non-duplicative concept relation");
+  const historicalWorkSlugs = new Set(historicalWorks.map((work) => work.slug));
+  assert.deepEqual(relatedWorkSlugs, historicalWorkSlugs, "every historical work has at least one non-duplicative concept relation");
   const relationalResourceAccess = seedCorpus.concepts.find((concept) => concept.slug === "relational-resource-access");
   assert.ok(relationalResourceAccess && isConceptContent(relationalResourceAccess.content.en));
   assert.deepEqual(new Set(relationalResourceAccess.content.en.theory_variations.map((entry) => entry.relationship)), new Set(["Coleman and Lin formulations", "Bourdieu tradition"]), "the shared social-capital concept distinguishes its traditions");
   assert.deepEqual(new Set(relationalResourceAccess.content.en.related_works.map((entry) => entry.relationship)), new Set(["Core source work", "Coleman formulation", "Bourdieu tradition source"]), "the shared social-capital concept retains source-work qualifiers");
 
-  assert.ok(new Set(seedCorpus.theoryWorks.map((entry) => entry.theorySlug)).size === 12, "every existing theory has at least one reviewed work relationship");
+  const historicalTheorySlugs = [
+    "life-course-theory",
+    "teacher-identity-theory",
+    "structuration-theory",
+    "communities-of-practice",
+    "practice-theory-bourdieu",
+    "social-capital-theory",
+    "teacher-professional-development-theory",
+    "teacher-life-history-research",
+    "educational-equity-theory",
+    "institutional-theory",
+    "street-level-bureaucracy",
+    "multiple-streams-framework",
+  ];
+  assert.ok(historicalTheorySlugs.every((slug) => seedCorpus.theoryWorks.some((entry) => entry.theorySlug === slug)), "every historical theory has at least one reviewed work relationship");
   assert.deepEqual(new Set(seedCorpus.theoryWorks.map((entry) => entry.workSlug)), workSlugs, "every work has a theory relationship");
   assert.equal(new Set(seedCorpus.theoryWorks.map((entry) => `${entry.theorySlug}:${entry.workSlug}`)).size, seedCorpus.theoryWorks.length, "theory-work relationships are unique");
   assert.ok(seedCorpus.theoryWorks.every((entry) => theorySlugs.has(entry.theorySlug) && workSlugs.has(entry.workSlug) && entry.sourceUrls.length > 0 && entry.evidenceNotesEn.trim()), "theory-work relationships are evidenced");
@@ -671,7 +694,7 @@ test("C5 detail routes render their audited content rather than generic placehol
 });
 
 test("the existing scholar pages satisfy the C6 evidence and attribution contract", () => {
-  const expectedSlugs = ["glen-h-elder-jr", "geert-kelchtermans", "anthony-giddens", "pierre-bourdieu", "jean-lave", "etienne-wenger", "michael-lipsky", "john-w-kingdon", "ivor-f-goodson", "christopher-day"];
+  const expectedSlugs = ["glen-h-elder-jr", "geert-kelchtermans", "anthony-giddens", "pierre-bourdieu", "jean-lave", "etienne-wenger", "michael-lipsky", "john-w-kingdon", "ivor-f-goodson", "christopher-day", "douwe-beijaard", "etienne-wenger-flagship", "glen-h-elder-jr-flagship"];
   const secondDraftSlugs = ["ivor-f-goodson", "christopher-day"];
   const theorySlugs = new Set(seedCorpus.theories.map((theory) => theory.slug));
   const workSlugs = new Set(seedCorpus.works.map((work) => work.slug));

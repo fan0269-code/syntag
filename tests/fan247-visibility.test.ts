@@ -61,7 +61,7 @@ test("FAN-247 targets do not include the existing U3 or draft boundaries", () =>
   );
 
   const drafts = Object.values(entityRecords).flat().filter((record) => record.status === "draft");
-  assert.equal(drafts.length, 7);
+  assert.equal(drafts.length, 15);
   assert.ok(drafts.every((record) => !targetSlugs.has(record.slug)));
   assert.ok(drafts.every((record) => record.publishedAt === undefined));
 });
