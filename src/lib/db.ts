@@ -46,11 +46,44 @@ type RuntimePoolConfig = {
   allowExitOnIdle?: boolean;
 };
 
-/** One connection per Vercel instance. Local processes keep the driver default pool. */
+type PoolEnv = {
+  VERCEL?: string;
+  NEXT_PHASE?: string;
+};
+
+/** Next.js sets this on the build process and copies it into the static worker. */
+const PRODUCTION_BUILD_PHASE = "phase-production-build";
+
+/**
+ * Default `experimental.staticGenerationMaxConcurrency` in Next.js 16.
+ * One worker renders this many pages at once. Entity routes also run
+ * `generateMetadata` and the page together, so a page can hold two clients.
+ */
+const BUILD_PAGE_CONCURRENCY = 8;
+
+/** One connection per Vercel isolate. The production build is one long-lived worker, not an isolate. */
 export function prismaPoolConfig(
   connectionString: string,
-  env: { VERCEL?: string } = { VERCEL: process.env.VERCEL },
+  env: PoolEnv = {
+    VERCEL: process.env.VERCEL,
+    NEXT_PHASE: process.env.NEXT_PHASE,
+  },
 ): RuntimePoolConfig {
+  // `pg` reports a full pool as "timeout exceeded when trying to connect".
+  // That is the checkout queue, not a failed TCP handshake. Vercel sets
+  // VERCEL=1 for `next build` as well as for serverless isolates. The static
+  // worker prerenders several published pages at once, so the isolate cap
+  // makes later checkouts wait out connectionTimeoutMillis and fail the export.
+  if (env.VERCEL === "1" && env.NEXT_PHASE === PRODUCTION_BUILD_PHASE) {
+    return {
+      connectionString,
+      max: BUILD_PAGE_CONCURRENCY * 2,
+      idleTimeoutMillis: 60_000,
+      connectionTimeoutMillis: 30_000,
+      allowExitOnIdle: false,
+    };
+  }
+
   if (env.VERCEL === "1") {
     return {
       connectionString,

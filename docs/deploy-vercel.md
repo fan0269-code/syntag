@@ -16,7 +16,7 @@ Syrtag is a Next.js 16 App Router application. Prisma 7 talks to PostgreSQL thro
 | Generate | Always, during that build, so the client exists even if install skips scripts |
 | Migrations | Not on each request. Optional during the Production build only when `PRISMA_MIGRATE_ON_BUILD=1` |
 | Seed | The Vercel build does not run `npm run db:seed` and does not run `db:reset` |
-| Pool | On Vercel (`VERCEL=1`) the runtime pool is `max: 1` |
+| Pool | On Vercel (`VERCEL=1`) each runtime isolate uses `max: 1`. `next build` is not an isolate: while `NEXT_PHASE=phase-production-build` the static worker uses a wider pool so concurrent prerender does not time out waiting for that single client |
 | `www` | `vercel.json` permanently redirects `www.syrtag.com` to `https://syrtag.com` |
 
 `npm run db:migrate` is `prisma migrate dev`. Use it only for local schema work. Production applies the migrations already in `prisma/migrations` with `npm run db:migrate:deploy` (`prisma migrate deploy`).
@@ -35,7 +35,7 @@ Set these in the Vercel project (Production, and Preview only where noted). Do n
 | `DIRECT_URL` | Production, and any environment that runs migrations | Yes when `DATABASE_URL` is pooled | Direct Postgres URL. `prisma.config.ts` prefers it for `prisma migrate deploy`. A transaction-mode pooler (Neon `-pooler`, PgBouncer) cannot apply migrations. |
 | `NEXT_PUBLIC_SITE_URL` | Production | Set to `https://syrtag.com` | Not read by application code today. Canonical URLs and `metadataBase` are fixed to `https://syrtag.com` in `src/lib/seo.ts` and `src/app/layout.tsx`. Set the variable so the project records that origin. Do not set a preview URL. |
 | `PRISMA_MIGRATE_ON_BUILD` | Production only | Optional | `1` runs `prisma migrate deploy` inside `scripts/vercel-build.mjs` before `next build`. Unset or `0` skips it. Never set it on Preview if Preview shares the production database. |
-| `VERCEL` | Set by Vercel | Automatic | Selects the one-connection pool. Do not set this locally. |
+| `VERCEL` | Set by Vercel | Automatic | Selects the one-connection runtime pool. During `next build`, `NEXT_PHASE=phase-production-build` selects the wider build pool instead. Do not set `VERCEL` locally. |
 
 Unused names that must stay unset: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`. Nothing under `src/` or `prisma/` reads them.
 
