@@ -9,7 +9,7 @@ import type { PathwayContent } from "../../templates/pathway-template.ts";
 import { createFirstEnrichmentBatch } from "../content-batches/2026-07-18-first-enrichment.ts";
 import { createGoodsonDayDraftScholarBatch } from "../content-batches/2026-07-19-goodson-day-draft-scholars.ts";
 import { createLifeCourseEvidenceR2Batch } from "../content-batches/2026-07-21-life-course-evidence-r2.ts";
-import { createP1FlagshipDraftBatch } from "../content-batches/2026-11-10-p1-flagship-drafts.ts";
+import { createP1FlagshipDraftBatch, P1_FLAGSHIP_DISCIPLINE_THEORIES } from "../content-batches/2026-11-10-p1-flagship-drafts.ts";
 import { isFAN247Archived, type FAN247VisibilityEntityType } from "../../../lib/fan247-visibility.ts";
 import { FAN_133_U3_ARCHIVED_CONCEPT_SLUGS, FAN_133_U3_ARCHIVED_WORK_SLUGS } from "../../../lib/u3-visibility.ts";
 
@@ -1266,6 +1266,7 @@ const fields: Array<Omit<SeedField, "status" | "publishedAt">> = [
 const disciplineTheories: SeedTheoryDiscipline[] = [
   ...["life-course-theory", "teacher-identity-theory", "communities-of-practice", "teacher-professional-development-theory", "teacher-life-history-research", "educational-equity-theory", "institutional-theory", "street-level-bureaucracy", "multiple-streams-framework"].map((theorySlug) => ({ disciplineSlug: "education", theorySlug, relevance: "primary" as const })),
   ...["life-course-theory", "structuration-theory", "communities-of-practice", "practice-theory-bourdieu", "social-capital-theory", "institutional-theory"].map((theorySlug) => ({ disciplineSlug: "sociology", theorySlug, relevance: "primary" as const })),
+  ...P1_FLAGSHIP_DISCIPLINE_THEORIES,
 ];
 
 const fieldTheories: SeedTheoryField[] = [

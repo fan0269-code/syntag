@@ -62,7 +62,7 @@ npm run db:migrate:deploy
 
 `prisma migrate deploy` only applies existing migration files. It does not seed.
 
-Leave `npm run db:seed` for a later, explicit content decision. The authored seed keeps records in `draft` or `archived`. Running it does not publish pages, and this cutover does not authorize publishing. An empty `published` catalog is the current content state (see the playbook baseline). That empty public catalog remains a content blocker for AdSense. Do not invent rows, do not flip statuses to `published`, and do not submit an AdSense application from this work.
+Leave `npm run db:seed` for a later, explicit content decision. Do not run it to make the eight 2026-11-10 flagship pages appear. `prisma/seed.ts` upserts the authored corpus, including those eight `published` rows, and it also deletes three retired theory-scholar links. It is not a full wipe, and it is still not an approved import path. This cutover does not authorize publishing or seeding. An empty production `published` catalog stays empty until a separate import is authorized. That empty public catalog remains a content blocker for AdSense. Do not submit an AdSense application from this work.
 
 Never run `npm run db:reset` (`prisma migrate reset`) against this database or any other shared database.
 

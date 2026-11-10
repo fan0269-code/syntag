@@ -636,7 +636,7 @@ test("the C5 works and concepts layer is source-complete, linked, and deduplicat
   const p1DraftWorkSlug = "beijaard-meijer-verloop-2004-reconsidering";
   const historicalWorks = seedCorpus.works.filter((work) => work.slug !== p1DraftWorkSlug);
   assert.equal(historicalWorks.length, 19, "the reviewed first batch still has its 19 source-complete work candidates");
-  assert.equal(seedCorpus.works.find((work) => work.slug === p1DraftWorkSlug)?.status, "draft");
+  assert.equal(seedCorpus.works.find((work) => work.slug === p1DraftWorkSlug)?.status, "published");
   assert.ok(seedCorpus.concepts.length >= 20 && seedCorpus.concepts.length <= 24, "the first concept layer is deliberately deduplicated");
   assert.equal(workSlugs.size, seedCorpus.works.length, "work candidates have unique slugs");
   assert.equal(conceptSlugs.size, seedCorpus.concepts.length, "concept candidates have unique slugs");
