@@ -61,18 +61,29 @@ test("FAN-247 targets do not include the existing U3 or draft boundaries", () =>
   );
 
   const drafts = Object.values(entityRecords).flat().filter((record) => record.status === "draft");
-  assert.equal(drafts.length, 15);
+  assert.equal(drafts.length, 7);
   assert.ok(drafts.every((record) => !targetSlugs.has(record.slug)));
   assert.ok(drafts.every((record) => record.publishedAt === undefined));
 });
 
-test("the typed corpus has no public entity or derived public relation after contraction", () => {
+test("FAN-247 stays archived while the eight flagship pages are the only public entities", () => {
+  const publishedSlugs = [
+    "teacher-professional-identity",
+    "communities-of-practice-1998",
+    "situated-learning-legitimate-peripheral-participation",
+    "life-course-perspective",
+    "beijaard-meijer-verloop-2004-reconsidering",
+    "douwe-beijaard",
+    "etienne-wenger-flagship",
+    "glen-h-elder-jr-flagship",
+  ];
   const publicRecords = Object.values(entityRecords).flat().filter((record) => record.status === "published");
-  assert.deepEqual(publicRecords, []);
+  assert.deepEqual(publicRecords.map((record) => record.slug).sort(), [...publishedSlugs].sort());
+  assert.ok(publicRecords.every((record) => record.publishedAt === "2026-11-10T00:00:00.000Z"));
   assert.equal(seedCorpus.theoryWorks.filter((relation) => (
     seedCorpus.theories.some((theory) => theory.slug === relation.theorySlug && theory.status === "published")
     && seedCorpus.works.some((work) => work.slug === relation.workSlug && work.status === "published")
-  )).length, 0);
+  )).length, 1);
   assert.equal(seedCorpus.theoryConcepts.filter((relation) => (
     seedCorpus.theories.some((theory) => theory.slug === relation.theorySlug && theory.status === "published")
     && seedCorpus.concepts.some((concept) => concept.slug === relation.conceptSlug && concept.status === "published")
@@ -80,7 +91,7 @@ test("the typed corpus has no public entity or derived public relation after con
   assert.equal(seedCorpus.theoryScholars.filter((relation) => (
     seedCorpus.theories.some((theory) => theory.slug === relation.theorySlug && theory.status === "published")
     && seedCorpus.scholars.some((scholar) => scholar.slug === relation.scholarSlug && scholar.status === "published")
-  )).length, 0);
+  )).length, 4);
   assert.equal(seedCorpus.topicTheories.filter((relation) => (
     seedCorpus.topics.some((topic) => topic.slug === relation.topicSlug && topic.status === "published")
     && seedCorpus.theories.some((theory) => theory.slug === relation.theorySlug && theory.status === "published")
@@ -100,7 +111,9 @@ test("public surfaces retain published-only fail-closed queries and no review ve
   }
 
   const serialized = JSON.stringify(seedCorpus);
-  for (const forbidden of ["reviewer_identity", "reviewer_role", "reviewerIdentity", "reviewerRole", "reviewedAt", "reviewed_at", "wording_verdict"]) {
+  for (const forbidden of ["reviewer_identity", "reviewer_role", "reviewerIdentity", "reviewedAt", "reviewed_at", "wording_verdict"]) {
     assert.equal(serialized.includes(forbidden), false, `seed corpus does not fabricate ${forbidden}`);
   }
+  assert.equal(serialized.includes("\"reviewerRole\":\"publication_editor\""), true);
+  assert.equal(serialized.includes("\"reviewerRole\":\"methods\""), false);
 });

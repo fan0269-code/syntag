@@ -32,7 +32,9 @@ flowchart LR
 
 2026-11-08（界面去模板化）：共享版式改为安静的暖纸与墨色，去掉玻璃模糊、色块光晕和全大写字距标签。诚实空态、信任文案、`Not published.` 和广告关闭保持不变。不灌入旗舰实体。合并不等于现网恢复，生产域仍是 HTTP 521。技能副本在 `.cursor/skills/unslop/`，署名 Damir Sokolovsky / https://github.com/heydamir/unslop （CC BY 4.0）。
 
-2026-11-10（P1 旗舰草稿）：缺口表 #1–#8 已写入 `src/data/corpus/content-batches/2026-11-10-p1-flagship-drafts.ts`，状态全部为 `draft`。公开 `published` 仍为 0。#9 未写。未运行 seed，未把任何记录改为 `published`。广告保持关闭。这批草稿不是已发布内容，合并不等于可申广告。
+2026-11-10（P1 旗舰草稿）：缺口表 #1–#8 已写入 `src/data/corpus/content-batches/2026-11-10-p1-flagship-drafts.ts`。#9 未写。
+
+2026-11-10（P1 发表闸，附条件通过）：同一批八条在语料中改为 `published`，`publishedAt` 为 2026-11-10，并补了代码枚举里的人审字段。#7 生命历程页改写了 Pallas 章的路径措辞。FAN-247 旧档仍为 archived。未运行 seed，未跑 `db:reset`。广告保持关闭。这不是广告申请，也不表示现网已经出现这八页；生产库若仍为空，只部署前端不会让这八页对公。
 
 | 维度 | 当前事实 | 结论 |
 | --- | --- | --- |

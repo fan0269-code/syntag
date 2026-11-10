@@ -61,7 +61,7 @@ test("production build contains core public route artifacts", {
     counts[record.status] = (counts[record.status] ?? 0) + 1;
     return counts;
   }, {});
-  assert.deepEqual(statusCounts, { draft: 7, archived: 74 });
+  assert.deepEqual(statusCounts, { published: 8, draft: 7, archived: 74 });
   const nonPublicRoutes = entityCollections.flatMap(([type, records]) => records
     .filter((record) => record.status !== "published")
     .map((record) => `/${type}/${record.slug}`));

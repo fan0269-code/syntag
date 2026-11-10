@@ -231,8 +231,17 @@ export function validateSeedCorpus(corpus: SeedCorpus): SeedCorpusValidationResu
     }
   }
   const conceptWorkSlugs = new Set(corpus.concepts.flatMap((concept) => isConceptContent(concept.content.en) ? concept.content.en.related_works.map((work) => work.work_slug) : []));
+  const publishedTheoryWorkSlugs = new Set(corpus.theoryWorks
+    .filter((relation) => theoryStatuses.get(relation.theorySlug) === "published")
+    .map((relation) => relation.workSlug));
   for (const workSlug of workSlugs) {
-    if (workStatuses.get(workSlug) === "published" && !conceptWorkSlugs.has(workSlug)) errors.push(`${workSlug}: is not related to a published concept`);
+    if (
+      workStatuses.get(workSlug) === "published"
+      && !conceptWorkSlugs.has(workSlug)
+      && !publishedTheoryWorkSlugs.has(workSlug)
+    ) {
+      errors.push(`${workSlug}: is not related to a published concept`);
+    }
   }
 
   for (const field of corpus.fields) {
@@ -473,7 +482,14 @@ export function validateSeedCorpus(corpus: SeedCorpus): SeedCorpusValidationResu
   }
 
   const publishedPublicTheorySlugs = new Set(corpus.disciplineTheories
-    .filter((relation) => publicDisciplineSlugs.has(relation.disciplineSlug) && corpus.disciplines.some((discipline) => discipline.slug === relation.disciplineSlug && discipline.status === "published"))
+    .filter((relation) => {
+      if (!publicDisciplineSlugs.has(relation.disciplineSlug)) return false;
+      const disciplineStatus = disciplineStatuses.get(relation.disciplineSlug);
+      // Education and sociology are the only public scope. FAN-247 may archive
+      // those discipline landing pages without moving a linked flagship theory
+      // outside the scope.
+      return disciplineStatus === "published" || disciplineStatus === "archived";
+    })
     .map((relation) => relation.theorySlug));
   for (const theory of corpus.theories) {
     if (theory.status === "published" && !publishedPublicTheorySlugs.has(theory.slug)) errors.push(`${theory.slug}: published theory is outside Education/Sociology scope`);

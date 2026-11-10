@@ -31,7 +31,7 @@ test("seed corpus preserves its semantic baseline after module extraction", () =
     concepts: 24,
     theoryWorks: 22,
     theoryConcepts: 25,
-    disciplineTheories: 15,
+    disciplineTheories: 22,
     fieldTheories: 8,
     genealogy: 8,
     scholars: 13,
@@ -40,12 +40,12 @@ test("seed corpus preserves its semantic baseline after module extraction", () =
     topicTheories: 24,
     verifications: 36,
   });
-  assert.equal(seedCorpus.scholars.filter((scholar) => scholar.status === "published").length, 7);
+  assert.equal(seedCorpus.scholars.filter((scholar) => scholar.status === "published").length, 10);
   assert.equal(seedCorpus.theoryScholars.filter((relation) => {
     const scholar = seedCorpus.scholars.find((candidate) => candidate.slug === relation.scholarSlug);
     const theory = seedCorpus.theories.find((candidate) => candidate.slug === relation.theorySlug);
     return scholar?.status === "published" && theory?.status === "published";
-  }).length, 7);
+  }).length, 11);
   assert.equal(seedCorpus.topics.filter((topic) => topic.status === "published").length, 4);
   assert.equal(seedCorpus.topicTheories.filter((relation) => {
     const topic = seedCorpus.topics.find((candidate) => candidate.slug === relation.topicSlug);
