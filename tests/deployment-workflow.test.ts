@@ -79,7 +79,35 @@ test("serverless Prisma pool uses one connection on Vercel", () => {
     connectionTimeoutMillis: 10_000,
     allowExitOnIdle: true,
   });
+  assert.deepEqual(prismaPoolConfig("postgresql://example", {
+    VERCEL: "1",
+    NEXT_PHASE: "phase-production-server",
+  }), {
+    connectionString: "postgresql://example",
+    max: 1,
+    idleTimeoutMillis: 5_000,
+    connectionTimeoutMillis: 10_000,
+    allowExitOnIdle: true,
+  });
   assert.deepEqual(prismaPoolConfig("postgresql://example", {}), {
+    connectionString: "postgresql://example",
+  });
+});
+
+test("production build pool can prerender concurrent published pages", () => {
+  assert.deepEqual(prismaPoolConfig("postgresql://example", {
+    VERCEL: "1",
+    NEXT_PHASE: "phase-production-build",
+  }), {
+    connectionString: "postgresql://example",
+    max: 16,
+    idleTimeoutMillis: 60_000,
+    connectionTimeoutMillis: 30_000,
+    allowExitOnIdle: false,
+  });
+  assert.deepEqual(prismaPoolConfig("postgresql://example", {
+    NEXT_PHASE: "phase-production-build",
+  }), {
     connectionString: "postgresql://example",
   });
 });
