@@ -39,7 +39,7 @@ test("home, indexes, and the product README describe the ads-off publication bou
   assert.match(guide, /Advertising is off/);
   assert.match(index, /No published \{title\.toLowerCase\(\)\} yet\./);
   assert.match(index, /not published scholarship/);
-  assert.match(header, /\["About", "\/about"\]/);
+  assert.match(header, /href="\/about"/);
   assert.match(readme, /AGENTS\.md/);
   assert.match(readme, /Advertising is off/);
   assert.doesNotMatch(readme, /create-next-app|Deploy on Vercel/);

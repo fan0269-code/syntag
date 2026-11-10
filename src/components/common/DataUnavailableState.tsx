@@ -11,5 +11,17 @@ export function DataUnavailableState({
   indexHref?: string;
   indexLabel?: string;
 }) {
-  return <section className="route-error" role="status"><h1>{title}</h1><p>{description}</p><p><Link href="/">Return to the homepage</Link> · <Link href={indexHref}>{indexLabel}</Link> · <Link href="/about">About Syrtag</Link></p></section>;
+  return (
+    <section className="route-notice" role="status">
+      <h1>{title}</h1>
+      <p>{description}</p>
+      <p>
+        <Link href="/">Return to the homepage</Link>
+        {" · "}
+        <Link href={indexHref}>{indexLabel}</Link>
+        {" · "}
+        <Link href="/about">About Syrtag</Link>
+      </p>
+    </section>
+  );
 }

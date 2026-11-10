@@ -2,27 +2,29 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 
-test("home uses the shared frame and exposes two English task entrances", () => {
+test("home uses the shared frame and exposes search plus a graph entrance", () => {
   const home = readFileSync("src/app/page.tsx", "utf8");
   const frame = readFileSync("src/components/common/PageFrame.tsx", "utf8");
 
   assert.match(home, /PageFrame/);
   assert.doesNotMatch(home, /components\/layout\/Header/);
-  assert.match(home, /href="\/topics"/);
-  assert.match(home, /Start with a research question/);
   assert.match(home, /href="#graph"/);
   assert.match(home, /Explore the theory graph/);
+  assert.match(home, /Map a doctoral theory choice in education and sociology/);
+  assert.doesNotMatch(home, /home-hero__meta/);
+  assert.doesNotMatch(home, /Start with a research question/);
   assert.doesNotMatch(home, /[一-鿿]/u);
   assert.match(frame, /id="main-content"/);
 });
 
-test("home hero composes inline search between the lead and primary task entrances", () => {
+test("home hero composes inline search before the graph entrance", () => {
   const home = readFileSync("src/app/page.tsx", "utf8");
 
   assert.match(home, /import \{ SearchBox \} from "@\/components\/search\/SearchBox";/);
   assert.match(home, /<p className="lead">[\s\S]*?<div className="home-hero__search">[\s\S]*?<SearchBox[\s\S]*?mode="inline"[\s\S]*?<\/div>[\s\S]*?<div className="home-hero__actions">/);
-  assert.match(home, /label="Search for a theory, scholar, concept, or research topic"/);
-  assert.match(home, /placeholder="Try a theory, scholar, concept, or research topic"/);
+  assert.match(home, /label=\{searchLabel\}/);
+  assert.match(home, /placeholder=\{searchPlaceholder\}/);
+  assert.match(home, /Theory, scholar, or topic/);
 });
 
 test("shared navigation and footer expose English accessible landmarks", () => {
@@ -34,9 +36,10 @@ test("shared navigation and footer expose English accessible landmarks", () => {
     "src/app/styles/shell.css",
   ].map((file) => readFileSync(file, "utf8")).join("\n");
 
-  for (const label of ["Topics", "Theories", "Scholars", "Works", "Concepts", "Disciplines", "Fields", "Pricing"]) {
-    assert.match(header, new RegExp(`"${label}"`));
-  }
+  assert.match(header, /Browse/);
+  assert.match(header, /href="\/about"/);
+  assert.match(header, /ENTITY_INDEXES/);
+  assert.doesNotMatch(header, /\/pricing/);
   assert.match(header, /Escape/);
   assert.match(header, /aria-label="Syrtag home"/);
   assert.match(header, /aria-label="Primary navigation"/);
@@ -47,6 +50,8 @@ test("shared navigation and footer expose English accessible landmarks", () => {
   assert.match(links, /label: "About", href: "\/about"/);
   assert.match(footer, /aria-label="Explore Syrtag"/);
   assert.match(footer, /aria-label="Legal information"/);
+  assert.match(footer, /STATIC_INTERNAL_LINKS/);
+  assert.match(links, /label: "Pricing", href: "\/pricing"/);
   assert.match(styles, /\.skip-link:focus-visible/);
 });
 

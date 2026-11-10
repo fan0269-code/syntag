@@ -13,5 +13,5 @@ export const sampleGraph = {
     { id: "identity-to-development", source: "teacher-identity-theory", target: "teacher-professional-development-theory", type: "extended_by", label: "Explains professional learning and change" },
     { id: "practice-to-community", source: "practice-theory-bourdieu", target: "communities-of-practice", type: "critiqued_by", label: "Contrasting accounts of social practice" },
   ] satisfies GraphEdgeModel[],
-  meta: { discipline: "Education", mode: "genealogy", nodeCount: 5, edgeCount: 3 },
+  meta: { discipline: "Education", mode: "genealogy", nodeCount: 5, edgeCount: 3, relationLabels: ["extended by", "critiqued by"] },
 };

@@ -38,10 +38,11 @@ test("public navigation and recovery paths avoid search shortcuts and planned fe
 
   assert.doesNotMatch(header, /framework-builder|\/search\?q=/);
   assert.doesNotMatch(footer, /framework-builder/);
-  assert.match(header, /\/pricing/);
+  assert.doesNotMatch(header, /\/pricing/);
   assert.match(footer, /STATIC_INTERNAL_LINKS/);
+  assert.match(readFileSync("src/lib/static-internal-links.ts", "utf8"), /href: "\/pricing"/);
   assert.match(notFound, /\/theories/);
-  assert.match(notFound, /\/disciplines/);
+  assert.match(notFound, /\/about/);
 });
 
 test("legacy entity search breadcrumbs resolve to canonical index routes", () => {
