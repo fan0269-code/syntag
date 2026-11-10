@@ -53,9 +53,14 @@ npm run db:migrate
 npm run db:seed
 npm run db:push
 npm run db:studio
+
+# Published-only import. Dry-run does not connect or write.
+npm run db:import-published -- --dry-run
+# Explicit apply is separate from the Vercel build and is not db:seed.
+npm run db:import-published
 ```
 
-`npm run db:reset` executes `prisma migrate reset`; never use it against shared or production data. For a fresh database, apply migrations and seed published content **before** `npm run build`; static entity routes are derived from published slugs at build time. Production deployments use `npx prisma migrate deploy`, then `npm run db:seed`, then build. `npm run typecheck` runs `tsc --noEmit`; `npm run build` remains the production compilation and Next.js validation gate. Chromium Playwright + axe checks live under `tests/e2e/` and must run against a fresh production build; the preflight refuses a missing or stale `.next/BUILD_ID` and never runs database or build commands implicitly. Browser artifacts are written under `node_modules/.cache/syrtag-playwright/`. There is no Prettier, Husky, or coverage script — do not add them speculatively.
+`npm run db:reset` executes `prisma migrate reset`; never use it against shared or production data. For a fresh database, apply migrations and seed published content **before** `npm run build`; static entity routes are derived from published slugs at build time. Production applies committed migrations with `npm run db:migrate:deploy`. The Vercel build does not seed. Published rows are a later explicit `npm run db:import-published` (see `docs/published-import.md`), which is not `npm run db:seed`. `npm run typecheck` runs `tsc --noEmit`; `npm run build` remains the production compilation and Next.js validation gate. Chromium Playwright + axe checks live under `tests/e2e/` and must run against a fresh production build; the preflight refuses a missing or stale `.next/BUILD_ID` and never runs database or build commands implicitly. Browser artifacts are written under `node_modules/.cache/syrtag-playwright/`. There is no Prettier, Husky, or coverage script — do not add them speculatively.
 
 Tests live exclusively under `tests/` and use `node:test` + `node:assert/strict`. The npm script globs the full directory, so to run or filter a single file you must bypass npm and call `node --env-file-if-exists=.env --experimental-strip-types --test <file>` directly (examples above). Avoid network or live-database dependencies in unit tests; integration coverage uses fixtures or the documented seed corpus only.
 

@@ -36,6 +36,8 @@ flowchart LR
 
 2026-11-10（P1 发表闸，附条件通过）：同一批八条在语料中改为 `published`，`publishedAt` 为 2026-11-10，并补了代码枚举里的人审字段。#7 生命历程页改写了 Pallas 章的路径措辞。FAN-247 旧档仍为 archived。未运行 seed，未跑 `db:reset`。广告保持关闭。这不是广告申请，也不表示现网已经出现这八页；生产库若仍为空，只部署前端不会让这八页对公。
 
+2026-11-10（published 导入路径）：新增 `npm run db:import-published`。它只按 slug upsert 语料中 `status: "published"` 的记录，以及两端本身都是 published 的关系，并拒绝 FAN-247 归档 slug。`--dry-run` 只打印计数，不连接、不写库。这不是 `npm run db:seed`，Vercel build 不会运行它。对生产库执行仍是之后的显式步骤；本轮未连接、未写入任何数据库。广告保持关闭。把这八页写入数据库不是广告申请，也不使站点具备申请资格。说明见 `docs/published-import.md`。
+
 | 维度 | 当前事实 | 结论 |
 | --- | --- | --- |
 | 前端 | 首页、静态说明页、七类实体索引与详情路由、图谱组件和 SEO 基础均已存在；C7 后本地构建生成 92 个页面。 | 具备进入全站内容质量与发布验收的页面骨架。 |

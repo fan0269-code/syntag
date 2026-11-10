@@ -16,6 +16,7 @@ Syrtag is a Next.js 16 App Router application for research-theory knowledge grap
 - `node --env-file-if-exists=.env --experimental-strip-types --test tests/build-output-smoke.test.ts` — after `npm run build`, verify the core `.next` route artifacts.
 - `npm run content:check` — validate the seed corpus and local content-onboarding publication rules.
 - `npm run db:migrate` / `npm run db:seed` — apply local Prisma migrations (`migrate dev`) and seed data; require `DATABASE_URL`.
+- `npm run db:import-published` — upsert published corpus rows by slug. `--dry-run` prints counts and does not write. Not `db:seed`, and not part of the Vercel build. See `docs/published-import.md`.
 - `npm run db:migrate:deploy` — apply committed migrations with `prisma migrate deploy`. This is the production command for a managed Postgres database. Never use `db:reset` against a shared or production database. Production hosting steps are in `docs/deploy-vercel.md`.
 
 Never use `npm run db:reset` against shared or production data. Copy `.env.example` to a local `.env` and never commit credentials.

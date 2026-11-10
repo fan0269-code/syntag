@@ -62,7 +62,9 @@ npm run db:migrate:deploy
 
 `prisma migrate deploy` only applies existing migration files. It does not seed.
 
-Leave `npm run db:seed` for a later, explicit content decision. Do not run it to make the eight 2026-11-10 flagship pages appear. `prisma/seed.ts` upserts the authored corpus, including those eight `published` rows, and it also deletes three retired theory-scholar links. It is not a full wipe, and it is still not an approved import path. This cutover does not authorize publishing or seeding. An empty production `published` catalog stays empty until a separate import is authorized. That empty public catalog remains a content blocker for AdSense. Do not submit an AdSense application from this work.
+Do not run `npm run db:seed` to make the eight 2026-11-10 flagship pages appear. `prisma/seed.ts` upserts by slug and also deletes three retired theory-scholar links. It is not the import path.
+
+The import path is `npm run db:import-published`. See `docs/published-import.md`. `--dry-run` prints upsert counts and does not connect or write. Running the command without `--dry-run` upserts only `published` corpus rows. That apply is a later, explicit step. `scripts/vercel-build.mjs` does not run it, and this document does not apply it to production or preview. An empty production catalog stays empty until that explicit apply. That gap remains a content blocker for AdSense. Publishing these pages is not an AdSense application and does not make the site eligible to apply.
 
 Never run `npm run db:reset` (`prisma migrate reset`) against this database or any other shared database.
 
