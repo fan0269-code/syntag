@@ -34,8 +34,8 @@ const d2DesignSections: TheorySectionKey[] = [
   "boundary_conditions",
 ];
 
-test("all twelve theory records produce presentable structured content without placeholders", () => {
-  assert.equal(seedCorpus.theories.length, 12);
+test("all theory records produce presentable structured content without placeholders", () => {
+  assert.equal(seedCorpus.theories.length, 16);
 
   for (const theory of seedCorpus.theories) {
     const presentation = buildTheoryPresentation(theory.content.en as unknown as ContentRecord, theory.depth);

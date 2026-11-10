@@ -26,16 +26,16 @@ test("seed corpus preserves its semantic baseline after module extraction", () =
   }, {
     disciplines: 2,
     fields: 6,
-    theories: 12,
-    works: 19,
+    theories: 16,
+    works: 20,
     concepts: 24,
-    theoryWorks: 21,
+    theoryWorks: 22,
     theoryConcepts: 25,
     disciplineTheories: 15,
     fieldTheories: 8,
     genealogy: 8,
-    scholars: 10,
-    theoryScholars: 7,
+    scholars: 13,
+    theoryScholars: 11,
     topics: 8,
     topicTheories: 24,
     verifications: 36,
@@ -65,6 +65,10 @@ test("seed corpus preserves its semantic baseline after module extraction", () =
     "institutional-theory",
     "street-level-bureaucracy",
     "multiple-streams-framework",
+    "teacher-professional-identity",
+    "communities-of-practice-1998",
+    "situated-learning-legitimate-peripheral-participation",
+    "life-course-perspective",
   ]);
   assert.deepEqual(seedCorpus.genealogy.map(({ id }) => id), [
     "life-course:teacher-life-history",
@@ -97,6 +101,9 @@ test("seed corpus preserves its semantic baseline after module extraction", () =
     "john-w-kingdon",
     "ivor-f-goodson",
     "christopher-day",
+    "douwe-beijaard",
+    "etienne-wenger-flagship",
+    "glen-h-elder-jr-flagship",
   ]);
   assert.deepEqual(validateSeedCorpus(seedCorpus).errors, []);
 });
@@ -236,8 +243,8 @@ test("the enrichment scholars have bounded publication decisions without widenin
   assert.ok(seedCorpus.theoryScholars.every((entry) => {
     const scholar = candidates.get(entry.scholarSlug);
     const theory = seedCorpus.theories.find((candidate) => candidate.slug === entry.theorySlug);
-    return scholar?.status === "published" && theory?.status === "published";
-  }), "canonical TheoryScholar relations stay inside the published graph");
+    return scholar?.status === theory?.status && (scholar?.status === "published" || scholar?.status === "draft");
+  }), "TheoryScholar relations stay inside one publication state and do not attach a draft scholar to a published theory");
   assert.ok(!seedCorpus.disciplines.some((entry) => entry.status === "published" && ["psychology", "management"].includes(entry.slug)));
   assert.ok(!seedCorpus.fields.some((entry) => entry.status === "published" && ["psychology", "management"].includes(entry.disciplineSlug)));
 });

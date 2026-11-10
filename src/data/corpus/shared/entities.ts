@@ -9,6 +9,7 @@ import type { PathwayContent } from "../../templates/pathway-template.ts";
 import { createFirstEnrichmentBatch } from "../content-batches/2026-07-18-first-enrichment.ts";
 import { createGoodsonDayDraftScholarBatch } from "../content-batches/2026-07-19-goodson-day-draft-scholars.ts";
 import { createLifeCourseEvidenceR2Batch } from "../content-batches/2026-07-21-life-course-evidence-r2.ts";
+import { createP1FlagshipDraftBatch } from "../content-batches/2026-11-10-p1-flagship-drafts.ts";
 import { isFAN247Archived, type FAN247VisibilityEntityType } from "../../../lib/fan247-visibility.ts";
 import { FAN_133_U3_ARCHIVED_CONCEPT_SLUGS, FAN_133_U3_ARCHIVED_WORK_SLUGS } from "../../../lib/u3-visibility.ts";
 
@@ -1673,6 +1674,8 @@ const theoryWorks: SeedTheoryWork[] = [
 
 const theoryConcepts: SeedTheoryConcept[] = concepts.flatMap((concept) => concept.content.en.theory_variations.map((variation) => ({ theorySlug: variation.theory_slug, conceptSlug: concept.slug, importance: "core" })));
 
+const p1FlagshipDraftBatch = createP1FlagshipDraftBatch();
+
 const verifications: SeedVerification[] = theories.flatMap((entry) => {
   const pageSources = entry.content.en.sources ?? [];
   if (pageSources.length === 0) throw new Error(`${entry.slug} must have an L1 source`);
@@ -1686,20 +1689,23 @@ const verifications: SeedVerification[] = theories.flatMap((entry) => {
 export const seedCorpus: SeedCorpus = {
   disciplines: applyFAN247Visibility("discipline", disciplines.map((record) => ({ ...record, status: "published", publishedAt }))),
   fields: applyFAN247Visibility("field", fields.map((record) => ({ ...record, status: "published", publishedAt }))),
-  theories: applyFAN247Visibility("theory", theories),
-  works: applyFAN247Visibility("work", works.map((record) => FAN_133_U3_ARCHIVED_WORK_SLUGS.includes(record.slug as typeof FAN_133_U3_ARCHIVED_WORK_SLUGS[number])
-    ? { ...record, status: "archived", publishedAt: undefined }
-    : record)),
+  theories: applyFAN247Visibility("theory", [...theories, ...p1FlagshipDraftBatch.theories]),
+  works: applyFAN247Visibility("work", [
+    ...works.map((record): SeedWork => FAN_133_U3_ARCHIVED_WORK_SLUGS.includes(record.slug as typeof FAN_133_U3_ARCHIVED_WORK_SLUGS[number])
+      ? { ...record, status: "archived", publishedAt: undefined }
+      : record),
+    ...p1FlagshipDraftBatch.works,
+  ]),
   concepts: applyFAN247Visibility("concept", concepts.map((record) => FAN_133_U3_ARCHIVED_CONCEPT_SLUGS.includes(record.slug as typeof FAN_133_U3_ARCHIVED_CONCEPT_SLUGS[number])
     ? { ...record, status: "archived", publishedAt: undefined }
     : record)),
-  theoryWorks,
+  theoryWorks: [...theoryWorks, ...p1FlagshipDraftBatch.theoryWorks],
   theoryConcepts,
   disciplineTheories,
   fieldTheories,
   genealogy,
-  scholars: applyFAN247Visibility("scholar", [...scholars, ...firstEnrichmentBatch.scholars, ...goodsonDayDraftScholarBatch.scholars]),
-  theoryScholars: [...theoryScholars, ...firstEnrichmentBatch.theoryScholars, ...goodsonDayDraftScholarBatch.theoryScholars],
+  scholars: applyFAN247Visibility("scholar", [...scholars, ...firstEnrichmentBatch.scholars, ...goodsonDayDraftScholarBatch.scholars, ...p1FlagshipDraftBatch.scholars]),
+  theoryScholars: [...theoryScholars, ...firstEnrichmentBatch.theoryScholars, ...goodsonDayDraftScholarBatch.theoryScholars, ...p1FlagshipDraftBatch.theoryScholars],
   topics: applyFAN247Visibility("topic", [...topics, ...firstEnrichmentBatch.topics]),
   topicTheories: [...topicTheories, ...firstEnrichmentBatch.topicTheories],
   verifications,
