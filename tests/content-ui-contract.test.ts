@@ -51,7 +51,9 @@ test("SourceBlock states that sources are page registrations, not claim-by-claim
 test("VerificationBadge separates listed source records from future claim-level verification", () => {
   const source = verificationBadgeSource();
 
-  assert.match(source, /type VerificationLevel = "source_record" \| "L2_editorial" \| "L3_pending"/);
+  assert.match(source, /type VerificationLevel = "source_record" \| "source_verified" \| "L2_editorial" \| "L3_pending" \| "L3_guidance"/);
+  assert.match(source, /source_verified: "Source verified"/);
+  assert.match(source, /L3_guidance: "Research guidance"/);
   assert.match(source, /scope\?: VerificationScope/);
   assert.match(source, /data-verification-scope=\{scope\}/);
   assert.match(source, /source_record: "Source record"/);

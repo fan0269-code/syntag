@@ -80,33 +80,41 @@ function relationSlugs(plan: PublishedImportPlan): string[] {
   ];
 }
 
-test("published import selects only the eight flagship pages and their published links", () => {
+test("published import selects the flagship pages, the 2026-11-11 cluster, and their published links", () => {
   const plan = planPublishedImport(seedCorpus);
 
   assert.deepEqual(plan.counts, {
     disciplines: 0,
     fields: 0,
-    theories: 4,
-    works: 1,
+    theories: 5,
+    works: 4,
     concepts: 0,
-    scholars: 3,
+    scholars: 4,
     topics: 0,
     disciplineTheories: 0,
     fieldTheories: 0,
-    theoryWorks: 1,
+    theoryWorks: 4,
     theoryConcepts: 0,
-    theoryScholars: 4,
+    theoryScholars: 5,
     topicTheories: 0,
     genealogy: 0,
     verifications: 0,
   });
-  assert.deepEqual(plan.theories.map((record) => record.slug), [...P1_FLAGSHIP_DRAFT_THEORY_SLUGS]);
-  assert.deepEqual(plan.scholars.map((record) => record.slug), [...P1_FLAGSHIP_DRAFT_SCHOLAR_SLUGS]);
-  assert.deepEqual(plan.works.map((record) => record.slug), [P1_FLAGSHIP_DRAFT_WORK_SLUG]);
+  assert.deepEqual(plan.theories.map((record) => record.slug), [...P1_FLAGSHIP_DRAFT_THEORY_SLUGS, "multiple-streams-education-policy"]);
+  assert.deepEqual(plan.scholars.map((record) => record.slug), [...P1_FLAGSHIP_DRAFT_SCHOLAR_SLUGS, "jean-lave-flagship"]);
+  assert.deepEqual(plan.works.map((record) => record.slug), [
+    P1_FLAGSHIP_DRAFT_WORK_SLUG,
+    "wenger-1998-communities-of-practice",
+    "lave-and-wenger-1991-situated-learning",
+    "elder-children-of-the-great-depression",
+  ]);
   assert.deepEqual(plan.theoryWorks.map((relation) => [relation.theorySlug, relation.workSlug]), [
     ["teacher-professional-identity", P1_FLAGSHIP_DRAFT_WORK_SLUG],
+    ["communities-of-practice-1998", "wenger-1998-communities-of-practice"],
+    ["situated-learning-legitimate-peripheral-participation", "lave-and-wenger-1991-situated-learning"],
+    ["life-course-perspective", "elder-children-of-the-great-depression"],
   ]);
-  assert.equal(plan.theoryScholars.length, 4);
+  assert.equal(plan.theoryScholars.length, 5);
   assert.ok(plan.theories.every((record) => record.status === "published"));
   assert.ok(plan.scholars.every((record) => record.status === "published"));
   assert.ok(plan.works.every((record) => record.status === "published"));
@@ -146,10 +154,10 @@ test("published import selects only the eight flagship pages and their published
 
   const text = formatPublishedImportCounts(plan, "dry-run");
   assert.match(text, /^published-import dry-run\n/);
-  assert.match(text, /^theories: 4$/m);
-  assert.match(text, /^works: 1$/m);
-  assert.match(text, /^scholars: 3$/m);
-  assert.match(text, /^theoryScholars: 4$/m);
+  assert.match(text, /^theories: 5$/m);
+  assert.match(text, /^works: 4$/m);
+  assert.match(text, /^scholars: 4$/m);
+  assert.match(text, /^theoryScholars: 5$/m);
   assert.match(text, /^disciplines: 0$/m);
   assert.equal(/postgres(?:ql)?:\/\//i.test(text), false);
   assert.equal(/DATABASE_URL|DIRECT_URL/.test(text), false);

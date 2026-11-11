@@ -63,19 +63,26 @@ test("P1 flagship items 1-8 are published and item 9 is absent", () => {
   assert.ok(isWorkContent(work.content.en));
 
   assert.equal(seedCorpus.scholars.filter((scholar) => scholar.slug === "jean-lave").length, 1);
+  assert.equal(seedCorpus.scholars.find((scholar) => scholar.slug === "jean-lave")?.status, "archived");
   assert.equal(seedCorpus.theories.filter((theory) => theory.slug === "multiple-streams-framework").length, 1);
+  assert.equal(seedCorpus.theories.find((theory) => theory.slug === "multiple-streams-framework")?.status, "archived");
   assert.equal(seedCorpus.theories.some((theory) => theory.slug.includes("agenda-setting")), false);
   assert.deepEqual(
     seedCorpus.theories.filter((theory) => theory.status === "published").map((theory) => theory.slug),
-    [...P1_FLAGSHIP_DRAFT_THEORY_SLUGS],
+    [...P1_FLAGSHIP_DRAFT_THEORY_SLUGS, "multiple-streams-education-policy"],
   );
   assert.deepEqual(
     seedCorpus.scholars.filter((scholar) => scholar.status === "published").map((scholar) => scholar.slug),
-    [...P1_FLAGSHIP_DRAFT_SCHOLAR_SLUGS],
+    [...P1_FLAGSHIP_DRAFT_SCHOLAR_SLUGS, "jean-lave-flagship"],
   );
   assert.deepEqual(
     seedCorpus.works.filter((entry) => entry.status === "published").map((entry) => entry.slug),
-    [P1_FLAGSHIP_DRAFT_WORK_SLUG],
+    [
+      P1_FLAGSHIP_DRAFT_WORK_SLUG,
+      "wenger-1998-communities-of-practice",
+      "lave-and-wenger-1991-situated-learning",
+      "elder-children-of-the-great-depression",
+    ],
   );
   for (const link of P1_FLAGSHIP_DISCIPLINE_THEORIES) {
     assert.ok(
