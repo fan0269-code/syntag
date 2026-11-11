@@ -20,9 +20,9 @@ const routeCases: readonly RouteCase[] = [
   {
     name: "home",
     path: "/",
-    h1: /Syrtag is a source-aware map for doctoral research|Explore theory choices with source-aware guidance|Data temporarily unavailable|The knowledge graph is not published yet/i,
+    h1: /Syrtag is a source-aware map for doctoral research|Explore theory choices with source-aware guidance|Data temporarily unavailable|The knowledge graph is not published yet|^Published (theories|scholars|works)/i,
     dataDependent: true,
-    primaryAction: { role: "link", name: /Start with a research question/i },
+    primaryAction: { role: "link", name: /Start with a research question|All theories|All scholars|All works/i },
   },
   {
     name: "search",
@@ -119,6 +119,14 @@ async function gotoHomeOrUnavailable(page: Page) {
     return "unavailable" as const;
   }
 
+  const catalogHeading = page.getByRole("heading", { level: 1, name: /^Published (theories|scholars|works)/i });
+  if (await catalogHeading.count()) {
+    await expect(catalogHeading).toBeVisible();
+    await expect(page.getByText(/No published graph is available yet/i)).toHaveCount(0);
+    await expect(page.getByRole("heading", { level: 1, name: /The knowledge graph is not published yet/i })).toHaveCount(0);
+    return "catalog" as const;
+  }
+
   await expect(page.getByRole("heading", { level: 1, name: /Explore theory choices with source-aware guidance/i })).toBeVisible();
   return "ready" as const;
 }
@@ -183,7 +191,7 @@ test("home graph mode controls and node detail workflow are keyboard recoverable
 
   await page.setViewportSize({ width: 1024, height: 900 });
 
-  if ((await gotoHomeOrUnavailable(page)) === "unavailable") {
+  if ((await gotoHomeOrUnavailable(page)) !== "ready") {
     assertBrowserHealth();
     return;
   }
@@ -258,7 +266,7 @@ test("reduced motion prevents sustained graph canvas RAF while preserving node d
     };
   });
 
-  if ((await gotoHomeOrUnavailable(page)) === "unavailable") {
+  if ((await gotoHomeOrUnavailable(page)) !== "ready") {
     await expectNoHorizontalScroll(page);
     assertBrowserHealth();
     return;

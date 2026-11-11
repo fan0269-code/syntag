@@ -38,6 +38,8 @@ flowchart LR
 
 2026-11-10（published 导入路径）：新增 `npm run db:import-published`。它只按 slug upsert 语料中 `status: "published"` 的记录，以及两端本身都是 published 的关系，并拒绝 FAN-247 归档 slug。`--dry-run` 只打印计数，不连接、不写库。这不是 `npm run db:seed`，Vercel build 不会运行它。对生产库执行仍是之后的显式步骤；本轮未连接、未写入任何数据库。广告保持关闭。把这八页写入数据库不是广告申请，也不使站点具备申请资格。说明见 `docs/published-import.md`。
 
+2026-11-11（首页已发布实体）：生产首页在 discipline / field / topic / concept 为零、theory / scholar / work 已发布时，仍把空的学科图谱当成“知识图谱尚未发布”。本轮只改首页渲染：这三类只要有已发布记录就列出并链接，且不再出现 “The knowledge graph is not published yet” / “No published graph is available yet”；三类都没有时仍是诚实空态。不写数据库，不改 published 状态，不改 import-published、dynamicParams 或连接池。广告保持关闭。合并不等于广告申请。
+
 2026-11-10（构建期连接池）：八条旗舰记录已在生产库中，但详情页仍是 `generateStaticParams` + `dynamicParams = false`。`VERCEL=1` 的构建工人此前套用运行时 `max: 1` 池，Next 在同一工人里并发预渲染多页，`pg` 把排满的连接池报成 `timeout exceeded when trying to connect`，第一条理论页中断构建。本轮只在 `NEXT_PHASE=phase-production-build` 时放宽该池。运行时仍是单连接。不改 `dynamicParams`，不 seed，不 reset。广告保持关闭。这不是广告申请。合并本身不表示这八页已经可访问；要等带上这个池配置的生产构建成功。
 
 | 维度 | 当前事实 | 结论 |

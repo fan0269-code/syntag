@@ -1,9 +1,13 @@
 import { KnowledgeGraphExperience, type GraphData } from "@/components/graph/KnowledgeGraphExperience";
+import { HomeCatalogExperience } from "@/components/home/HomeCatalogExperience";
+import { HomePublishedLists } from "@/components/home/HomePublishedLists";
 import { PageFrame } from "@/components/common/PageFrame";
 import Link from "next/link";
 import { getGraphData } from "@/lib/graph-data";
 import { sampleGraph } from "@/lib/graph-sample";
-import { resolveHomeGraph } from "@/lib/home-graph";
+import { getPublishedIndex } from "@/lib/entities/indexes";
+import { catalogJsonLdDescriptionFor, catalogSections } from "@/lib/home-catalog";
+import { loadHomePageState } from "@/lib/home-page-state";
 import { entityDetailHref, isEntityType } from "@/lib/entity-routes";
 import { JsonLdGraph } from "@/components/seo/JsonLdGraph";
 import { SearchBox } from "@/components/search/SearchBox";
@@ -26,17 +30,20 @@ export const revalidate = 600;
 export const metadata = generateHomeMeta();
 
 export default async function Home() {
-  const state = await resolveHomeGraph(
-    async () => (await getGraphData("education", "genealogy")) as GraphData | null,
-    sampleGraph as GraphData,
-    process.env.NODE_ENV === "development",
-  );
+  const surface = await loadHomePageState({
+    loadGraph: async () => (await getGraphData("education", "genealogy")) as GraphData | null,
+    loadTheories: () => getPublishedIndex("theory"),
+    loadScholars: () => getPublishedIndex("scholar"),
+    loadWorks: () => getPublishedIndex("work"),
+    sampleGraph: sampleGraph as GraphData,
+    allowDemo: process.env.NODE_ENV === "development",
+  });
 
-  if (state.kind === "unavailable" || state.kind === "empty") {
-    const title = state.kind === "empty"
+  if (surface.kind === "unavailable" || surface.kind === "empty") {
+    const title = surface.kind === "empty"
       ? "The knowledge graph is not published yet"
       : "Data temporarily unavailable";
-    const lead = state.kind === "empty"
+    const lead = surface.kind === "empty"
       ? "Syrtag is a source-aware map for doctoral research in education and sociology. It is not a journal or a writing service."
       : "The catalog could not be loaded. This is an availability state, not a published finding.";
     return (
@@ -47,7 +54,7 @@ export default async function Home() {
             <h1>{title}</h1>
             <p className="lead">{lead}</p>
           </header>
-          {state.kind === "empty" && (
+          {surface.kind === "empty" && (
             <section>
               <h2>Current publication status</h2>
               <p>No published graph is available yet. Syrtag only shows records with status published after source-backed human review.</p>
@@ -65,14 +72,30 @@ export default async function Home() {
           </div>
           <h2>Read next</h2>
           <ReadNext />
-          <SiteReadingGuide mode={state.kind} />
+          <SiteReadingGuide mode={surface.kind} />
         </article>
       </PageFrame>
     );
   }
 
-  const isDemo = state.kind === "demo";
-  const graph = state.graph;
+  if (surface.kind === "catalog") {
+    return (
+      <PageFrame mainClassName="home-main">
+        <JsonLdGraph
+          description={catalogJsonLdDescriptionFor(surface.catalog)}
+          items={catalogSections(surface.catalog).flatMap((section) => section.items.map((item) => ({
+            name: item.title,
+            href: item.href,
+            description: item.summary,
+          })))}
+        />
+        <HomeCatalogExperience catalog={surface.catalog} />
+      </PageFrame>
+    );
+  }
+
+  const isDemo = surface.kind === "demo";
+  const graph = surface.graph;
 
   return (
     <PageFrame mainClassName="home-main">
@@ -113,6 +136,7 @@ export default async function Home() {
           <KnowledgeGraphExperience initialGraph={graph} />
         </section>
       </section>
+      {surface.kind === "graph" && <HomePublishedLists catalog={surface.catalog} />}
       <SiteReadingGuide mode={isDemo ? "demo" : "published"} />
     </PageFrame>
   );
