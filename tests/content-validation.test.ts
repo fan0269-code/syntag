@@ -34,7 +34,7 @@ test("the seed corpus satisfies the structural content contract", () => {
         seedCorpus.theories.filter((theory) => theory.depth === depth).length,
       ]),
     ),
-    { D1: 6, D2: 8, D3: 2 },
+    { D1: 6, D2: 9, D3: 2 },
   );
   for (const theory of seedCorpus.theories) {
     for (const block of requiredTheoryBlocks(theory.depth)) {
@@ -633,10 +633,15 @@ test("the C5 works and concepts layer is source-complete, linked, and deduplicat
   const conceptSlugs = new Set(seedCorpus.concepts.map((concept) => concept.slug));
   const theorySlugs = new Set(seedCorpus.theories.map((theory) => theory.slug));
 
-  const p1DraftWorkSlug = "beijaard-meijer-verloop-2004-reconsidering";
-  const historicalWorks = seedCorpus.works.filter((work) => work.slug !== p1DraftWorkSlug);
+  const laterWorkSlugs = new Set([
+    "beijaard-meijer-verloop-2004-reconsidering",
+    "wenger-1998-communities-of-practice",
+    "lave-and-wenger-1991-situated-learning",
+    "elder-children-of-the-great-depression",
+  ]);
+  const historicalWorks = seedCorpus.works.filter((work) => !laterWorkSlugs.has(work.slug));
   assert.equal(historicalWorks.length, 19, "the reviewed first batch still has its 19 source-complete work candidates");
-  assert.equal(seedCorpus.works.find((work) => work.slug === p1DraftWorkSlug)?.status, "published");
+  assert.equal(seedCorpus.works.find((work) => work.slug === "beijaard-meijer-verloop-2004-reconsidering")?.status, "published");
   assert.ok(seedCorpus.concepts.length >= 20 && seedCorpus.concepts.length <= 24, "the first concept layer is deliberately deduplicated");
   assert.equal(workSlugs.size, seedCorpus.works.length, "work candidates have unique slugs");
   assert.equal(conceptSlugs.size, seedCorpus.concepts.length, "concept candidates have unique slugs");
@@ -694,7 +699,7 @@ test("C5 detail routes render their audited content rather than generic placehol
 });
 
 test("the existing scholar pages satisfy the C6 evidence and attribution contract", () => {
-  const expectedSlugs = ["glen-h-elder-jr", "geert-kelchtermans", "anthony-giddens", "pierre-bourdieu", "jean-lave", "etienne-wenger", "michael-lipsky", "john-w-kingdon", "ivor-f-goodson", "christopher-day", "douwe-beijaard", "etienne-wenger-flagship", "glen-h-elder-jr-flagship"];
+  const expectedSlugs = ["glen-h-elder-jr", "geert-kelchtermans", "anthony-giddens", "pierre-bourdieu", "jean-lave", "etienne-wenger", "michael-lipsky", "john-w-kingdon", "ivor-f-goodson", "christopher-day", "douwe-beijaard", "etienne-wenger-flagship", "glen-h-elder-jr-flagship", "jean-lave-flagship"];
   const secondDraftSlugs = ["ivor-f-goodson", "christopher-day"];
   const theorySlugs = new Set(seedCorpus.theories.map((theory) => theory.slug));
   const workSlugs = new Set(seedCorpus.works.map((work) => work.slug));

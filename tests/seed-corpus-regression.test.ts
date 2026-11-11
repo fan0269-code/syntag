@@ -26,26 +26,26 @@ test("seed corpus preserves its semantic baseline after module extraction", () =
   }, {
     disciplines: 2,
     fields: 6,
-    theories: 16,
-    works: 20,
+    theories: 17,
+    works: 23,
     concepts: 24,
-    theoryWorks: 22,
+    theoryWorks: 25,
     theoryConcepts: 25,
-    disciplineTheories: 22,
+    disciplineTheories: 23,
     fieldTheories: 8,
     genealogy: 8,
-    scholars: 13,
-    theoryScholars: 11,
+    scholars: 14,
+    theoryScholars: 12,
     topics: 8,
     topicTheories: 24,
     verifications: 36,
   });
-  assert.equal(seedCorpus.scholars.filter((scholar) => scholar.status === "published").length, 10);
+  assert.equal(seedCorpus.scholars.filter((scholar) => scholar.status === "published").length, 11);
   assert.equal(seedCorpus.theoryScholars.filter((relation) => {
     const scholar = seedCorpus.scholars.find((candidate) => candidate.slug === relation.scholarSlug);
     const theory = seedCorpus.theories.find((candidate) => candidate.slug === relation.theorySlug);
     return scholar?.status === "published" && theory?.status === "published";
-  }).length, 11);
+  }).length, 12);
   assert.equal(seedCorpus.topics.filter((topic) => topic.status === "published").length, 4);
   assert.equal(seedCorpus.topicTheories.filter((relation) => {
     const topic = seedCorpus.topics.find((candidate) => candidate.slug === relation.topicSlug);
@@ -69,6 +69,7 @@ test("seed corpus preserves its semantic baseline after module extraction", () =
     "communities-of-practice-1998",
     "situated-learning-legitimate-peripheral-participation",
     "life-course-perspective",
+    "multiple-streams-education-policy",
   ]);
   assert.deepEqual(seedCorpus.genealogy.map(({ id }) => id), [
     "life-course:teacher-life-history",
@@ -104,6 +105,7 @@ test("seed corpus preserves its semantic baseline after module extraction", () =
     "douwe-beijaard",
     "etienne-wenger-flagship",
     "glen-h-elder-jr-flagship",
+    "jean-lave-flagship",
   ]);
   assert.deepEqual(validateSeedCorpus(seedCorpus).errors, []);
 });

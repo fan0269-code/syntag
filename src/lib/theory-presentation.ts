@@ -1,5 +1,6 @@
 import type { TheoryDepth } from "../data/templates/theory-template";
 import type { ContentRecord } from "./content";
+import { CLOSED_LEDGER_SUMMARY, OPEN_THEORY_LEDGER_SUMMARY, isClosedClaimLedger, ledgerDate, type LedgerLevel } from "./claim-ledger.ts";
 
 export type TheorySectionKey =
   | "origins"
@@ -26,7 +27,7 @@ export type TheorySectionKey =
   | "reading_path"
   | "sources_and_verification";
 
-type VerificationLevel = "source_record" | "L2_editorial" | "L3_pending";
+type VerificationLevel = LedgerLevel;
 
 type CoreConcept = { name: string; definition: string; relevance: string };
 type Genealogy = { relatedTheory: string; relationship: string; description: string; sources: ContentSource[] };
@@ -34,7 +35,7 @@ type TheoryNature = { kind: string; label: string; explanation: string; sources:
 type Suitability = { topic: string; rationale: string };
 type DataCollection = { dimension: string; indicators: string[]; collectionPrompt: string };
 type ChapterUse = { chapter: string; purpose: string; theoryUse: string };
-type ContentSource = { id: string; citation: string; url: string };
+type ContentSource = { id: string; citation: string; url: string; sourceKind: string };
 type HistoricalDevelopment = { period: string; development: string; significance: string; sources: ContentSource[] };
 type ScholarContribution = { name: string; contribution: string; representativeWork: string; sources: ContentSource[] };
 type AdjacentTheory = { theory: string; sharedFocus: string; difference: string; sources: ContentSource[] };
@@ -43,7 +44,7 @@ type ExplanatoryMechanism = { mechanism: string; process: string; evidenceFocus:
 type TheoryComparison = { theory: string; role: "main_candidate" | "alternative"; sharedFocus: string; difference: string; whenPrefer: string; sources: ContentSource[] };
 type BoundaryCondition = { condition: string; implication: string; sources: ContentSource[] };
 type ReadingPath = { order: number; level: string; title: string; purpose: string; source?: ContentSource };
-type SourceItem = { text: string; level: VerificationLevel; url?: string };
+type SourceItem = { text: string; level: VerificationLevel; url?: string; type?: string; date?: string };
 
 export type TheoryPresentation = {
   depthLabel: string;
@@ -108,20 +109,34 @@ function contentSources(value: unknown): ContentSource[] {
     const id = nonEmptyString(item.id);
     const citation = nonEmptyString(item.citation);
     const url = nonEmptyString(item.url);
-    return id && citation && url ? [{ id, citation, url }] : [];
+    const sourceKind = nonEmptyString(item.source_kind);
+    return id && citation && url ? [{ id, citation, url, sourceKind }] : [];
   });
 }
 
 function buildSourceItems(value: unknown, sources: ContentSource[]): SourceItem[] {
   const sourceById = new Map(sources.map((source) => [source.id, source]));
-  const items = objectArray(value).flatMap<SourceItem>((entry) => {
+  const rows = objectArray(value);
+  const closed = isClosedClaimLedger(rows);
+  const items = rows.flatMap<SourceItem>((entry) => {
     const claim = nonEmptyString(entry.claim);
     const evidenceLevel = nonEmptyString(entry.evidence_level);
     if (!claim) return [];
+    const date = ledgerDate(entry.verifiedAt);
+    const locator = nonEmptyString(entry.locator);
 
     if (evidenceLevel === "L1") {
       const source = sourceById.get(nonEmptyString(entry.source_id));
       if (entry.status !== "verified" || !source) return [];
+      if (closed && locator && date && source.sourceKind) {
+        return [{
+          text: `${claim} Locator: ${locator}. — ${source.citation}`,
+          level: "source_verified" as const,
+          url: source.url,
+          type: source.sourceKind,
+          date,
+        }];
+      }
       return [{
         text: `${claim} — ${source.citation}`,
         level: "source_record" as const,
@@ -129,10 +144,18 @@ function buildSourceItems(value: unknown, sources: ContentSource[]): SourceItem[
       }];
     }
     if (evidenceLevel === "L2" && entry.status === "editorial") {
-      return [{ text: claim, level: "L2_editorial" as const }];
+      return [{
+        text: claim,
+        level: "L2_editorial" as const,
+        ...(closed && date ? { type: "editorial_synthesis", date } : {}),
+      }];
     }
     if (evidenceLevel === "L3" && entry.status === "proposed") {
-      return [{ text: claim, level: "L3_pending" as const }];
+      return [{
+        text: claim,
+        level: closed ? "L3_guidance" as const : "L3_pending" as const,
+        ...(closed && date ? { type: "research_guidance", date } : {}),
+      }];
     }
     return [];
   });
@@ -155,6 +178,7 @@ function linkedSources(value: unknown, sources: ContentSource[]): ContentSource[
 
 export function buildTheoryPresentation(content: ContentRecord, depth: TheoryDepth): TheoryPresentation {
   const sources = contentSources(content.sources);
+  const ledgerClosed = isClosedClaimLedger(objectArray(content.verification));
   const coreConcepts = objectArray(content.core_concepts).flatMap((item) => {
     const name = nonEmptyString(item.name);
     const definition = nonEmptyString(item.definition);
@@ -327,7 +351,7 @@ export function buildTheoryPresentation(content: ContentRecord, depth: TheoryDep
     fitWriting: stringArray(content.fit_writing),
     readingPath,
     sourceItems,
-    verificationSummary: "Sources listed · claim-level review pending · editorial synthesis ongoing",
+    verificationSummary: ledgerClosed ? CLOSED_LEDGER_SUMMARY : OPEN_THEORY_LEDGER_SUMMARY,
     depthCoverage,
     sectionKeys,
   };

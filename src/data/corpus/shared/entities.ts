@@ -10,6 +10,7 @@ import { createFirstEnrichmentBatch } from "../content-batches/2026-07-18-first-
 import { createGoodsonDayDraftScholarBatch } from "../content-batches/2026-07-19-goodson-day-draft-scholars.ts";
 import { createLifeCourseEvidenceR2Batch } from "../content-batches/2026-07-21-life-course-evidence-r2.ts";
 import { createP1FlagshipDraftBatch, P1_FLAGSHIP_DISCIPLINE_THEORIES } from "../content-batches/2026-11-10-p1-flagship-drafts.ts";
+import { CLUSTER_DISCIPLINE_THEORIES, createClusterBatch } from "../content-batches/2026-11-11-cluster-deepening.ts";
 import { isFAN247Archived, type FAN247VisibilityEntityType } from "../../../lib/fan247-visibility.ts";
 import { FAN_133_U3_ARCHIVED_CONCEPT_SLUGS, FAN_133_U3_ARCHIVED_WORK_SLUGS } from "../../../lib/u3-visibility.ts";
 
@@ -1267,6 +1268,7 @@ const disciplineTheories: SeedTheoryDiscipline[] = [
   ...["life-course-theory", "teacher-identity-theory", "communities-of-practice", "teacher-professional-development-theory", "teacher-life-history-research", "educational-equity-theory", "institutional-theory", "street-level-bureaucracy", "multiple-streams-framework"].map((theorySlug) => ({ disciplineSlug: "education", theorySlug, relevance: "primary" as const })),
   ...["life-course-theory", "structuration-theory", "communities-of-practice", "practice-theory-bourdieu", "social-capital-theory", "institutional-theory"].map((theorySlug) => ({ disciplineSlug: "sociology", theorySlug, relevance: "primary" as const })),
   ...P1_FLAGSHIP_DISCIPLINE_THEORIES,
+  ...CLUSTER_DISCIPLINE_THEORIES,
 ];
 
 const fieldTheories: SeedTheoryField[] = [
@@ -1676,6 +1678,7 @@ const theoryWorks: SeedTheoryWork[] = [
 const theoryConcepts: SeedTheoryConcept[] = concepts.flatMap((concept) => concept.content.en.theory_variations.map((variation) => ({ theorySlug: variation.theory_slug, conceptSlug: concept.slug, importance: "core" })));
 
 const p1FlagshipDraftBatch = createP1FlagshipDraftBatch();
+const clusterBatch = createClusterBatch();
 
 const verifications: SeedVerification[] = theories.flatMap((entry) => {
   const pageSources = entry.content.en.sources ?? [];
@@ -1690,23 +1693,24 @@ const verifications: SeedVerification[] = theories.flatMap((entry) => {
 export const seedCorpus: SeedCorpus = {
   disciplines: applyFAN247Visibility("discipline", disciplines.map((record) => ({ ...record, status: "published", publishedAt }))),
   fields: applyFAN247Visibility("field", fields.map((record) => ({ ...record, status: "published", publishedAt }))),
-  theories: applyFAN247Visibility("theory", [...theories, ...p1FlagshipDraftBatch.theories]),
+  theories: applyFAN247Visibility("theory", [...theories, ...p1FlagshipDraftBatch.theories, ...clusterBatch.theories]),
   works: applyFAN247Visibility("work", [
     ...works.map((record): SeedWork => FAN_133_U3_ARCHIVED_WORK_SLUGS.includes(record.slug as typeof FAN_133_U3_ARCHIVED_WORK_SLUGS[number])
       ? { ...record, status: "archived", publishedAt: undefined }
       : record),
     ...p1FlagshipDraftBatch.works,
+    ...clusterBatch.works,
   ]),
   concepts: applyFAN247Visibility("concept", concepts.map((record) => FAN_133_U3_ARCHIVED_CONCEPT_SLUGS.includes(record.slug as typeof FAN_133_U3_ARCHIVED_CONCEPT_SLUGS[number])
     ? { ...record, status: "archived", publishedAt: undefined }
     : record)),
-  theoryWorks: [...theoryWorks, ...p1FlagshipDraftBatch.theoryWorks],
+  theoryWorks: [...theoryWorks, ...p1FlagshipDraftBatch.theoryWorks, ...clusterBatch.theoryWorks],
   theoryConcepts,
   disciplineTheories,
   fieldTheories,
   genealogy,
-  scholars: applyFAN247Visibility("scholar", [...scholars, ...firstEnrichmentBatch.scholars, ...goodsonDayDraftScholarBatch.scholars, ...p1FlagshipDraftBatch.scholars]),
-  theoryScholars: [...theoryScholars, ...firstEnrichmentBatch.theoryScholars, ...goodsonDayDraftScholarBatch.theoryScholars, ...p1FlagshipDraftBatch.theoryScholars],
+  scholars: applyFAN247Visibility("scholar", [...scholars, ...firstEnrichmentBatch.scholars, ...goodsonDayDraftScholarBatch.scholars, ...p1FlagshipDraftBatch.scholars, ...clusterBatch.scholars]),
+  theoryScholars: [...theoryScholars, ...firstEnrichmentBatch.theoryScholars, ...goodsonDayDraftScholarBatch.theoryScholars, ...p1FlagshipDraftBatch.theoryScholars, ...clusterBatch.theoryScholars],
   topics: applyFAN247Visibility("topic", [...topics, ...firstEnrichmentBatch.topics]),
   topicTheories: [...topicTheories, ...firstEnrichmentBatch.topicTheories],
   verifications,

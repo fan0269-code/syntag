@@ -15,8 +15,11 @@ import type {
  * rewrite and the human-review fields below. Item #9 is not in this batch.
  * These slugs are outside the FAN-247 archive list, so the older archived
  * records stay archived. Publishing these pages is not an advertising application.
+ * 2026-11-11 recheck: verification dates move to the day the same URLs were
+ * opened again. Companion work and scholar pages, when published, are linked
+ * by slug and are not the archived records.
  */
-export const P1_FLAGSHIP_DRAFT_VERIFIED_AT = "2026-11-10T00:00:00.000Z";
+export const P1_FLAGSHIP_DRAFT_VERIFIED_AT = "2026-11-11T00:00:00.000Z";
 export const P1_FLAGSHIP_PUBLISHED_AT = "2026-11-10T00:00:00.000Z";
 
 /**
@@ -105,7 +108,7 @@ const tueBeijaard: ContentSource = {
   source_kind: "university",
   evidence_level: "L1",
   supports: [
-    "Institutional profile title Full Professor emeritus on the page checked 2026-11-10",
+    "Institutional profile title Full Professor emeritus on the page checked 2026-11-11",
     "Does not by itself fix every earlier job title",
   ],
 };
@@ -257,7 +260,7 @@ const elderDoi: ContentSource = {
   source_kind: "doi",
   evidence_level: "L1",
   supports: [
-    "DOI layer rechecked as resolving on 2026-11-10",
+    "DOI layer rechecked as resolving on 2026-11-11",
     "This DOI is not treated as identical to the 1974 printing or to every later reprint",
   ],
 };
@@ -306,7 +309,7 @@ const pallasChapter: ContentSource = {
   supports: [
     "Chapter page: Aaron M. Pallas, title Educational Transitions, Trajectories, and Pathways, pages 165-184 in the handbook",
     "Visible chapter abstract on educational paths, the changes that mark them, and the common routes that shape them",
-    "Crossref chapter-level issued was empty on 2026-11-10, so no separate chapter date is stated",
+    "Crossref chapter-level issued was empty on 2026-11-11, so no separate chapter date is stated",
     "Publisher HTML is not treated as an open full text",
   ],
 };
@@ -330,7 +333,7 @@ const elderAbout: ContentSource = {
   source_kind: "university",
   evidence_level: "L1",
   supports: [
-    "Page title and appointment wording checked 2026-11-10",
+    "Page title and appointment wording checked 2026-11-11",
     "Page account of how Elder describes his path into life-course research, including the 1974/1999 book dating on that page",
   ],
 };
@@ -618,10 +621,10 @@ export function createP1FlagshipDraftBatch(): P1FlagshipDraftBatch {
             { order: 4, level: "Level 3 · Design", title: "Fit against the four features", purpose: "Decide which feature the study can evidence before adopting the construct.", source_id: beijaardLeiden.id },
           ],
           verification: [
-            l1("p1-tpi-biblio", `theories[slug="${identitySlug}"].content.en.origins`, "Crossref lists Douwe Beijaard, Paulien C. Meijer, and Nico Verloop as authors of Reconsidering research on teachers' professional identity, issued February 2004 in Teaching and Teacher Education 20(2), pages 107-128, publisher Elsevier BV.", beijaardCrossref.id, "Crossref message fields title, author, container-title, issued, volume, issue, page, publisher; checked 2026-11-10"),
-            l1("p1-tpi-three-kinds", `theories[slug="${identitySlug}"].content.en.what_is_it`, "The 2004 review sorts the studies it read into formation studies, characteristic-identification studies, and studies that present professional identity through teachers' stories.", beijaardLeiden.id, "Repository copy of handle 1887/11190, opening review statement and the paragraph introducing the three categories before section 3; read 2026-11-10"),
-            l1("p1-tpi-four-features", `theories[slug="${identitySlug}"].content.en.core_concepts`, "Section 6.1 of the review presents four features: an ongoing interpretive process, person and context, sub-identities that may harmonize or conflict, and agency.", beijaardLeiden.id, "Repository copy, section 6.1, running header page 122 of Teaching and Teacher Education 20 (2004) 107-128; read 2026-11-10"),
-            l1("p1-tpi-acceptance-dates", `theories[slug="${identitySlug}"].content.en.origins`, "The repository copy prints receipt in May 2002, revision in June 2003, and acceptance in July 2003, which are not the Crossref issue date of February 2004.", beijaardLeiden.id, "First page of the repository copy, received/revised/accepted line; read 2026-11-10"),
+            l1("p1-tpi-biblio", `theories[slug="${identitySlug}"].content.en.origins`, "Crossref lists Douwe Beijaard, Paulien C. Meijer, and Nico Verloop as authors of Reconsidering research on teachers' professional identity, issued February 2004 in Teaching and Teacher Education 20(2), pages 107-128, publisher Elsevier BV.", beijaardCrossref.id, "Crossref message fields title, author, container-title, issued, volume, issue, page, publisher; checked 2026-11-11"),
+            l1("p1-tpi-three-kinds", `theories[slug="${identitySlug}"].content.en.what_is_it`, "The 2004 review sorts the studies it read into formation studies, characteristic-identification studies, and studies that present professional identity through teachers' stories.", beijaardLeiden.id, "Repository copy of handle 1887/11190, opening review statement and the paragraph introducing the three categories before section 3; read 2026-11-11"),
+            l1("p1-tpi-four-features", `theories[slug="${identitySlug}"].content.en.core_concepts`, "Section 6.1 of the review presents four features: an ongoing interpretive process, person and context, sub-identities that may harmonize or conflict, and agency.", beijaardLeiden.id, "Repository copy, section 6.1, running header page 122 of Teaching and Teacher Education 20 (2004) 107-128; read 2026-11-11"),
+            l1("p1-tpi-acceptance-dates", `theories[slug="${identitySlug}"].content.en.origins`, "The repository copy prints receipt in May 2002, revision in June 2003, and acceptance in July 2003, which are not the Crossref issue date of February 2004.", beijaardLeiden.id, "First page of the repository copy, received/revised/accepted line; read 2026-11-11"),
             l2("p1-tpi-boundary", `theories[slug="${identitySlug}"].content.en.theory_nature`, "The page calls itself a research construct and a review. That label is editorial. The article is not presented here as a founding experiment or as a theory owned by one author."),
             l2("p1-tpi-summary-limit", `theories[slug="${identitySlug}"].content.en.misuse_risks`, "The summary paraphrases the review's framing. It does not reproduce the abstract, and it does not claim that later research agrees with the four features."),
             l3("p1-tpi-guidance", `theories[slug="${identitySlug}"].content.en.fit_writing`, "Using the four features as a design checklist is conditional on the question, the evidence a study can actually collect, and human review. It is not a required method."),
@@ -815,9 +818,9 @@ export function createP1FlagshipDraftBatch(): P1FlagshipDraftBatch {
             { order: 4, level: "Level 3 · Design", title: "Test the unit", purpose: "Do not apply the phrase to a formal team that lacks a shared enterprise.", source_id: copAspire.id },
           ],
           verification: [
-            l1("p1-cop-biblio", `theories[slug="${copSlug}"].content.en.origins`, "Crossref records Communities of Practice as a Cambridge University Press monograph by Etienne Wenger, issued 28 July 1998.", copCrossref.id, "Crossref message title, author, publisher, issued, type; checked 2026-11-10"),
-            l1("p1-cop-unit", `theories[slug="${copSlug}"].content.en.what_is_it`, "The Cambridge Aspire page describes learning through engagement in social practice and names informal communities of practice, formed around shared enterprises over time, as the primary unit rather than the individual or social institutions.", copAspire.id, "Visible description on the Aspire HTML, checked 2026-11-10; the sentence is truncated on the page"),
-            l1("p1-cop-wenger-name", `theories[slug="${copSlug}"].content.en.origins`, "OpenAlex A5018954657 displays Étienne Wenger and returns an empty ORCID. This page does not treat that row as an institutional CV.", openAlexWenger.id, "OpenAlex author JSON display_name and orcid; checked 2026-11-10"),
+            l1("p1-cop-biblio", `theories[slug="${copSlug}"].content.en.origins`, "Crossref records Communities of Practice as a Cambridge University Press monograph by Etienne Wenger, issued 28 July 1998.", copCrossref.id, "Crossref message title, author, publisher, issued, type; checked 2026-11-11"),
+            l1("p1-cop-unit", `theories[slug="${copSlug}"].content.en.what_is_it`, "The Cambridge Aspire page describes learning through engagement in social practice and names informal communities of practice, formed around shared enterprises over time, as the primary unit rather than the individual or social institutions.", copAspire.id, "Visible description on the Aspire HTML, checked 2026-11-11; the sentence is truncated on the page"),
+            l1("p1-cop-wenger-name", `theories[slug="${copSlug}"].content.en.origins`, "OpenAlex A5018954657 displays Étienne Wenger and returns an empty ORCID. This page does not treat that row as an institutional CV.", openAlexWenger.id, "OpenAlex author JSON display_name and orcid; checked 2026-11-11"),
             l2("p1-cop-misuse", `theories[slug="${copSlug}"].content.en.misuse_risks`, "The management-slogan boundary is editorial. The 1998 publisher record does not license every later use of the phrase."),
             l2("p1-cop-not-lpp", `theories[slug="${copSlug}"].content.en.genealogy`, "Keeping the 1998 book distinct from the 1991 book is an editorial page boundary supported by the two different Crossref records."),
             l3("p1-cop-guidance", `theories[slug="${copSlug}"].content.en.fit_writing`, "Refusing a formal team as a community of practice is design guidance. It depends on the evidence the study can show."),
@@ -830,7 +833,7 @@ export function createP1FlagshipDraftBatch(): P1FlagshipDraftBatch {
       primary: false,
       depth: "D2",
       titleEn: "Situated learning / legitimate peripheral participation",
-      summaryEn: "Situated learning, on this page, is the 1991 account by Jean Lave and Etienne Wenger in which learning is social and legitimate peripheral participation is the central process (DOI 10.1017/CBO9780511815355). It is related to the 1998 communities-of-practice book and it is not that book. This round does not open a separate Jean Lave flagship page.",
+      summaryEn: "Situated learning, on this page, is the 1991 account by Jean Lave and Etienne Wenger in which learning is social and legitimate peripheral participation is the central process (DOI 10.1017/CBO9780511815355). It is related to the 1998 communities-of-practice book and it is not that book. Jean Lave has a separate scholar page. This theory page does not replace it.",
       status: "published",
       publishedAt: P1_FLAGSHIP_PUBLISHED_AT,
       content: {
@@ -842,7 +845,7 @@ export function createP1FlagshipDraftBatch(): P1FlagshipDraftBatch {
             source_ids: [lppCrossref.id, lppAspire.id],
           },
           what_is_it: "The Cambridge Aspire page for the 1991 book says Jean Lave and Etienne Wenger advance situated learning as the view that learning is fundamentally social. It says they treat legitimate peripheral participation as the central defining characteristic of learning when learning is understood as situated activity. Learners take part in communities of practitioners and move toward fuller participation in a community's practices. The visible sentence about relations between newcomers then breaks off. This page does not complete it from memory. The page calls Lave an anthropologist and Wenger a computer scientist. Those are the publisher page's labels, not a current appointment verified on an institutional CV. Crossref lists the authors as Jean Lave and Etienne Wenger, the title as Situated Learning, the publisher as Cambridge University Press, and the issue date as 27 September 1991.",
-          origins: "The 1991 monograph is a different Crossref work from Wenger's 1998 Communities of Practice. Both publisher pages place the books in Learning in Doing: Social, Cognitive and Computational Perspectives. Shared series and a shared author are not identity of argument. Jean Lave remains a coauthor on this page and is not given a flagship scholar page in this round.",
+          origins: "The 1991 monograph is a different Crossref work from Wenger's 1998 Communities of Practice. Both publisher pages place the books in Learning in Doing: Social, Cognitive and Computational Perspectives. Shared series and a shared author are not identity of argument. Jean Lave remains a coauthor on this page and has a separate scholar page. This page does not replace that scholar page.",
           core_concepts: [
             {
               name: "Situated learning",
@@ -1011,10 +1014,10 @@ export function createP1FlagshipDraftBatch(): P1FlagshipDraftBatch {
             { order: 4, level: "Level 3 · Design", title: "Evidence the process", purpose: "Require access and a change in participation before using the term.", source_id: lppAspire.id },
           ],
           verification: [
-            l1("p1-lpp-biblio", `theories[slug="${lppSlug}"].content.en.origins`, "Crossref records Situated Learning as a Cambridge University Press monograph by Jean Lave and Etienne Wenger, issued 27 September 1991.", lppCrossref.id, "Crossref message title, author, publisher, issued, type; checked 2026-11-10"),
-            l1("p1-lpp-process", `theories[slug="${lppSlug}"].content.en.what_is_it`, "The Cambridge Aspire page describes situated learning as a social process and legitimate peripheral participation as its central characteristic, with learners moving toward fuller participation in a community's practices.", lppAspire.id, "Visible Aspire description, checked 2026-11-10; occupational labels are the page's own wording"),
+            l1("p1-lpp-biblio", `theories[slug="${lppSlug}"].content.en.origins`, "Crossref records Situated Learning as a Cambridge University Press monograph by Jean Lave and Etienne Wenger, issued 27 September 1991.", lppCrossref.id, "Crossref message title, author, publisher, issued, type; checked 2026-11-11"),
+            l1("p1-lpp-process", `theories[slug="${lppSlug}"].content.en.what_is_it`, "The Cambridge Aspire page describes situated learning as a social process and legitimate peripheral participation as its central characteristic, with learners moving toward fuller participation in a community's practices.", lppAspire.id, "Visible Aspire description, checked 2026-11-11; occupational labels are the page's own wording"),
             l2("p1-lpp-not-cop", `theories[slug="${lppSlug}"].content.en.genealogy`, "The page split from the 1998 book is editorial. It follows the two Crossref records rather than a claim that one book contains the other."),
-            l2("p1-lpp-no-lave-page", `theories[slug="${lppSlug}"].content.en.misuse_risks`, "Not opening a Jean Lave flagship page is a scope decision for this round. It does not remove Lave from the 1991 author list."),
+            l2("p1-lpp-no-lave-page", `theories[slug="${lppSlug}"].content.en.misuse_risks`, "The 1991 book page and this theory page do not replace the Jean Lave scholar page. That separation is editorial. It does not remove Lave from the 1991 author list."),
             l3("p1-lpp-guidance", `theories[slug="${lppSlug}"].content.en.fit_writing`, "Requiring evidence of access and changing participation is design guidance, not a finding of the publisher page."),
           ],
         },
@@ -1221,13 +1224,13 @@ export function createP1FlagshipDraftBatch(): P1FlagshipDraftBatch {
             { order: 5, level: "Level 3 · Design", title: "Match the question", purpose: "Use the education anchor only for trajectories, transitions, and later outcomes the design can support.", source_id: pallasChapter.id },
           ],
           verification: [
-            l1("p1-lc-handbook-year", `theories[slug="${lifeSlug}"].content.en.origins`, "Crossref records Handbook of the Life Course, editors Jeylan T. Mortimer and Michael J. Shanahan, publisher Springer US, issued 2003.", lifeCourseHandbookCrossref.id, "Crossref issued date-parts and editor array; checked 2026-11-10"),
-            l1("p1-lc-pallas-wording", `theories[slug="${lifeSlug}"].content.en.what_is_it`, "The Springer chapter page presents Pallas's chapter as a study of how schooling unfolds, including the paths people take, the changes that mark those paths, and the common routes that shape them, and as a study of movement through schooling that can also shape later outcomes.", pallasChapter.id, "Springer chapter abstract; re-read 2026-11-10. The abstract continues through the common-routes clause."),
-            l1("p1-lc-pallas-issued-empty", `theories[slug="${lifeSlug}"].content.en.boundary_conditions`, "Crossref's issued field for the Pallas chapter was an empty date-part on 2026-11-10. This page therefore states only the handbook year.", pallasCrossref.id, "Crossref message.issued.date-parts; checked 2026-11-10"),
-            l1("p1-lc-1974", `theories[slug="${lifeSlug}"].content.en.origins`, "The Routledge 25th-anniversary page says the work was first published in 1974 and describes the Oakland cohort of 167 people born in 1920-1921.", elderRoutledge.id, "Routledge product description; checked 2026-11-10"),
-            l1("p1-lc-doi-2018", `theories[slug="${lifeSlug}"].content.en.origins`, "Crossref records DOI 10.4324/9780429501739 as a Routledge book by Glen H. Elder issued 8 October 2018, ISBN 9780429501739.", elderCrossref.id, "Crossref issued, publisher, ISBN; checked 2026-11-10"),
-            l1("p1-lc-unc-1999", `theories[slug="${lifeSlug}"].content.en.origins`, "The UNC books page lists a 1999 record of Children of the Great Depression marked published 1974, with ISBN 978-0813333427.", elderBooks.id, "UNC books page entry for the 25th anniversary record; checked 2026-11-10"),
-            l1("p1-lc-cpc-1999", `theories[slug="${lifeSlug}"].content.en.origins`, "The Carolina Population Center bibliography records Elder, Glen H., Jr. (1999), Children of the Great Depression: Social Change in Life Experience, Westview Press, Boulder.", elderCpc.id, "CPC bib 943; checked 2026-11-10"),
+            l1("p1-lc-handbook-year", `theories[slug="${lifeSlug}"].content.en.origins`, "Crossref records Handbook of the Life Course, editors Jeylan T. Mortimer and Michael J. Shanahan, publisher Springer US, issued 2003.", lifeCourseHandbookCrossref.id, "Crossref issued date-parts and editor array; checked 2026-11-11"),
+            l1("p1-lc-pallas-wording", `theories[slug="${lifeSlug}"].content.en.what_is_it`, "The Springer chapter page presents Pallas's chapter as a study of how schooling unfolds, including the paths people take, the changes that mark those paths, and the common routes that shape them, and as a study of movement through schooling that can also shape later outcomes.", pallasChapter.id, "Springer chapter abstract; re-read 2026-11-11. The abstract continues through the common-routes clause."),
+            l1("p1-lc-pallas-issued-empty", `theories[slug="${lifeSlug}"].content.en.boundary_conditions`, "Crossref's issued field for the Pallas chapter was an empty date-part on 2026-11-11. This page therefore states only the handbook year.", pallasCrossref.id, "Crossref message.issued.date-parts; checked 2026-11-11"),
+            l1("p1-lc-1974", `theories[slug="${lifeSlug}"].content.en.origins`, "The Routledge 25th-anniversary page says the work was first published in 1974 and describes the Oakland cohort of 167 people born in 1920-1921.", elderRoutledge.id, "Routledge product description; checked 2026-11-11"),
+            l1("p1-lc-doi-2018", `theories[slug="${lifeSlug}"].content.en.origins`, "Crossref records DOI 10.4324/9780429501739 as a Routledge book by Glen H. Elder issued 8 October 2018, ISBN 9780429501739.", elderCrossref.id, "Crossref issued, publisher, ISBN; checked 2026-11-11"),
+            l1("p1-lc-unc-1999", `theories[slug="${lifeSlug}"].content.en.origins`, "The UNC books page lists a 1999 record of Children of the Great Depression marked published 1974, with ISBN 978-0813333427.", elderBooks.id, "UNC books page entry for the 25th anniversary record; checked 2026-11-11"),
+            l1("p1-lc-cpc-1999", `theories[slug="${lifeSlug}"].content.en.origins`, "The Carolina Population Center bibliography records Elder, Glen H., Jr. (1999), Children of the Great Depression: Social Change in Life Experience, Westview Press, Boulder.", elderCpc.id, "CPC bib 943; checked 2026-11-11"),
             l2("p1-lc-not-law", `theories[slug="${lifeSlug}"].content.en.theory_nature`, "Calling the page a perspective rather than a law is editorial. The UNC about page's phrase 'prominent figure in the development' is not rewritten here as sole authorship of a paradigm."),
             l2("p1-lc-inequality-limit", `theories[slug="${lifeSlug}"].content.en.inapplicable_topics`, "The education-inequality question is limited to the trajectory and later-outcome wording on the opened Pallas page. A stronger inequality claim is not sourced on this page."),
             l3("p1-lc-guidance", `theories[slug="${lifeSlug}"].content.en.fit_writing`, "Refusing to generalize the Oakland cohort is design guidance. It is not a result reported by the publisher page."),
@@ -1282,8 +1285,8 @@ export function createP1FlagshipDraftBatch(): P1FlagshipDraftBatch {
           ],
           sources: [beijaardDoi, beijaardCrossref, beijaardLeiden, beijaardOpenAlex],
           verification: [
-            l1("p1-work-2004-biblio", `works[slug="${P1_FLAGSHIP_DRAFT_WORK_SLUG}"].title`, "The work is the 2004 article by Beijaard, Meijer, and Verloop in Teaching and Teacher Education 20(2), 107-128.", beijaardCrossref.id, "Crossref bibliographic fields; checked 2026-11-10"),
-            l1("p1-work-2004-argument", `works[slug="${P1_FLAGSHIP_DRAFT_WORK_SLUG}"].content.en.central_argument`, "The repository copy supports the three study types and the four features in section 6.1.", beijaardLeiden.id, "Handle 1887/11190 repository copy, section 6.1; read 2026-11-10"),
+            l1("p1-work-2004-biblio", `works[slug="${P1_FLAGSHIP_DRAFT_WORK_SLUG}"].title`, "The work is the 2004 article by Beijaard, Meijer, and Verloop in Teaching and Teacher Education 20(2), 107-128.", beijaardCrossref.id, "Crossref bibliographic fields; checked 2026-11-11"),
+            l1("p1-work-2004-argument", `works[slug="${P1_FLAGSHIP_DRAFT_WORK_SLUG}"].content.en.central_argument`, "The repository copy supports the three study types and the four features in section 6.1.", beijaardLeiden.id, "Handle 1887/11190 repository copy, section 6.1; read 2026-11-11"),
             l2("p1-work-2004-not-experiment", `works[slug="${P1_FLAGSHIP_DRAFT_WORK_SLUG}"].content.en.theoretical_contribution`, "Calling the article a review and reconceptualization, rather than a founding experiment, is the editorial boundary required for this flagship work."),
             l3("p1-work-2004-reading", `works[slug="${P1_FLAGSHIP_DRAFT_WORK_SLUG}"].content.en.reading_focus`, "The reading order is guidance for using the review. It is not part of the article's own instructions."),
           ],
@@ -1301,10 +1304,10 @@ export function createP1FlagshipDraftBatch(): P1FlagshipDraftBatch {
       publishedAt: P1_FLAGSHIP_PUBLISHED_AT,
       content: {
         en: {
-          overview: "The TU/e research portal, at the /p/en/persons path checked on 2026-11-10, titles the profile Full Professor emeritus. The ORCID public API for 0000-0002-0065-1810 returns the name Douwe Beijaard and an employment summary of Professor at Eindhoven University of Technology from 2007 with no end year. Those are two records. This page does not collapse them into one timeless title, and it does not use a social-media biography. The flagship work is the 2004 review with Paulien C. Meijer and Nico Verloop. Beijaard is a coauthor of that review, not the owner of a single theory of teacher identity.",
+          overview: "The TU/e research portal, at the /p/en/persons path checked on 2026-11-11, titles the profile Full Professor emeritus. The ORCID public API for 0000-0002-0065-1810 returns the name Douwe Beijaard and an employment summary of Professor at Eindhoven University of Technology from 2007 with no end year. Those are two records. This page does not collapse them into one timeless title, and it does not use a social-media biography. The flagship work is the 2004 review with Paulien C. Meijer and Nico Verloop. Beijaard is a coauthor of that review, not the owner of a single theory of teacher identity.",
           academic_identity: {
             discipline: "Education research",
-            role: "Full Professor emeritus on the TU/e portal checked 2026-11-10; ORCID employment summary says Professor at Eindhoven University of Technology from 2007 with no end year",
+            role: "Full Professor emeritus on the TU/e portal checked 2026-11-11; ORCID employment summary says Professor at Eindhoven University of Technology from 2007 with no end year",
             source_ids: [tueBeijaard.id, orcidBeijaardApi.id],
           },
           theory_relationships: [
@@ -1343,9 +1346,9 @@ export function createP1FlagshipDraftBatch(): P1FlagshipDraftBatch {
           ],
           sources: [tueBeijaard, orcidBeijaard, orcidBeijaardApi, openAlexBeijaard, beijaardDoi, beijaardCrossref, beijaardLeiden],
           verification: [
-            l1("p1-beijaard-name", "scholars[slug=\"douwe-beijaard\"].name", "ORCID public API returns given name Douwe and family name Beijaard for 0000-0002-0065-1810.", orcidBeijaardApi.id, "ORCID person.name; checked 2026-11-10"),
-            l1("p1-beijaard-emeritus", "scholars[slug=\"douwe-beijaard\"].content.en.academic_identity.role", "The TU/e portal page titles the profile Full Professor emeritus.", tueBeijaard.id, "Portal HTML title and profile heading; checked 2026-11-10"),
-            l1("p1-beijaard-employment", "scholars[slug=\"douwe-beijaard\"].content.en.academic_identity.role", "The ORCID employment summary lists Professor at Eindhoven University of Technology starting in 2007, with no end year in that summary.", orcidBeijaardApi.id, "activities-summary employments; checked 2026-11-10"),
+            l1("p1-beijaard-name", "scholars[slug=\"douwe-beijaard\"].name", "ORCID public API returns given name Douwe and family name Beijaard for 0000-0002-0065-1810.", orcidBeijaardApi.id, "ORCID person.name; checked 2026-11-11"),
+            l1("p1-beijaard-emeritus", "scholars[slug=\"douwe-beijaard\"].content.en.academic_identity.role", "The TU/e portal page titles the profile Full Professor emeritus.", tueBeijaard.id, "Portal HTML title and profile heading; checked 2026-11-11"),
+            l1("p1-beijaard-employment", "scholars[slug=\"douwe-beijaard\"].content.en.academic_identity.role", "The ORCID employment summary lists Professor at Eindhoven University of Technology starting in 2007, with no end year in that summary.", orcidBeijaardApi.id, "activities-summary employments; checked 2026-11-11"),
             l2("p1-beijaard-not-founder", "scholars[slug=\"douwe-beijaard\"].content.en.attribution_boundaries", "The key-contributor wording and the refusal of a founder claim are editorial."),
             l3("p1-beijaard-reading", "scholars[slug=\"douwe-beijaard\"].content.en.reading_path", "Reading the institutional page before the article is a suggested order, not a claim about the scholar."),
           ],
@@ -1355,12 +1358,12 @@ export function createP1FlagshipDraftBatch(): P1FlagshipDraftBatch {
     {
       slug: "etienne-wenger-flagship",
       name: "Etienne Wenger",
-      bioEn: "Author of the 1998 book Communities of Practice and coauthor, with Jean Lave, of the 1991 book Situated Learning. This page does not state an employer. It does not merge the 1998 author with a separate Wenger-Trayner record, and it does not open a Jean Lave flagship page.",
+      bioEn: "Author of the 1998 book Communities of Practice and coauthor, with Jean Lave, of the 1991 book Situated Learning. This page does not state an employer. It does not merge the 1998 author with a separate Wenger-Trayner record. Jean Lave has a separate scholar page.",
       status: "published",
       publishedAt: P1_FLAGSHIP_PUBLISHED_AT,
       content: {
         en: {
-          overview: "The public heading uses the spelling Etienne Wenger. Crossref gives that spelling, without an accent, for the 1998 monograph and for the 1991 coauthored monograph. OpenAlex author A5018954657 displays Étienne Wenger and has an empty ORCID field. No university about-page was part of the verified source set for this scholar, so this page states no current appointment, degree, or personal site. The Cambridge page for the 1991 book calls Wenger a computer scientist. That label stays inside the publisher sentence. It is not upgraded to a CV. Jean Lave is the other Crossref author of the 1991 book and is not given a flagship page here.",
+          overview: "The public heading uses the spelling Etienne Wenger. Crossref gives that spelling, without an accent, for the 1998 monograph and for the 1991 coauthored monograph. OpenAlex author A5018954657 displays Étienne Wenger and has an empty ORCID field. No university about-page was part of the verified source set for this scholar, so this page states no current appointment, degree, or personal site. The Cambridge page for the 1991 book calls Wenger a computer scientist. That label stays inside the publisher sentence. It is not upgraded to a CV. Jean Lave is the other Crossref author of the 1991 book and has a separate scholar page. This page does not replace that page, and the 1991 book is not treated as a 1998 sole-authored book.",
           academic_identity: {
             discipline: "Learning theory, as the author of the cited books",
             role: "1998 Crossref author of Communities of Practice; 1991 Crossref coauthor of Situated Learning. No institutional appointment is stated.",
@@ -1383,19 +1386,21 @@ export function createP1FlagshipDraftBatch(): P1FlagshipDraftBatch {
           representative_works: [
             {
               title: "Communities of Practice: Learning, Meaning, and Identity",
+              work_slug: "wenger-1998-communities-of-practice",
               contribution: "1998 monograph. Crossref author: Etienne Wenger. Cambridge Aspire is the description used on the theory page.",
               source_ids: [copCrossref.id, copAspire.id],
             },
             {
               title: "Situated Learning: Legitimate Peripheral Participation",
-              contribution: "1991 monograph coauthored with Jean Lave.",
+              work_slug: "lave-and-wenger-1991-situated-learning",
+              contribution: "1991 monograph coauthored with Jean Lave. This is not the 1998 book.",
               source_ids: [lppCrossref.id],
             },
           ],
           scholarly_relations: [
             {
               kind: "collaboration",
-              description: "Crossref lists Jean Lave and Etienne Wenger as coauthors of the 1991 book only. This page does not infer a wider partnership, and it does not open a Lave flagship page.",
+              description: "Crossref lists Jean Lave and Etienne Wenger as coauthors of the 1991 book only. This page does not infer a wider partnership. Lave's scholar page is a separate record.",
               source_ids: [lppCrossref.id],
             },
           ],
@@ -1413,9 +1418,9 @@ export function createP1FlagshipDraftBatch(): P1FlagshipDraftBatch {
           ],
           sources: [copDoi, copCrossref, copAspire, lppDoi, lppCrossref, lppAspire, openAlexWenger],
           verification: [
-            l1("p1-wenger-1998-author", "scholars[slug=\"etienne-wenger-flagship\"].content.en.academic_identity.role", "Crossref names Etienne Wenger as the author of the 1998 monograph Communities of Practice.", copCrossref.id, "Crossref author array; checked 2026-11-10"),
-            l1("p1-wenger-1991-coauthor", "scholars[slug=\"etienne-wenger-flagship\"].content.en.scholarly_relations", "Crossref names Jean Lave and Etienne Wenger as the authors of the 1991 monograph Situated Learning.", lppCrossref.id, "Crossref author array; checked 2026-11-10"),
-            l1("p1-wenger-openalex", "scholars[slug=\"etienne-wenger-flagship\"].content.en.overview", "OpenAlex A5018954657 displays Étienne Wenger and has no ORCID.", openAlexWenger.id, "Author JSON display_name and orcid; checked 2026-11-10"),
+            l1("p1-wenger-1998-author", "scholars[slug=\"etienne-wenger-flagship\"].content.en.academic_identity.role", "Crossref names Etienne Wenger as the author of the 1998 monograph Communities of Practice.", copCrossref.id, "Crossref author array; checked 2026-11-11"),
+            l1("p1-wenger-1991-coauthor", "scholars[slug=\"etienne-wenger-flagship\"].content.en.scholarly_relations", "Crossref names Jean Lave and Etienne Wenger as the authors of the 1991 monograph Situated Learning.", lppCrossref.id, "Crossref author array; checked 2026-11-11"),
+            l1("p1-wenger-openalex", "scholars[slug=\"etienne-wenger-flagship\"].content.en.overview", "OpenAlex A5018954657 displays Étienne Wenger and has no ORCID.", openAlexWenger.id, "Author JSON display_name and orcid; checked 2026-11-11"),
             l2("p1-wenger-no-merge", "scholars[slug=\"etienne-wenger-flagship\"].content.en.attribution_boundaries", "The refusal to merge a Wenger-Trayner record, and the refusal to invent an employer, are editorial limits."),
             l3("p1-wenger-reading", "scholars[slug=\"etienne-wenger-flagship\"].content.en.reading_path", "The reading order is guidance for keeping the two books apart."),
           ],
@@ -1430,7 +1435,7 @@ export function createP1FlagshipDraftBatch(): P1FlagshipDraftBatch {
       publishedAt: P1_FLAGSHIP_PUBLISHED_AT,
       content: {
         en: {
-          overview: "The UNC about page, checked on 2026-11-10, titles Glen H. Elder, Jr. Howard W. Odum Distinguished Research Professor of Sociology at the University of North Carolina at Chapel Hill and Fellow of the Carolina Population Center. It describes him as a prominent figure in the development of life-course theory, methods, and research. It says he came to the perspective after graduate work in sociology and psychology at UNC, dated 1961 on the page, and a faculty appointment at the University of California, Berkeley, where work with the Institute of Human Development oriented him to studying people across long spans of time. An early book application is dated on that page as 1974/1999. The page also describes later collaborative studies, including children and families in the rural Midwest and inner-city youth in Philadelphia, and a book project with Rick Settersten and Lisa Pearce. This page paraphrases those page statements. It does not add honors, countries, or dates the page was not used to support, and it does not call the perspective Elder's law. OpenAlex A5110302150 displays Glen H. Elder and has an empty ORCID. That row is a discovery check only.",
+          overview: "The UNC about page, checked on 2026-11-11, titles Glen H. Elder, Jr. Howard W. Odum Distinguished Research Professor of Sociology at the University of North Carolina at Chapel Hill and Fellow of the Carolina Population Center. It describes him as a prominent figure in the development of life-course theory, methods, and research. It says he came to the perspective after graduate work in sociology and psychology at UNC, dated 1961 on the page, and a faculty appointment at the University of California, Berkeley, where work with the Institute of Human Development oriented him to studying people across long spans of time. An early book application is dated on that page as 1974/1999. The page also describes later collaborative studies, including children and families in the rural Midwest and inner-city youth in Philadelphia, and a book project with Rick Settersten and Lisa Pearce. This page paraphrases those page statements. It does not add honors, countries, or dates the page was not used to support, and it does not call the perspective Elder's law. OpenAlex A5110302150 displays Glen H. Elder and has an empty ORCID. That row is a discovery check only.",
           academic_identity: {
             discipline: "Sociology",
             role: "Howard W. Odum Distinguished Research Professor of Sociology, University of North Carolina at Chapel Hill; Fellow, Carolina Population Center, as stated on the UNC about page",
@@ -1447,7 +1452,8 @@ export function createP1FlagshipDraftBatch(): P1FlagshipDraftBatch {
           representative_works: [
             {
               title: "Children of the Great Depression",
-              contribution: "Cohort study. Routledge dates first publication to 1974 and sells a 25th anniversary edition. UNC lists a 1999 record marked published 1974. CPC lists a 1999 Westview edition. Crossref dates DOI 10.4324/9780429501739 to 8 October 2018. No single imprint is inferred.",
+              work_slug: "elder-children-of-the-great-depression",
+              contribution: "Cohort study. Routledge dates first publication to 1974 and sells a 25th anniversary edition. UNC lists a 1999 record marked published 1974. CPC lists a 1999 Westview edition. Crossref dates DOI 10.4324/9780429501739 to 8 October 2018. The 1974 University of Chicago Press imprint is a bibliographic layer with the limit stated on the work page. 2018 is not the origin year.",
               source_ids: [elderRoutledge.id, elderBooks.id, elderCpc.id, elderCrossref.id],
             },
           ],
@@ -1461,7 +1467,7 @@ export function createP1FlagshipDraftBatch(): P1FlagshipDraftBatch {
           attribution_boundaries: [
             "Do not write Elder's law or treat the life-course perspective as his sole creation.",
             "Do not cite the 2018 DOI as the 1974 printing.",
-            "Do not name a 1974 publisher that the opened pages do not name.",
+            "The 1974 University of Chicago Press imprint is stated on the work page with the limit that the opened Routledge HTML does not display that title page.",
             "Do not use OpenAlex citation counts as evidence of influence.",
             "The archived scholar record with another slug is not this page and is not published by this batch.",
           ],
@@ -1473,9 +1479,9 @@ export function createP1FlagshipDraftBatch(): P1FlagshipDraftBatch {
           ],
           sources: [elderAbout, elderBooks, elderCpc, openAlexElder, elderRoutledge, elderDoi, elderCrossref, pallasChapter],
           verification: [
-            l1("p1-elder-title", "scholars[slug=\"glen-h-elder-jr-flagship\"].content.en.academic_identity.role", "The UNC about page identifies Glen H. Elder, Jr. as Howard W. Odum Distinguished Research Professor of Sociology at UNC Chapel Hill and a Fellow of the Carolina Population Center.", elderAbout.id, "About page heading and appointment lines; checked 2026-11-10"),
-            l1("p1-elder-perspective-wording", "scholars[slug=\"glen-h-elder-jr-flagship\"].content.en.overview", "The same page calls him a prominent figure in the development of life course theory, methods, and research, and dates graduate work at UNC to 1961 and an early book application to 1974/1999.", elderAbout.id, "About page narrative; checked 2026-11-10"),
-            l1("p1-elder-openalex", "scholars[slug=\"glen-h-elder-jr-flagship\"].content.en.overview", "OpenAlex A5110302150 displays Glen H. Elder and has no ORCID.", openAlexElder.id, "Author JSON display_name and orcid; checked 2026-11-10"),
+            l1("p1-elder-title", "scholars[slug=\"glen-h-elder-jr-flagship\"].content.en.academic_identity.role", "The UNC about page identifies Glen H. Elder, Jr. as Howard W. Odum Distinguished Research Professor of Sociology at UNC Chapel Hill and a Fellow of the Carolina Population Center.", elderAbout.id, "About page heading and appointment lines; checked 2026-11-11"),
+            l1("p1-elder-perspective-wording", "scholars[slug=\"glen-h-elder-jr-flagship\"].content.en.overview", "The same page calls him a prominent figure in the development of life course theory, methods, and research, and dates graduate work at UNC to 1961 and an early book application to 1974/1999.", elderAbout.id, "About page narrative; checked 2026-11-11"),
+            l1("p1-elder-openalex", "scholars[slug=\"glen-h-elder-jr-flagship\"].content.en.overview", "OpenAlex A5110302150 displays Glen H. Elder and has no ORCID.", openAlexElder.id, "Author JSON display_name and orcid; checked 2026-11-11"),
             l2("p1-elder-not-law", "scholars[slug=\"glen-h-elder-jr-flagship\"].content.en.attribution_boundaries", "Refusing a law claim and a sole-origin claim is editorial. The about page's 'prominent figure' wording is not rewritten as a founder verdict."),
             l3("p1-elder-reading", "scholars[slug=\"glen-h-elder-jr-flagship\"].content.en.reading_path", "The reading order is guidance for keeping editions and the Pallas chapter distinct."),
           ],
@@ -1514,7 +1520,7 @@ export function createP1FlagshipDraftBatch(): P1FlagshipDraftBatch {
       scholarSlug: "etienne-wenger-flagship",
       role: "key_contributor",
       sourceUrls: [lppCrossref.url],
-      evidenceNotesEn: "Coauthor of the 1991 book. Jean Lave remains the other author and does not receive a flagship page in this batch.",
+      evidenceNotesEn: "Coauthor of the 1991 book. Jean Lave is the other author and has a separate scholar page. The 1991 book is not rewritten as a 1998 sole-authored book.",
     },
     {
       theorySlug: lifeSlug,
