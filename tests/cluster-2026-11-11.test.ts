@@ -7,6 +7,8 @@ import {
   CLUSTER_THEORY_SLUG,
   CLUSTER_VERIFIED_AT,
   CLUSTER_WORK_SLUGS,
+  KINGDON_SCHOLAR_SLUG,
+  KINGDON_WORK_SLUG,
 } from "../src/data/corpus/content-batches/2026-11-11-cluster-deepening.ts";
 import { isClosedClaimLedger } from "../src/lib/claim-ledger.ts";
 import { publishedIndexIntro } from "../src/lib/published-index-intro.ts";
@@ -67,8 +69,18 @@ test("multiple streams cites the Pearson catalog and EPAA 771, not article 757",
   assert.match(serialized, /10\.14507\/epaa\.v18n15\.2010/);
   assert.equal(serialized.includes("/article/view/757"), false);
   assert.match(serialized, /McCombs/);
+  assert.match(serialized, /No McCombs source was opened/);
   assert.match(serialized, /not an education monograph|U\.S\. federal/);
-  assert.equal(serialized.includes("john-w-kingdon"), false);
+  assert.match(serialized, /applicability may depend on the issue being examined/);
+  assert.equal(serialized.includes("does not travel to a state unchanged"), false);
+  assert.match(serialized, /kingdon-agendas-alternatives-and-public-policies/);
+  assert.match(serialized, /john-w-kingdon-flagship/);
+  assert.equal(/john-w-kingdon(?!-flagship)/.test(serialized), false);
+  const applicability = theory?.content.en.verification?.find((entry) => entry.claimId === "c11-msa-state-applicability");
+  assert.equal(applicability?.verifiedAt, "2026-11-11T00:00:00.000Z");
+  assert.equal(applicability?.evidence_level === "L1" ? applicability.source_id : undefined, "c11-young-shepley-song-2010-epaa");
+  const unchangedClaims = theory?.content.en.verification?.filter((entry) => entry.claimId !== "c11-msa-state-applicability") ?? [];
+  assert.ok(unchangedClaims.every((entry) => entry.verifiedAt === CLUSTER_VERIFIED_AT));
   assert.ok(theory?.content.en.verification?.every((entry) => entry.verifiedAt === CLUSTER_VERIFIED_AT));
   assert.ok(theory?.content.en.verification?.filter((entry) => entry.evidence_level === "L2").every((entry) => entry.contentNature === "editorial_synthesis"));
 });
@@ -99,6 +111,50 @@ test("Children of the Great Depression keeps 1974, 1999, and 2018 apart", () => 
   assert.equal(serialized.includes("In this highly acclaimed work first published in 1974"), false);
 });
 
+test("Kingdon work and scholar pages keep edition layers, access limits, and the draft slug unpublished", () => {
+  const work = seedCorpus.works.find((entry) => entry.slug === KINGDON_WORK_SLUG);
+  const scholar = seedCorpus.scholars.find((entry) => entry.slug === KINGDON_SCHOLAR_SLUG);
+  assert.equal(work?.status, "published");
+  assert.equal(scholar?.status, "published");
+  assert.equal(work?.year, 1984);
+  assert.equal(work?.doi, undefined);
+  assert.equal(work?.isbn, undefined);
+  assert.equal(seedCorpus.scholars.find((entry) => entry.slug === "john-w-kingdon")?.status, "draft");
+  const workText = JSON.stringify(work);
+  const scholarText = JSON.stringify(scholar);
+  assert.match(workText, /1995/);
+  assert.match(workText, /2011/);
+  assert.match(workText, /3 October 2013/);
+  assert.match(workText, /2014/);
+  assert.match(workText, /9781292053875/);
+  assert.match(workText, /not an education monograph|not an education-policy theory page/);
+  assert.match(workText, /WebFetch/);
+  assert.match(workText, /HTTP 403/);
+  assert.match(workText, /Little, Brown/);
+  assert.equal(workText.includes("curl succeeded"), false);
+  assert.equal(workText.includes("10.978.129205"), false);
+  assert.match(scholarText, /A5063257234/);
+  assert.equal(scholarText.includes("A5010328750"), false);
+  assert.match(scholarText, /empty ORCID/);
+  assert.equal(scholarText.includes("orcid.org"), false);
+  assert.match(scholarText, /Center for Advanced Behavioral Studies at Stanford/);
+  assert.match(scholarText, /Center for Advanced Study in Behavioral Sciences/);
+  assert.match(scholarText, /WebFetch/);
+  assert.match(scholarText, /HTTP 403/);
+  assert.equal(scholarText.includes("curl succeeded"), false);
+  assert.equal(scholarText.includes("amacad.org"), false);
+  assert.match(scholarText, /multiple-streams-education-policy/);
+  assert.match(scholarText, new RegExp(KINGDON_WORK_SLUG));
+  assert.equal(/john-w-kingdon(?!-flagship)/.test(workText), false);
+  assert.equal(/john-w-kingdon(?!-flagship)/.test(scholarText), false);
+  assert.equal(workText.includes("/article/view/757"), false);
+  assert.equal(scholarText.includes("/article/view/757"), false);
+  assert.ok(seedCorpus.theoryWorks.some((relation) => relation.theorySlug === CLUSTER_THEORY_SLUG && relation.workSlug === KINGDON_WORK_SLUG));
+  assert.ok(seedCorpus.theoryScholars.some((relation) => relation.theorySlug === CLUSTER_THEORY_SLUG && relation.scholarSlug === KINGDON_SCHOLAR_SLUG));
+  assert.equal(seedCorpus.concepts.some((entry) => entry.slug === KINGDON_WORK_SLUG || entry.slug === KINGDON_SCHOLAR_SLUG), false);
+  assert.equal(seedCorpus.disciplines.some((entry) => entry.slug === KINGDON_WORK_SLUG), false);
+});
+
 test("index intros name only the records supplied at render time", () => {
   assert.match(
     publishedIndexIntro("theories", [], "Lists only published records and may be empty."),
@@ -112,4 +168,18 @@ test("index intros name only the records supplied at render time", () => {
   assert.equal(intro.includes("multiple streams"), false);
   assert.equal(intro.includes("74 published"), false);
   assert.doesNotMatch(intro, /AdSense|adsense/i);
+  const theoryIntro = publishedIndexIntro("theories", [
+    { title: "Multiple streams in education policy" },
+  ], "Lists only published records and may be empty.");
+  const scholarIntro = publishedIndexIntro("scholars", [
+    { title: "John W. Kingdon" },
+  ], "Lists only published records and may be empty.");
+  const workIntro = publishedIndexIntro("works", [
+    { title: "Agendas, Alternatives, and Public Policies" },
+  ], "Lists only published research works and may be empty.");
+  assert.match(theoryIntro, /Multiple streams in education policy/);
+  assert.match(scholarIntro, /John W\. Kingdon/);
+  assert.match(workIntro, /Agendas, Alternatives, and Public Policies/);
+  assert.match(theoryIntro, /returned for this render/);
+  assert.doesNotMatch(`${theoryIntro} ${scholarIntro} ${workIntro}`, /already live|on production|AdSense/i);
 });

@@ -56,10 +56,10 @@ test("the second scholar enrichment adds bounded draft-only profiles", () => {
     );
   }
 
-  assert.equal(seedCorpus.scholars.filter((scholar) => scholar.status === "published").length, 11);
+  assert.equal(seedCorpus.scholars.filter((scholar) => scholar.status === "published").length, 12);
   assert.equal(seedCorpus.theoryScholars.filter((relation) => {
     const scholar = seedCorpus.scholars.find((candidate) => candidate.slug === relation.scholarSlug);
     const theory = seedCorpus.theories.find((candidate) => candidate.slug === relation.theorySlug);
     return scholar?.status === "published" && theory?.status === "published";
-  }).length, 12);
+  }).length, 13);
 });

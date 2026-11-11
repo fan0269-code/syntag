@@ -638,6 +638,7 @@ test("the C5 works and concepts layer is source-complete, linked, and deduplicat
     "wenger-1998-communities-of-practice",
     "lave-and-wenger-1991-situated-learning",
     "elder-children-of-the-great-depression",
+    "kingdon-agendas-alternatives-and-public-policies",
   ]);
   const historicalWorks = seedCorpus.works.filter((work) => !laterWorkSlugs.has(work.slug));
   assert.equal(historicalWorks.length, 19, "the reviewed first batch still has its 19 source-complete work candidates");
@@ -699,7 +700,7 @@ test("C5 detail routes render their audited content rather than generic placehol
 });
 
 test("the existing scholar pages satisfy the C6 evidence and attribution contract", () => {
-  const expectedSlugs = ["glen-h-elder-jr", "geert-kelchtermans", "anthony-giddens", "pierre-bourdieu", "jean-lave", "etienne-wenger", "michael-lipsky", "john-w-kingdon", "ivor-f-goodson", "christopher-day", "douwe-beijaard", "etienne-wenger-flagship", "glen-h-elder-jr-flagship", "jean-lave-flagship"];
+  const expectedSlugs = ["glen-h-elder-jr", "geert-kelchtermans", "anthony-giddens", "pierre-bourdieu", "jean-lave", "etienne-wenger", "michael-lipsky", "john-w-kingdon", "ivor-f-goodson", "christopher-day", "douwe-beijaard", "etienne-wenger-flagship", "glen-h-elder-jr-flagship", "jean-lave-flagship", "john-w-kingdon-flagship"];
   const secondDraftSlugs = ["ivor-f-goodson", "christopher-day"];
   const theorySlugs = new Set(seedCorpus.theories.map((theory) => theory.slug));
   const workSlugs = new Set(seedCorpus.works.map((work) => work.slug));

@@ -73,7 +73,7 @@ test("P1 flagship items 1-8 are published and item 9 is absent", () => {
   );
   assert.deepEqual(
     seedCorpus.scholars.filter((scholar) => scholar.status === "published").map((scholar) => scholar.slug),
-    [...P1_FLAGSHIP_DRAFT_SCHOLAR_SLUGS, "jean-lave-flagship"],
+    [...P1_FLAGSHIP_DRAFT_SCHOLAR_SLUGS, "jean-lave-flagship", "john-w-kingdon-flagship"],
   );
   assert.deepEqual(
     seedCorpus.works.filter((entry) => entry.status === "published").map((entry) => entry.slug),
@@ -82,6 +82,7 @@ test("P1 flagship items 1-8 are published and item 9 is absent", () => {
       "wenger-1998-communities-of-practice",
       "lave-and-wenger-1991-situated-learning",
       "elder-children-of-the-great-depression",
+      "kingdon-agendas-alternatives-and-public-policies",
     ],
   );
   for (const link of P1_FLAGSHIP_DISCIPLINE_THEORIES) {
