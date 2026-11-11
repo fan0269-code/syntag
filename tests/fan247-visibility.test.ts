@@ -77,10 +77,12 @@ test("FAN-247 stays archived while published pages are the flagship set plus the
     "wenger-1998-communities-of-practice",
     "lave-and-wenger-1991-situated-learning",
     "elder-children-of-the-great-depression",
+    "kingdon-agendas-alternatives-and-public-policies",
     "douwe-beijaard",
     "etienne-wenger-flagship",
     "glen-h-elder-jr-flagship",
     "jean-lave-flagship",
+    "john-w-kingdon-flagship",
   ];
   const originalPublishedAt = "2026-11-10T00:00:00.000Z";
   const clusterPublishedAt = "2026-11-11T00:00:00.000Z";
@@ -89,7 +91,9 @@ test("FAN-247 stays archived while published pages are the flagship set plus the
     "wenger-1998-communities-of-practice",
     "lave-and-wenger-1991-situated-learning",
     "elder-children-of-the-great-depression",
+    "kingdon-agendas-alternatives-and-public-policies",
     "jean-lave-flagship",
+    "john-w-kingdon-flagship",
   ]);
   const publicRecords = Object.values(entityRecords).flat().filter((record) => record.status === "published");
   assert.deepEqual(publicRecords.map((record) => record.slug).sort(), [...publishedSlugs].sort());
@@ -97,7 +101,7 @@ test("FAN-247 stays archived while published pages are the flagship set plus the
   assert.equal(seedCorpus.theoryWorks.filter((relation) => (
     seedCorpus.theories.some((theory) => theory.slug === relation.theorySlug && theory.status === "published")
     && seedCorpus.works.some((work) => work.slug === relation.workSlug && work.status === "published")
-  )).length, 4);
+  )).length, 5);
   assert.equal(seedCorpus.theoryConcepts.filter((relation) => (
     seedCorpus.theories.some((theory) => theory.slug === relation.theorySlug && theory.status === "published")
     && seedCorpus.concepts.some((concept) => concept.slug === relation.conceptSlug && concept.status === "published")
@@ -105,7 +109,7 @@ test("FAN-247 stays archived while published pages are the flagship set plus the
   assert.equal(seedCorpus.theoryScholars.filter((relation) => (
     seedCorpus.theories.some((theory) => theory.slug === relation.theorySlug && theory.status === "published")
     && seedCorpus.scholars.some((scholar) => scholar.slug === relation.scholarSlug && scholar.status === "published")
-  )).length, 5);
+  )).length, 6);
   assert.equal(seedCorpus.topicTheories.filter((relation) => (
     seedCorpus.topics.some((topic) => topic.slug === relation.topicSlug && topic.status === "published")
     && seedCorpus.theories.some((theory) => theory.slug === relation.theorySlug && theory.status === "published")

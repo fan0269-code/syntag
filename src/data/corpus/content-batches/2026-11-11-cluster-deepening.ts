@@ -21,10 +21,13 @@ export const CLUSTER_WORK_SLUGS = [
   "wenger-1998-communities-of-practice",
   "lave-and-wenger-1991-situated-learning",
   "elder-children-of-the-great-depression",
+  "kingdon-agendas-alternatives-and-public-policies",
 ] as const;
 
 export const CLUSTER_THEORY_SLUG = "multiple-streams-education-policy";
 export const CLUSTER_SCHOLAR_SLUG = "jean-lave-flagship";
+export const KINGDON_WORK_SLUG = CLUSTER_WORK_SLUGS[3];
+export const KINGDON_SCHOLAR_SLUG = "john-w-kingdon-flagship";
 
 export const CLUSTER_DISCIPLINE_THEORIES: SeedTheoryDiscipline[] = [
   { disciplineSlug: "education", theorySlug: CLUSTER_THEORY_SLUG, relevance: "primary" },
@@ -274,6 +277,64 @@ const graduateLectureLave: ContentSource = {
   ],
 };
 
+const lsaKingdonBibliography: ContentSource = {
+  id: "c11-kingdon-lsa-bibliography",
+  citation: "University of Michigan LSA Political Science. Agendas, Alternatives, and Public Policies. John W. Kingdon.",
+  url: "https://lsa.umich.edu/polisci/people/emeriti/kingdon/Agendas-Alternatives-and-Public-Policies.html",
+  source_kind: "university",
+  evidence_level: "L1",
+  supports: [
+    "Opened with WebFetch on 2026-11-11. curl in this environment returned HTTP 403, a Cloudflare challenge page titled Just a moment. curl did not succeed",
+    "The page names 1984 as the first publication, a 1995 reissue, and a 2011 Longman Classics edition with a new epilogue on health care reform from Clinton to Obama",
+    "The page prints Publisher: Longman and Year of Publication: 1984. That line is not treated as the only verified 1984 imprint",
+    "The page reprints a publisher description marked Pearson. This record does not copy that description",
+  ],
+};
+
+const umPressKingdon: ContentSource = {
+  id: "c11-kingdon-um-press",
+  citation: "University of Michigan Press. John W. Kingdon.",
+  url: "https://press.umich.edu/Contributors/K/Kingdon-John-W",
+  source_kind: "publisher",
+  evidence_level: "L1",
+  supports: [
+    "Author page opened by curl on 2026-11-11, HTTP 200",
+    "Describes John W. Kingdon as Professor Emeritus of Political Science, University of Michigan",
+    "Names a fellowship at Stanford University's Center for Advanced Study in Behavioral Sciences and a John Simon Guggenheim Fellowship",
+    "The listed book entry is Congressmen's Voting Decisions. This page is not the bibliography for Agendas, Alternatives, and Public Policies",
+  ],
+};
+
+const lsaKingdonFaculty: ContentSource = {
+  id: "c11-kingdon-lsa-faculty",
+  citation: "University of Michigan LSA Political Science. John Kingdon, Professor Emeritus.",
+  url: "https://lsa.umich.edu/polisci/people/emeriti/kingdon.html",
+  source_kind: "university",
+  evidence_level: "L1",
+  supports: [
+    "Opened with WebFetch on 2026-11-11. curl in this environment returned HTTP 403, a Cloudflare challenge page titled Just a moment. curl did not succeed",
+    "Professor Emeritus of Political Science at the University of Michigan in Ann Arbor",
+    "Lists Agendas, Alternatives, and Public Policies (1984, 1995, 2011), America the Unusual (1999), and Congressmen's Voting Decisions (1973, 1981, 1989)",
+    "Education/Degree lines: Ph.D., Political Science, University of Wisconsin - Madison, and B.A., Oberlin College. No degree years are printed",
+    "Names the Stanford affiliation as the Center for Advanced Behavioral Studies at Stanford, which is not the same English name as the press page",
+    "Also states an American Academy fellowship, a 1994 Aaron Wildavsky Award, department chair, Midwest Political Science Association presidency, and Brookings guest-scholar visits. Those sentences are faculty-page statements. The Academy person page, an awards page, and a Brookings page were not opened",
+  ],
+};
+
+const openAlexKingdon: ContentSource = {
+  id: "c11-kingdon-openalex-a5063257234",
+  citation: "OpenAlex author A5063257234. John W. Kingdon.",
+  url: "https://api.openalex.org/authors/A5063257234",
+  source_kind: "authoritative_web",
+  evidence_level: "L1",
+  supports: [
+    "API HTTP 200 on 2026-11-11. display_name John W. Kingdon. orcid null. last_known_institutions University of Michigan. homepage empty",
+    "Human-readable record: https://openalex.org/authors/A5063257234",
+    "Citation counts and the h-index on this record are not used as scholarly conclusions",
+    "This is not a CV and not an ORCID",
+  ],
+};
+
 const casbsLave: ContentSource = {
   id: "c11-lave-casbs-fellowship",
   citation: "Center for Advanced Study in the Behavioral Sciences. Jean C. Lave.",
@@ -291,6 +352,8 @@ const lppWorkSlug = CLUSTER_WORK_SLUGS[1];
 const elderWorkSlug = CLUSTER_WORK_SLUGS[2];
 const msaSlug = CLUSTER_THEORY_SLUG;
 const laveSlug = CLUSTER_SCHOLAR_SLUG;
+const kingdonWorkSlug = KINGDON_WORK_SLUG;
+const kingdonScholarSlug = KINGDON_SCHOLAR_SLUG;
 
 export interface ClusterBatch {
   theories: SeedTheory[];
@@ -412,6 +475,41 @@ export function createClusterBatch(): ClusterBatch {
         },
       },
     },
+    {
+      slug: kingdonWorkSlug,
+      title: "Agendas, Alternatives, and Public Policies",
+      authors: [{ name: "John W. Kingdon" }],
+      year: 1984,
+      publisher: "1984 first-edition imprint not settled from the opened pages. Later layers: 1995 reissue; 2011 Longman Classics; Pearson New International Edition published 3 October 2013, copyright 2014.",
+      status: "published",
+      publishedAt: CLUSTER_PUBLISHED_AT,
+      content: {
+        en: {
+          overview: "A work record for John W. Kingdon's Agendas, Alternatives, and Public Policies. The year on this record is 1984, the first-publication year stated on the University of Michigan political-science bibliography page. That page was opened with WebFetch on 2026-11-11. curl to the same URL returned HTTP 403, a Cloudflare challenge, and is not treated as a successful fetch. The Pearson catalog, opened by curl with HTTP 200 on the same date, is a later layer: the Pearson New International Edition, published 3 October 2013, with a 2014 copyright line and ISBN-13 9781292053875. Neither 2011, 2013, nor 2014 is the origin year. This page is the book record. It is not a scholar page and not the education-policy theory page.",
+          core_question: "Which dated layers of this book can be kept apart, and what does the opened catalog actually place the book in?",
+          central_argument: "The department bibliography page titles the book Agendas, Alternatives, and Public Policies. It says the book was first published in 1984, reissued in 1995, and issued again in 2011 as a Longman Classics edition with a new epilogue on health care reform from the Clinton years to the Obama years. The same page prints Publisher: Longman and Year of Publication: 1984. Some reviews name Little, Brown for that first-edition imprint. Those reviews were not opened on 2026-11-11, so neither Longman nor Little, Brown is recorded here as the sole verified first-edition publisher. The Pearson catalog heading is Agendas, Alternatives, and Public Policies, Update Edition (With an Epilogue on Health Care), Pearson New International Edition. Its visible overview places the research in interviews and documents about the U.S. federal government and frames the book as a study of how issues reach official attention and how a governmental agenda is set. The catalog heading also contains the words 2nd edition. This page does not use that label to replace the 1995 reissue, and it does not read 2013 as a new origin year. No stable book DOI was found, and none is supplied. The department page reprints a publisher description and marks it Pearson. That description is not copied here.",
+          theoretical_contribution: "The book is the federal policy-process record used by the multiple-streams education page. Its contribution on this page is bibliographic: author, title, and the separated edition layers. The education application stays on that theory page, in the 2010 EPAA article. This book is not an education monograph. The catalog is not an open full text.",
+          reading_focus: [
+            "Use 1984 as the origin year. Do not cite 2013 or 2014 as the year the book was created.",
+            "Keep four layers apart: 1984 first publication, 1995 reissue, 2011 Longman Classics, and the 2013-2014 Pearson New International Edition.",
+            "Leave the 1984 publisher unresolved. The bibliography page says Longman. Unopened reviews are not used to pick a different sole imprint.",
+            "Do not add a DOI. The missing identifier is a gap, not a license to invent one.",
+            "Read the education application on the theory page multiple-streams-education-policy. Read the author record on the scholar page john-w-kingdon-flagship.",
+          ],
+          legal_access: [
+            { label: "Pearson catalog", guidance: "Legal catalog page for the Pearson New International Edition. It records the 3 October 2013 publication date, the 2014 copyright line, ISBN-13 9781292053875, and the U.S. federal scope. It is not an open copy of the book.", source_id: pearsonKingdon.id },
+            { label: "U-M LSA bibliography page", guidance: "Opened with WebFetch on 2026-11-11 after curl returned HTTP 403. Use it for the 1984, 1995, and 2011 layers. Do not describe that curl as successful.", source_id: lsaKingdonBibliography.id },
+          ],
+          sources: [pearsonKingdon, lsaKingdonBibliography],
+          verification: [
+            l1("c11-kingdon-work-pearson", `works[slug="${kingdonWorkSlug}"].content.en.central_argument`, "The Pearson catalog names John W. Kingdon as author of the Pearson New International Edition, published 3 October 2013, copyright 2014, ISBN-13 9781292053875, and places the book in research on the U.S. federal government.", pearsonKingdon.id, "Pearson catalog title, author, published date, copyright line, ISBN-13, and title overview; URL https://www.pearson.com/en-gb/subject-catalog/p/agendas-alternatives-and-public-policies-update-edition-with-an-epilogue-on-health-care-pearson-new-international-edition/P200000004628/9781292053875; type publisher; curl HTTP 200 on 2026-11-11"),
+            l1("c11-kingdon-work-layers", `works[slug="${kingdonWorkSlug}"].year`, "The LSA bibliography page says the book was first published in 1984, reissued in 1995, and issued in 2011 as a Longman Classics edition. It also prints Publisher: Longman and Year of Publication: 1984.", lsaKingdonBibliography.id, "Bibliography page publication history, publisher line, and year line; URL https://lsa.umich.edu/polisci/people/emeriti/kingdon/Agendas-Alternatives-and-Public-Policies.html; type university; WebFetch opened the page on 2026-11-11; curl HTTP 403"),
+            l2("c11-kingdon-work-imprint-limit", `works[slug="${kingdonWorkSlug}"].publisher`, "Refusing to name one 1984 publisher, refusing a DOI, and refusing to treat the book as an education monograph are editorial limits. The bibliography page says Longman. Reviews that say Little, Brown were not opened."),
+            l3("c11-kingdon-work-reading", `works[slug="${kingdonWorkSlug}"].content.en.reading_focus`, "Keeping the edition layers apart, and sending education applications to the theory page, is research guidance for citation. It is not a sentence from the book."),
+          ],
+        },
+      },
+    },
   ];
 
   const theories: SeedTheory[] = [
@@ -428,7 +526,7 @@ export function createClusterBatch(): ClusterBatch {
           theory_nature: {
             kind: "framework",
             label: "Policy-process framework, with one education application",
-            explanation: "This page pairs a federal policy-process book with one education-policy article. It does not turn the book into an education monograph, and it does not publish a scholar page for John W. Kingdon.",
+            explanation: "This page pairs a federal policy-process book with one education-policy article. It does not turn the book into an education monograph. The book record is the work page kingdon-agendas-alternatives-and-public-policies. The author record is the scholar page john-w-kingdon-flagship. Neither of those pages replaces this theory page.",
             source_ids: [pearsonKingdon.id, epaaArticle.id],
           },
           what_is_it: "This page helps a reader decide whether a study is using Kingdon's multiple-streams vocabulary for a policy agenda, and whether an education case is actually that kind of question. The Pearson catalog describes a book that asks how subjects reach officials and how a governmental agenda is set, from interviews and documents about the U.S. federal government. Its chapter list separates problems, a policy primeval soup, a political stream, and a policy window in which streams are joined. The 2010 EPAA article, at the path ending in 771, applies that model to state reading policy. The two sources do different work. The catalog is not the article, and the article is not the book.",
@@ -558,7 +656,7 @@ export function createClusterBatch(): ClusterBatch {
             },
             {
               mechanism: "Joining at a policy window",
-              process: "The contents name a policy window and the joining of streams as a distinct chapter. The EPAA article uses the model for state reading agendas. Its page says the national model does not travel to a state unchanged: the issue, and whether the governor's office takes part, can change the fit. That is a paraphrase of the article's stated limit, not a copy of the abstract.",
+              process: "The contents name a policy window and the joining of streams as a distinct chapter. The EPAA article uses the model for state reading agendas. Its abstract treats state-level use of Kingdon's national-level model as conditional: applicability may depend on the issue being examined and on whether the state executive branch takes part. This page keeps that limit conditional. It is not a settled finding that the model cannot travel to a state unchanged.",
               evidence_focus: "A timing claim plus the streams that are said to have joined, with the education claim tied to the article rather than the catalog.",
               source_ids: [pearsonKingdon.id, epaaArticle.id],
             },
@@ -598,13 +696,14 @@ export function createClusterBatch(): ClusterBatch {
           reading_path: [
             { order: 1, level: "Level 1 · Book catalog", title: "Pearson catalog page", purpose: "Check the author, the 2013 update edition, the U.S. federal scope, and the chapter titles. Do not treat the page as the book.", source_id: pearsonKingdon.id },
             { order: 2, level: "Level 1 · Education article", title: "EPAA article view 771", purpose: "Check authors, the 10 July 2010 date, and the state reading-policy application. Do not open article view 757 for this claim.", source_id: epaaArticle.id },
-            { order: 3, level: "Level 2 · Page boundary", title: "Not a media tradition and not a scholar page", purpose: "Keep multiple streams distinct from McCombs media agenda-setting, and do not treat a draft Kingdon scholar record as published.", source_id: pearsonKingdon.id },
+            { order: 3, level: "Level 2 · Page boundary", title: "Not a media tradition", purpose: "Keep multiple streams distinct from McCombs media agenda-setting. No McCombs source was opened. The book page is kingdon-agendas-alternatives-and-public-policies and the author page is john-w-kingdon-flagship. An unpublished draft scholar record is not that author page.", source_id: pearsonKingdon.id },
             { order: 4, level: "Level 3 · Design", title: "Streams before joining", purpose: "Collect separate evidence for problems, alternatives, and politics before claiming a window.", source_id: epaaArticle.id },
           ],
           verification: [
             l1("c11-msa-pearson", `theories[slug="${msaSlug}"].content.en.origins`, "The Pearson catalog names John W. Kingdon as author of Agendas, Alternatives, and Public Policies, Update Edition, and places the book in research on the U.S. federal government. The page date is 3 October 2013.", pearsonKingdon.id, "Pearson catalog title, author, published date, and title overview; URL https://www.pearson.com/en-gb/subject-catalog/p/agendas-alternatives-and-public-policies-update-edition-with-an-epilogue-on-health-care-pearson-new-international-edition/P200000004628/9781292053875; type publisher; checked 2026-11-11"),
             l1("c11-msa-epaa", `theories[slug="${msaSlug}"].content.en.what_is_it`, "Young, Shepley, and Song's 2010 EPAA article applies Kingdon's multiple streams model to state reading policy. The article view is path 771, issued 10 July 2010.", epaaArticle.id, "EPAA article view 771 title, authors, and publication date; URL https://epaa.asu.edu/index.php/epaa/article/view/771; type journal; DOI https://doi.org/10.14507/epaa.v18n15.2010; checked 2026-11-11"),
             l1("c11-msa-crossref", `theories[slug="${msaSlug}"].content.en.origins`, "Crossref records the EPAA item as a journal article issued 10 July 2010 by Young, Shepley, and Song.", epaaCrossref.id, "Crossref title, author, issued, container-title; URL https://api.crossref.org/works/10.14507/epaa.v18n15.2010; type authoritative_web; checked 2026-11-11"),
+            l1("c11-msa-state-applicability", `theories[slug="${msaSlug}"].content.en.explanatory_mechanisms[1].process`, "The EPAA abstract says applicability of Kingdon's national-level model at the state level may depend on the issue being examined and on participation by the state executive branch. The tightened sentence does not turn that into a settled finding that the model cannot travel unchanged.", epaaArticle.id, "EPAA article view 771 abstract, closing applicability sentence; URL https://epaa.asu.edu/index.php/epaa/article/view/771; type journal; DOI https://doi.org/10.14507/epaa.v18n15.2010 resolved to the same path; checked 2026-11-11"),
             l2("c11-msa-not-mcombs", `theories[slug="${msaSlug}"].content.en.misuse_risks`, "The misuse boundary with the McCombs media agenda-setting tradition is editorial synthesis. No McCombs source was opened. The boundary is a naming limit, not a finding from that literature."),
             l2("c11-msa-not-education-monograph", `theories[slug="${msaSlug}"].content.en.theory_nature`, "Calling the Pearson book a federal policy-process book rather than an education monograph is editorial synthesis grounded in the catalog's own scope statement."),
             l3("c11-msa-guidance", `theories[slug="${msaSlug}"].content.en.fit_writing`, "Requiring separate stream evidence before a coupling claim is research guidance. It is not a method chapter from the book."),
@@ -679,6 +778,80 @@ export function createClusterBatch(): ClusterBatch {
         },
       },
     },
+    {
+      slug: kingdonScholarSlug,
+      name: "John W. Kingdon",
+      bioEn: "Professor emeritus of political science at the University of Michigan, and author of Agendas, Alternatives, and Public Policies. This page is the author record for that book. It is not the book page and not the education-policy theory page.",
+      status: "published",
+      publishedAt: CLUSTER_PUBLISHED_AT,
+      content: {
+        en: {
+          overview: "John W. Kingdon is the author named on the Pearson catalog for Agendas, Alternatives, and Public Policies and on the University of Michigan political-science pages. The University of Michigan Press author page, opened by curl with HTTP 200 on 2026-11-11, describes him as a professor emeritus of political science at the University of Michigan. It says he has been a fellow of Stanford University's Center for Advanced Study in Behavioral Sciences and a John Simon Guggenheim Fellow. The book it lists is Congressmen's Voting Decisions. That press page is not a bibliography of Agendas, Alternatives, and Public Policies. The LSA faculty page was opened with WebFetch on 2026-11-11. curl to that URL returned HTTP 403, a Cloudflare challenge, and is not recorded as a successful fetch. That page calls him professor emeritus of political science at the University of Michigan in Ann Arbor. It lists Agendas, Alternatives, and Public Policies (1984, 1995, 2011), America the Unusual (1999), and Congressmen's Voting Decisions (1973, 1981, 1989). Its degree lines are a Ph.D. in political science from the University of Wisconsin-Madison and a B.A. from Oberlin College, with no years. It names the Stanford affiliation as the Center for Advanced Behavioral Studies at Stanford. The two Stanford names are left side by side. OpenAlex author A5063257234, HTTP 200 on the same date, displays John W. Kingdon, returns an empty ORCID, lists the University of Michigan as the last known institution, and has an empty homepage. Citation counts and the h-index on that record are not used. No ORCID is supplied. This page does not stand in for the book or for the education application.",
+          academic_identity: {
+            discipline: "Political science. The opened press page and the LSA faculty page place him in political science at the University of Michigan. They do not place him in an education faculty.",
+            role: "Professor emeritus of political science, University of Michigan, on both the press page and the LSA faculty page. The faculty page adds Ann Arbor and the two degrees named above. Stanford wording is not collapsed: faculty page, Center for Advanced Behavioral Studies at Stanford; press page, Stanford University's Center for Advanced Study in Behavioral Sciences. Both pages call him a John Simon Guggenheim Fellow.",
+            source_ids: [umPressKingdon.id, lsaKingdonFaculty.id, openAlexKingdon.id],
+          },
+          theory_relationships: [
+            {
+              theory_slug: msaSlug,
+              relationship: "Author of the book the theory page cites",
+              description: "The multiple-streams education page uses his book as the federal policy-process source and a 2010 article for the education application. This scholar page records the author. It does not replace the book page or the theory page, and it does not make the book an education monograph.",
+              source_ids: [pearsonKingdon.id, lsaKingdonFaculty.id],
+            },
+          ],
+          representative_works: [
+            {
+              title: "Agendas, Alternatives, and Public Policies",
+              work_slug: kingdonWorkSlug,
+              contribution: "The book record for the 1984 origin year and the later 1995, 2011, and 2013-2014 layers. The work page and this scholar page are different records.",
+              source_ids: [lsaKingdonBibliography.id, pearsonKingdon.id],
+            },
+            {
+              title: "America the Unusual",
+              contribution: "The LSA faculty page lists this title with the year 1999. No separate work page is opened here, and the press author page does not use this title as its book entry.",
+              source_ids: [lsaKingdonFaculty.id],
+            },
+            {
+              title: "Congressmen's Voting Decisions",
+              contribution: "The LSA faculty page lists 1973, 1981, and 1989. The press author page's listed book entry is this title. That entry does not replace the Agendas bibliography.",
+              source_ids: [lsaKingdonFaculty.id, umPressKingdon.id],
+            },
+          ],
+          scholarly_relations: [
+            {
+              kind: "development",
+              description: "The faculty page dates Agendas, Alternatives, and Public Policies to 1984, 1995, and 2011. The bibliography page adds a 2011 Longman Classics epilogue and a Longman publisher line for 1984. The Pearson catalog is a 2013-2014 international edition. That sequence is publication history for one title. It is not a relation to another scholar, and it does not settle the 1984 imprint.",
+              source_ids: [lsaKingdonFaculty.id, lsaKingdonBibliography.id, pearsonKingdon.id],
+            },
+          ],
+          attribution_boundaries: [
+            "Do not treat this scholar page as the book page or as the education-policy theory page.",
+            "Do not describe Agendas, Alternatives, and Public Policies as an education monograph. Education applications stay on the theory page.",
+            "Do not invent an ORCID. The OpenAlex ORCID field is empty.",
+            "Do not collapse the two Stanford center names into one verified official title.",
+            "Do not treat citation counts or the h-index as a conclusion about the work.",
+            "The faculty page states an American Academy fellowship, a 1994 Aaron Wildavsky Award, service as department chair and as president of the Midwest Political Science Association, and guest-scholar visits at the Brookings Institution. The Academy person page was not opened on 2026-11-11: curl returned HTTP 403 and WebFetch timed out. No awards page and no Brookings page were opened. Those lines stay faculty-page statements.",
+            "The press page's book entry is Congressmen's Voting Decisions. It does not replace the edition layers on the Agendas work page.",
+            "An unpublished draft scholar record is not this page.",
+          ],
+          reading_path: [
+            { order: 1, title: "University of Michigan Press author page", purpose: "Check the emeritus title, the Guggenheim fellowship, and the press page's Stanford wording. Do not use it as the Agendas bibliography.", source_id: umPressKingdon.id },
+            { order: 2, title: "LSA faculty page", purpose: "Read the Ann Arbor title, the degree lines, the three book lists, and the faculty page's different Stanford name. The page was opened with WebFetch. curl returned HTTP 403.", source_id: lsaKingdonFaculty.id },
+            { order: 3, title: "OpenAlex author A5063257234", purpose: "Check the display name, the empty ORCID, the Michigan institution, and the empty homepage. Stop there. A human-readable page is at https://openalex.org/authors/A5063257234.", source_id: openAlexKingdon.id },
+            { order: 4, title: "Book page, then theory page", purpose: "Use kingdon-agendas-alternatives-and-public-policies for edition layers. Use multiple-streams-education-policy when the question is the education application.", source_id: pearsonKingdon.id },
+          ],
+          sources: [umPressKingdon, lsaKingdonFaculty, lsaKingdonBibliography, openAlexKingdon, pearsonKingdon],
+          verification: [
+            l1("c11-kingdon-press-title", `scholars[slug="${kingdonScholarSlug}"].content.en.academic_identity.role`, "The University of Michigan Press author page describes John W. Kingdon as Professor Emeritus of Political Science at the University of Michigan, and it names a Stanford Center for Advanced Study in Behavioral Sciences fellowship and a John Simon Guggenheim Fellowship.", umPressKingdon.id, "Press author page identity paragraph; URL https://press.umich.edu/Contributors/K/Kingdon-John-W; type publisher; curl HTTP 200 on 2026-11-11"),
+            l1("c11-kingdon-faculty-degrees", `scholars[slug="${kingdonScholarSlug}"].content.en.overview`, "The LSA faculty page lists a Ph.D. in political science from the University of Wisconsin-Madison, a B.A. from Oberlin College, and the books Agendas, Alternatives, and Public Policies (1984, 1995, 2011), America the Unusual (1999), and Congressmen's Voting Decisions (1973, 1981, 1989). It names the Stanford center as the Center for Advanced Behavioral Studies at Stanford.", lsaKingdonFaculty.id, "Faculty page Education/Degree, About, and Selected Publications; URL https://lsa.umich.edu/polisci/people/emeriti/kingdon.html; type university; WebFetch opened the page on 2026-11-11; curl HTTP 403"),
+            l1("c11-kingdon-openalex", `scholars[slug="${kingdonScholarSlug}"].content.en.overview`, "OpenAlex A5063257234 displays John W. Kingdon, has an empty ORCID, lists the University of Michigan as the last known institution, and has an empty homepage.", openAlexKingdon.id, "Author JSON display_name, orcid, last_known_institutions, and homepage; URL https://api.openalex.org/authors/A5063257234; type authoritative_web; HTTP 200 on 2026-11-11"),
+            l2("c11-kingdon-name-limit", `scholars[slug="${kingdonScholarSlug}"].content.en.attribution_boundaries`, "Leaving the two Stanford names unresolved, refusing an invented ORCID, and refusing to treat unopened Academy, award, or Brookings pages as verified are editorial limits."),
+            l3("c11-kingdon-reading", `scholars[slug="${kingdonScholarSlug}"].content.en.reading_path`, "Reading the press page, the faculty page, and the OpenAlex row before the book and theory pages is research guidance, not a biographical fact."),
+          ],
+        },
+      },
+    },
   ];
 
   const theoryWorks: SeedTheoryWork[] = [
@@ -703,6 +876,13 @@ export function createClusterBatch(): ClusterBatch {
       sourceUrls: [elderRoutledge.url, elderDoi.url, elderCrossref.url],
       evidenceNotesEn: "The cohort study is the book this theory page uses. The relation keeps the 1974, 1999, and 2018 layers distinct and is not a law claim.",
     },
+    {
+      theorySlug: msaSlug,
+      workSlug: kingdonWorkSlug,
+      relationship: "core_work",
+      sourceUrls: [pearsonKingdon.url, lsaKingdonBibliography.url],
+      evidenceNotesEn: "The work page is the bibliographic record for the book this theory page cites. The relation does not turn the book into an education monograph, and the 2013 catalog date is not the 1984 origin year.",
+    },
   ];
 
   const theoryScholars: SeedTheoryScholar[] = [
@@ -712,6 +892,13 @@ export function createClusterBatch(): ClusterBatch {
       role: "key_contributor",
       sourceUrls: [lppCrossref.url],
       evidenceNotesEn: "Crossref coauthor of the 1991 book. Key contributor is editorial and is not sole authorship, and it is not authorship of the 1998 book.",
+    },
+    {
+      theorySlug: msaSlug,
+      scholarSlug: kingdonScholarSlug,
+      role: "key_contributor",
+      sourceUrls: [pearsonKingdon.url, epaaArticle.url],
+      evidenceNotesEn: "The Pearson catalog names John W. Kingdon as author of the federal policy-process book. Key contributor is editorial and is not a founder claim. The education application remains the EPAA article on the theory page.",
     },
   ];
 
