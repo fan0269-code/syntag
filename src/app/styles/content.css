@@ -121,6 +121,11 @@
 .home-reading > h2,
 .home-reading > section > h2 { font-size: 1.25rem; font-weight: 500; line-height: 1.3; margin: 32px 0 8px; }
 .home-reading > section > p { color: var(--text-secondary); line-height: 1.7; margin: 0 0 16px; }
+.home-catalog-page .home-reading { margin-inline: 0; }
+.home-catalog { display: grid; gap: 28px; margin: 32px 0; }
+.home-catalog__section-head { align-items: baseline; display: flex; flex-wrap: wrap; gap: 8px 16px; justify-content: space-between; margin-bottom: 12px; }
+.home-catalog__section-head h2 { font-size: 1.25rem; font-weight: 500; line-height: 1.3; margin: 0; }
+.home-catalog__index-link { align-items: center; display: inline-flex; font-weight: 500; min-height: var(--control-height); }
 .site-reading-guide__links { display: flex; flex-wrap: wrap; gap: 8px 16px; }
 .theory-pathway { align-items: center; background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: var(--radius-control); color: var(--text-primary); display: flex; gap: 16px; margin-top: 8px; padding: 16px; transition: background-color 160ms var(--motion-ease-standard); }
 .theory-pathway:hover { background: var(--bg-page); text-decoration: none; }

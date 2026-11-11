@@ -36,7 +36,7 @@ npm run dev
 
 Then open [http://localhost:3000](http://localhost:3000).
 
-The authored seed keeps entity records in `draft` or `archived` state. A fresh seed therefore does not create public entity pages. In development, the homepage may show a clearly marked demo graph when no published graph is available. Production must not present that demo as published content.
+The authored seed keeps entity records in `draft` or `archived` state. A fresh seed therefore does not create public entity pages. In development, the homepage may show a clearly marked demo graph when no published graph is available and no theory, scholar, or work is published. When any of those records are published, the homepage lists them even if disciplines, fields, topics, and concepts are empty. Production must not present the demo graph as published content.
 
 Do not run `npm run db:reset` against a shared or production database.
 

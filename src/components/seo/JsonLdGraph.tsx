@@ -3,12 +3,18 @@ import { JsonLd } from "./JsonLd";
 
 export type GraphListItem = { name: string; href?: string; description?: string };
 
-export function JsonLdGraph({ items }: { items: GraphListItem[] }) {
+export function JsonLdGraph({
+  items,
+  description = "Published education and sociology records, including research works. The graph links those pages and is not itself a scholarly article.",
+}: {
+  items: GraphListItem[];
+  description?: string;
+}) {
   return <JsonLd data={{
     "@context": "https://schema.org",
     "@type": "CollectionPage",
     name: "Syrtag — Doctoral theory navigation (education & sociology)",
-    description: "Published education and sociology records, including research works. The graph links those pages and is not itself a scholarly article.",
+    description,
     url: absoluteUrl("/"),
     mainEntity: {
       "@type": "ItemList",

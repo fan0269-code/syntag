@@ -33,7 +33,7 @@ test("home, indexes, and the product README describe the ads-off publication bou
 
   assert.match(home, /The knowledge graph is not published yet/);
   assert.match(home, /Data temporarily unavailable/);
-  assert.match(home, /<SiteReadingGuide mode=\{state\.kind\} \/>/);
+  assert.match(home, /<SiteReadingGuide mode=\{surface\.kind\} \/>/);
   assert.match(guide, /not published scholarship/);
   assert.match(guide, /education and sociology/);
   assert.match(guide, /Advertising is off/);

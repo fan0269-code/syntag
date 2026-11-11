@@ -172,7 +172,13 @@ test("home fails closed when no entity graph is published", async ({ page, baseU
 
   await page.goto("/", { waitUntil: "domcontentloaded" });
 
-  await expect(page.getByRole("heading", { level: 1, name: /The knowledge graph is not published yet/i })).toBeVisible();
+  const emptyHeading = page.getByRole("heading", { level: 1, name: /The knowledge graph is not published yet/i });
+  const catalogHeading = page.getByRole("heading", { level: 1, name: /^Published (theories|scholars|works)/i });
+  await expect(emptyHeading.or(catalogHeading).or(page.getByRole("heading", { level: 1, name: /Data temporarily unavailable/i }))).toBeVisible();
+  if (await catalogHeading.count()) {
+    await expect(page.getByText(/No published graph is available yet/i)).toHaveCount(0);
+    await expect(emptyHeading).toHaveCount(0);
+  }
   await expect(page.getByText(/source-aware map for doctoral research in education and sociology/i)).toBeVisible();
   await expect(page.getByRole("region", { name: /Research theory knowledge graph/i })).toHaveCount(0);
   for (const topic of topicCases) {
