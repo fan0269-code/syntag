@@ -8,7 +8,7 @@ import { verifySeededDatabase } from "../src/lib/seed-verification.ts";
 
 const connectionString = process.env.DATABASE_URL;
 
-test("the local seed has the expected contracted corpus and fail-closed relations", { skip: !connectionString }, async () => {
+test("development empty-seed contract keeps published theory, scholar, and work counts at zero", { skip: !connectionString && "skipped unless DATABASE_URL is set; this is the empty development seed contract, not the 15-entity fixture contract" }, async () => {
   if (!connectionString) return;
 
   const db = new PrismaClient({ adapter: new PrismaPg({ connectionString }) });

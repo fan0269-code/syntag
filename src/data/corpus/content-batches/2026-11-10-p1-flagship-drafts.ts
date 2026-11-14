@@ -953,7 +953,7 @@ export function createP1FlagshipDraftBatch(): P1FlagshipDraftBatch {
             },
             {
               chapter: "Author boundary",
-              purpose: "Keep Lave as coauthor without creating a flagship scholar page.",
+              purpose: "Keep Jean Lave named as a coauthor of the 1991 book. Her scholar page is the attribution record. It does not replace this theory page.",
               theory_use: "The published Wenger scholar page carries the 1998 author role. It does not drop Lave from the 1991 book.",
             },
           ],

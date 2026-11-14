@@ -46,6 +46,11 @@ export default async function SearchPage({ searchParams }: PageProps<"/search">)
           <span>Search</span>
           <h1>{unavailable ? "Search is temporarily unavailable" : query ? `Results for “${query}”` : "Find a published record"}</h1>
           <p>Search published theories, scholars, and works. A result is a published record. The query is not turned into an article. Topics, concepts, disciplines, and fields are not a published catalog.</p>
+          <nav className="search-page__recovery-links" aria-label="Published indexes">
+            <Link href="/theories">Theories</Link>
+            <Link href="/scholars">Scholars</Link>
+            <Link href="/works">Works</Link>
+          </nav>
           <form action="/search" className="search-page__form">
             <label htmlFor="search-page-query">Search published Syrtag content</label>
             <input id="search-page-query" name="q" defaultValue={query} placeholder="e.g. teacher identity" />

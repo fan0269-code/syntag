@@ -1,15 +1,21 @@
+import type { Metadata } from "next";
 import { StaticPage } from "@/components/content/StaticPage";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { absoluteUrl, entityMetadata } from "@/lib/seo";
 
 const description = "Syrtag Free covers published navigation. Pro and Scholar are planned and not available for purchase.";
 
-export const metadata = entityMetadata({
-  title: "Pricing — Free navigation; Pro planned | Syrtag",
-  description,
-  path: "/pricing",
-  type: "website",
-});
+// Editorial contraction for a non-purchasable page: noindex, follow.
+// This is not a claim that Google requires every pricing URL to be noindex.
+export const metadata: Metadata = {
+  ...entityMetadata({
+    title: "Pricing — Free navigation; Pro planned | Syrtag",
+    description,
+    path: "/pricing",
+    type: "website",
+  }),
+  robots: { index: false, follow: true },
+};
 
 const plans = [
   {
