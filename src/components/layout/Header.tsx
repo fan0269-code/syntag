@@ -4,15 +4,10 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 const navigation = [
-  ["Topics", "/topics"],
   ["Theories", "/theories"],
   ["Scholars", "/scholars"],
   ["Works", "/works"],
-  ["Concepts", "/concepts"],
-  ["Disciplines", "/disciplines"],
-  ["Fields", "/fields"],
   ["About", "/about"],
-  ["Pricing", "/pricing"],
 ] as const;
 
 function MenuIcon() { return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" /></svg>; }

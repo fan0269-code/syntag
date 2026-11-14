@@ -8,8 +8,8 @@ test("home uses the shared frame and exposes two English task entrances", () => 
 
   assert.match(home, /PageFrame/);
   assert.doesNotMatch(home, /components\/layout\/Header/);
-  assert.match(home, /href="\/topics"/);
-  assert.match(home, /Start with a research question/);
+  assert.match(home, /href="\/theories"/);
+  assert.match(home, /Choose a published theory/);
   assert.match(home, /href="#graph"/);
   assert.match(home, /Explore the theory graph/);
   assert.doesNotMatch(home, /[一-鿿]/u);
@@ -21,8 +21,8 @@ test("home hero composes inline search between the lead and primary task entranc
 
   assert.match(home, /import \{ SearchBox \} from "@\/components\/search\/SearchBox";/);
   assert.match(home, /<p className="lead">[\s\S]*?<div className="home-hero__search">[\s\S]*?<SearchBox[\s\S]*?mode="inline"[\s\S]*?<\/div>[\s\S]*?<div className="home-hero__actions">/);
-  assert.match(home, /label="Search for a theory, scholar, concept, or research topic"/);
-  assert.match(home, /placeholder="Try a theory, scholar, concept, or research topic"/);
+  assert.match(home, /label="Search published theories, scholars, and works"/);
+  assert.match(home, /placeholder="Try a theory, scholar, or work"/);
 });
 
 test("shared navigation and footer expose English accessible landmarks", () => {
@@ -34,8 +34,11 @@ test("shared navigation and footer expose English accessible landmarks", () => {
     "src/app/styles/shell.css",
   ].map((file) => readFileSync(file, "utf8")).join("\n");
 
-  for (const label of ["Topics", "Theories", "Scholars", "Works", "Concepts", "Disciplines", "Fields", "Pricing"]) {
+  for (const label of ["Theories", "Scholars", "Works", "About"]) {
     assert.match(header, new RegExp(`"${label}"`));
+  }
+  for (const removed of ["Topics", "Concepts", "Disciplines", "Fields", "Pricing"]) {
+    assert.doesNotMatch(header, new RegExp(`"${removed}"`));
   }
   assert.match(header, /Escape/);
   assert.match(header, /aria-label="Syrtag home"/);

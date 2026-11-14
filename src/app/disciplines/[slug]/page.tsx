@@ -27,9 +27,9 @@ export async function generateMetadata({ params }: PageProps<"/disciplines/[slug
 export default async function DisciplinePage({ params }: PageProps<"/disciplines/[slug]">) {
   const slug = (await params).slug;
   const item = await loadDataPage(() => getDisciplineBySlug(slug));
-  if (item === DATA_UNAVAILABLE) return <PageFrame><DataUnavailableState /></PageFrame>;
+  if (item === DATA_UNAVAILABLE) return <PageFrame adScreen="empty-type"><DataUnavailableState /></PageFrame>;
   const content = item ? pathwayContentFromPayload(item.contentJsonb) : null;
   if (!item || !content) notFound();
 
-  return <PageFrame><EntityArticle kind="Discipline" title={item.titleEn} summary={item.descriptionEn} overview={content.overview} breadcrumb={[{ label: "Disciplines", href: "/disciplines" }]} sources={sourceItemsForEntity(content)} links={[...item.fields.map((field) => ({ label: field.titleEn, href: `/fields/${field.slug}`, description: field.descriptionEn })), ...item.theories.map(({ theory }) => ({ label: theory.titleEn, href: `/theories/${theory.slug}`, description: theory.summaryEn }))]}><PathwayContentSections content={content} /></EntityArticle></PageFrame>;
+  return <PageFrame adScreen="empty-type"><EntityArticle kind="Discipline" title={item.titleEn} summary={item.descriptionEn} overview={content.overview} breadcrumb={[{ label: "Disciplines", href: "/disciplines" }]} sources={sourceItemsForEntity(content)} links={[...item.fields.map((field) => ({ label: field.titleEn, href: `/fields/${field.slug}`, description: field.descriptionEn })), ...item.theories.map(({ theory }) => ({ label: theory.titleEn, href: `/theories/${theory.slug}`, description: theory.summaryEn }))]}><PathwayContentSections content={content} /></EntityArticle></PageFrame>;
 }

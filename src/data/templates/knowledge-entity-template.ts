@@ -15,6 +15,8 @@ export interface WorkContent {
   legal_access: LegalAccessEntry[];
   sources: ContentSource[];
   verification: VerificationEntry[];
+  argument_heading?: string;
+  card_summary?: string;
 }
 
 export interface ConceptTheoryVariation {

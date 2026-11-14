@@ -85,7 +85,7 @@ export function publishedCatalogHeading(catalog: HomeCatalogLists) {
 
 export const catalogEyebrow = "Education and sociology";
 
-export const catalogLead = "Syrtag is a source-aware map for doctoral research in education and sociology. It is not a journal or a writing service. The records below are published. Open one for its summary and sources.";
+export const catalogLead = "Syrtag is a source-aware map for doctoral research in education and sociology. It is not a journal or a writing service. The records below are published. Choose a research question, then open the theory that matches the evidence you can collect.";
 
 export function catalogIntro(catalog: HomeCatalogLists) {
   return {
@@ -123,7 +123,7 @@ export function catalogSections(catalog: HomeCatalogLists): HomeCatalogSection[]
   });
 }
 
-export const catalogReadingNote = "The lists on this page are the published theories, scholars, or works in this catalog. Open a linked page for its summary and sources. Syrtag shows an interactive discipline graph only when published discipline and relation records exist. The lists are a way to open those pages. They are not themselves a scholarly article.";
+export const catalogReadingNote = "The lists below are the published theories, scholars, and works returned for this render. Open a page for its summary, its limits, and its sources. Topic, concept, discipline, and field indexes are not part of this catalog. The lists are a way to open those pages. They are not themselves a scholarly article.";
 
 export const publishedCatalogBoundary = "Public routes list only records whose status is published. Draft, archived, and local demo records are omitted and are not published scholarship.";
 

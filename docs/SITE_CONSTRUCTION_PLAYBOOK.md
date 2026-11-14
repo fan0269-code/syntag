@@ -26,6 +26,8 @@ flowchart LR
 
 2026-11-07 复核：FAN-247 之后，authored seed 中没有 `published` 实体（本工作树计数为 published 0 / draft 7 / archived 74）。下表里“12 个主理论已公开”和“线上 200”是 2026-07 的历史记录，不是本轮事实。广告保持关闭；`public/ads.txt` 与 `google-adsense-account` meta 已从公开信号中移除，以便与 Privacy「未启用广告」一致。旗舰学术页仍是未发布模板，未写入 seed。同日审计见 `docs/SITE_AUDIT_2026-11-07.md`：首页与 About 改为空目录叙事，描述不再追加关键词句。该审计不表示现网已更新，也不表示可以申请广告。
 
+2026-11-14（AdSense 实质整改，语料与代码，未部署）：审计包 sha256 `21b7642f350d36758afd2135bdb892997942b5c274218d7dd8a53701c2bee58a`。当前语料 published 计数为 15（理论 5、学者 5、著作 5），draft 7，archived 74。About 改为按当次数据库计数陈述这 15 条，不再写空目录现态。`/topics` `/concepts` `/disciplines` `/fields` 退出主导航与 sitemap 并 noindex，路由保留诚实空态。`/pricing` 退出主导航与 sitemap。`/search` 保留为操作入口，noindex 且不进 sitemap。屏级广告闸保持全局关闭，空/导航/搜索/定价/政策/错误屏在全局开关打开时也拒绝广告容器。五条旧 slug 仍非 published。本轮未导生产库、未 seed/reset、未申请广告。验收矩阵见 `docs/audits/2026-11-14-url-acceptance-matrix.md`。合并不等于现网已改；现网要等另行授权的导入与部署。
+
 2026-11-08：Owner 林文授权把生产托管从自建 SSH 改为 Vercel。仓库已去掉 push 到 `main` 时 SSH 到旧主机的 workflow。`https://syrtag.com` 仍要等 Vercel 项目、托管 Postgres、`prisma migrate deploy` 和 Cloudflare DNS 由林文在控制台完成，步骤见 `docs/deploy-vercel.md`。本变更不灌入公开内容，不开启广告，合并本身不表示现网已恢复。
 
 2026-11-08（P0 信任文案）：林文批准开工，旗舰范围定为 N=8（缺口表 #1–#8；#9 延后），但本轮只改首页、信任页和七个索引的诚实空态。不把 P1 实体写入 seed，不把任何记录改为 `published`。广告保持关闭。`https://syrtag.com` 与 `www` 仍是 HTTP 521，合并不等于线上可检。About 的法定名称、角色和辖区仍是未填写槽位，公开页写 “Not published.”，不编造主体。

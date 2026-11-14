@@ -75,29 +75,40 @@ test("archived Jean Lave and draft Kingdon both remain outside public surfaces",
 
   await page.goto("/scholars", { waitUntil: "domcontentloaded" });
   await expect(page.locator('a[href="/scholars/jean-lave"]')).toHaveCount(0);
-  await expect(page.getByText("Jean Lave", { exact: true })).toHaveCount(0);
+  await expect(page.getByText("source-backed profile and coauthored work support a bounded contribution")).toHaveCount(0);
+  await expect(page.locator('a[href="/scholars/jean-lave-flagship"]').first()).toBeVisible();
   await expect(page.locator('a[href="/scholars/john-w-kingdon"]')).toHaveCount(0);
-  await expect(page.getByText(/John W\. Kingdon/i)).toHaveCount(0);
+  await expect(page.getByText("candidate profile remains draft")).toHaveCount(0);
+  await expect(page.locator('a[href="/scholars/john-w-kingdon-flagship"]').first()).toBeVisible();
   await page.waitForLoadState("networkidle");
 
   await page.goto("/search?q=kingdon", { waitUntil: "domcontentloaded" });
   await expect(page.getByRole("heading", { level: 1, name: /Results for “kingdon”/i })).toBeVisible();
   await expect(page.getByRole("heading", { level: 1, name: "Search is temporarily unavailable" })).toHaveCount(0);
   await expect(page.locator('a[href="/scholars/john-w-kingdon"]')).toHaveCount(0);
+  await expect(page.locator('a[href="/scholars/john-w-kingdon-flagship"]').first()).toBeVisible();
   await page.waitForLoadState("networkidle");
 
   const sitemap = await request.get("/sitemap.xml");
   expect(sitemap.status()).toBe(200);
   const sitemapText = await sitemap.text();
-  expect(sitemapText).not.toContain("/scholars/jean-lave");
-  expect(sitemapText).not.toContain("/scholars/john-w-kingdon");
+  expect(sitemapText).not.toContain("<loc>https://syrtag.com/scholars/jean-lave</loc>");
+  expect(sitemapText).toContain("<loc>https://syrtag.com/scholars/jean-lave-flagship</loc>");
+  expect(sitemapText).not.toContain("<loc>https://syrtag.com/scholars/john-w-kingdon</loc>");
+  expect(sitemapText).toContain("<loc>https://syrtag.com/scholars/john-w-kingdon-flagship</loc>");
   assertBrowserHealth();
 
   for (const slug of ["jean-lave", "john-w-kingdon"]) {
     const detailResponse = await page.goto(`/scholars/${slug}`, { waitUntil: "domcontentloaded" });
     expect(detailResponse?.status()).toBe(404);
     await expect(page.getByRole("heading", { level: 1, name: /That entry is not available/i })).toBeVisible();
+    await expect(page.locator('meta[name="robots"]').first()).toHaveAttribute("content", /noindex/);
   }
+
+  const laveFlagship = await page.goto("/scholars/jean-lave-flagship", { waitUntil: "domcontentloaded" });
+  expect(laveFlagship?.status()).toBe(200);
+  await expect(page.getByRole("heading", { level: 1, name: "Jean Lave" })).toBeVisible();
+  await expect(page.locator('a[href="https://africa.berkeley.edu/people/jean-lave"]')).toBeVisible();
 });
 
 test("all four 2026-07-18 topics remain draft", async ({ page, request, baseURL }) => {
@@ -113,6 +124,7 @@ test("all four 2026-07-18 topics remain draft", async ({ page, request, baseURL 
   const sitemap = await request.get("/sitemap.xml");
   expect(sitemap.status()).toBe(200);
   const sitemapText = await sitemap.text();
+  expect(sitemapText).not.toContain("<loc>https://syrtag.com/topics</loc>");
   for (const slug of existingDraftTopicSlugs) {
     expect(sitemapText).not.toContain(`/topics/${slug}`);
   }

@@ -60,18 +60,19 @@ export function TheoryArticle({ theory, internalLinks = [] }: { theory: TheoryAr
       <span className="entity-page__eyebrow">Theory guide</span>
       <h1>{theory.titleEn}</h1>
       {theory.subtitleEn && <p>{theory.subtitleEn}</p>}
-      <div className="entity-page__meta">
-        <span><b>Depth</b>{presentation.depthLabel}</span>
-        <span><b>Reading time</b>{readingTime(theory.summaryEn, presentation.summary)}</span>
-        <span>{presentation.verificationSummary}</span>
-        <VerificationBadge level="L2_editorial" scope="page" />
-      </div>
-      <p className="page-level-source-note">Listed source records do not imply claim-level verification. Interpretation and research-use guidance remain editorial synthesis unless an approved source-backed fact has a reproducible locator and explicit human-review metadata.</p>
-      {showPublicGenealogy && <Link className="text-link" href={`/?discipline=${field?.discipline?.slug ?? "education"}&mode=genealogy&focus=${theory.slug}`}>View in graph →</Link>}
     </header>
 
-    <ArticleToc />
     <ProseSection title="Quick Summary" id="summary">{presentation.summary || theory.summaryEn || ""}</ProseSection>
+    <div className="entity-page__meta">
+      <span><b>Depth</b>{presentation.depthLabel}</span>
+      <span><b>Reading time</b>{readingTime(theory.summaryEn, presentation.summary)}</span>
+      <span>{presentation.verificationSummary}</span>
+      <VerificationBadge level="L2_editorial" scope="page" />
+    </div>
+    <p className="page-level-source-note">A source link beside a claim is the locator for that claim. Editorial prompts are labeled as editorial. A source list is not a full-text reading.</p>
+    {showPublicGenealogy && <Link className="text-link" href={`/?discipline=${field?.discipline?.slug ?? "education"}&mode=genealogy&focus=${theory.slug}`}>View in graph →</Link>}
+
+    <ArticleToc />
     <ContentAd placement="in-article" />
     <ProseSection title="1. Origins & Intellectual History">{presentation.origins}</ProseSection>
 
@@ -169,10 +170,7 @@ export function TheoryArticle({ theory, internalLinks = [] }: { theory: TheoryAr
         </article>)}
       </div>
       <TheoryGenealogyMap theory={{ slug: theory.slug, titleEn: theory.titleEn }} related={relationshipLinks} />
-    </section> : <section className="prose-section">
-      <h2>3. Theoretical Genealogy</h2>
-      <p className="genealogy-map__empty">Public genealogy relations are temporarily unavailable while evidence and human review are completed.</p>
-    </section>}
+    </section> : null}
 
     {hasD3Details && <section className="prose-section">
       <h2>Adjacent Theories & Important Differences</h2>
@@ -240,6 +238,8 @@ export function TheoryArticle({ theory, internalLinks = [] }: { theory: TheoryAr
         </article>)}
       </div>
     </section>
+
+    {!showPublicGenealogy && <p className="genealogy-map__empty">Published theory-to-theory relations are not on this page. That is a publication limit, not a finding that the theories are unrelated, and this page does not add a relation.</p>}
 
     <RelatedLinks heading="Browse related theories" links={browseLinks} />
     <ContentAd placement="bottom" />
