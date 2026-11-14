@@ -95,4 +95,9 @@ Unfinished by design: production import, production deploy, AdSense application,
 | `npm run build` with the local fixture `DATABASE_URL` | Passed, including build-output smoke. Sitemap has 9 static URLs plus 15 entity URLs. |
 | Playwright runtime above | 0 ad requests, 5 old slugs 404 |
 
-`npm run test:e2e` was not used as the completion gate. Those specs still expect the old Topics heading and the old search label. The runtime script above replaces that check for this change.
+`npm run test:e2e` was run against the local fixture server after the nav and search expectations were updated in the same branch. Applicable cases: 36 passed. Two cases still fail because published flagship names collide with older “name must be absent” assertions. Those assertions were not deleted:
+
+- `tests/e2e/content-enrichment.spec.ts` “draft Kingdon scholar is absent from public index, search, sitemap, and detail route” expects zero text matches for `John W. Kingdon`. The published page `john-w-kingdon-flagship` renders that name. Received 2.
+- `tests/e2e/second-scholar-enrichment.spec.ts` “archived Jean Lave and draft Kingdon both remain outside public surfaces” expects exact text `Jean Lave` to be absent. The published page `jean-lave-flagship` renders that name. Received 1. The old slug link `/scholars/jean-lave` is still absent.
+
+`/pricing` remains `index, follow`. Removing it from the nav and sitemap is the decided scope. Changing that robots value is left for independent review and was not done here.

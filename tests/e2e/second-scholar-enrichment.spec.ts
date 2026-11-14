@@ -113,6 +113,7 @@ test("all four 2026-07-18 topics remain draft", async ({ page, request, baseURL 
   const sitemap = await request.get("/sitemap.xml");
   expect(sitemap.status()).toBe(200);
   const sitemapText = await sitemap.text();
+  expect(sitemapText).not.toContain("<loc>https://syrtag.com/topics</loc>");
   for (const slug of existingDraftTopicSlugs) {
     expect(sitemapText).not.toContain(`/topics/${slug}`);
   }

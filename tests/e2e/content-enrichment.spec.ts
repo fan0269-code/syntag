@@ -89,7 +89,9 @@ for (const topic of topicCases) {
 
     const sitemap = await request.get("/sitemap.xml");
     expect(sitemap.status()).toBe(200);
-    await expect(await sitemap.text()).not.toContain(`/topics/${topic.slug}`);
+    const sitemapText = await sitemap.text();
+    expect(sitemapText).not.toContain(`/topics/${topic.slug}`);
+    expect(sitemapText).not.toContain("<loc>https://syrtag.com/topics</loc>");
     assertBrowserHealth();
 
     const detailResponse = await page.goto(`/topics/${topic.slug}`, { waitUntil: "domcontentloaded" });
