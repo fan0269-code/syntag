@@ -4,14 +4,12 @@ Audit pack sha256: `21b7642f350d36758afd2135bdb892997942b5c274218d7dd8a53701c2be
 
 This matrix records the PR branch against an isolated local fixture database. It does not describe `https://syrtag.com` after this change. Production was not imported, seeded, reset, or deployed. Live pages stay on the previous deployment until a separate authorization imports this corpus and redeploys the same SHA.
 
-Runtime evidence is from `next start` on `http://127.0.0.1:3101` after `prisma migrate deploy` and `db:import-published` against that local database only. Screenshots, DOM text, HAR, and the request list:
+Runtime evidence for this revision is the local fixture only, `next start` on `http://127.0.0.1:3101`, after `db:import-published` of commit `e31643222e4ef6e9bd69de7ae2754cfed7a95b75`. That import is not seed, not reset, and not a production import. The clean tree was built twice:
 
-- `/opt/cursor/artifacts/syrtag-runtime/report.json`
-- `/opt/cursor/artifacts/syrtag-runtime/requests.json`
-- `/opt/cursor/artifacts/syrtag-runtime/har/desktop.har`
-- `/opt/cursor/artifacts/syrtag-runtime/har/mobile.har`
-- `/opt/cursor/artifacts/syrtag-runtime/screenshots/`
-- `/opt/cursor/artifacts/syrtag-runtime/dom/`
+- Empty shell, `DATABASE_URL` unset, `FIXTURE_CONTENT_BUILD` unset: `BUILD_ID=8hPhhoT2fjw717k-tvcUa`, `CONTENT_ACCEPTANCE=false`, `entityDetailRouteCount=0`.
+- Fixture, `FIXTURE_CONTENT_BUILD=1`: `BUILD_ID=b1el3xZfHuvmXgQBN_F1G`, `CONTENT_ACCEPTANCE=true`, `entityRoutes=15`.
+
+Return packs: `/opt/cursor/artifacts/syrtag-return-e316432/01-logs-environment.zip` through `05-screenshots-c.zip`, with `SHA256SUMS.txt`. The earlier full crawl remains in `/opt/cursor/artifacts/syrtag-runtime-r2/`. The six no-JS screenshots and `nojs-recapture.json` were taken again on `b1el3xZfHuvmXgQBN_F1G`. This file does not say the review gate passed.
 
 Desktop pass: 41 URLs, 0 requests matching `pagead`, `adsbygoogle`, `doubleclick`, `googlesyndication`, or `googleads`, 0 `ins.adsbygoogle` / `.ad-slot` / `[data-ad-slot]` nodes. Mobile nav (390px) shows Search, Theories, Scholars, Works, About. No-JS search, topics, and about still render and show no ad nodes.
 
