@@ -22,7 +22,9 @@ test("About and Editorial Policy publish the approved identity and responsibilit
   assert.match(about, literalPattern(approvedIdentityLimit));
   assert.match(about, literalPattern(approvedResponsibility));
   assert.match(about, /Not published\./);
-  assert.match(about, /The entity catalog is empty until records are published/);
+  assert.match(about, /What is published now/);
+  assert.doesNotMatch(about, /The entity catalog is empty until records are published/);
+  assert.doesNotMatch(about, /No entity pages are published/);
   assert.match(about, /Where to go next/);
   assert.doesNotMatch(about, /TODO_OWNER_|TODO_SOURCE/);
   assert.doesNotMatch(about, /mailto:|<form|Inc\.|Ltd\.|LLC/);

@@ -29,23 +29,31 @@ test("production build contains core public route artifacts", {
   assert.equal(prerenderManifest.routes["/theories/life-course-theory"], undefined);
   assert.ok(prerenderManifest.routes["/sitemap.xml"]);
   assert.ok(prerenderManifest.routes["/robots.txt"]);
-  const publicRouteCounts = {
-    disciplines: 0,
-    fields: 0,
-    theories: 0,
-    topics: 0,
-    scholars: 0,
-    works: 0,
-    concepts: 0,
-  } as const;
-  const entityDetailRouteCount = Object.values(publicRouteCounts).reduce<number>((sum, count) => sum + count, 0);
-  for (const [type, expectedCount] of Object.entries(publicRouteCounts)) {
+  const emptyDiscoveryTypes = ["disciplines", "fields", "topics", "concepts"] as const;
+  for (const type of emptyDiscoveryTypes) {
     const routes = Object.keys(prerenderManifest.routes).filter((route) => route.startsWith(`/${type}/`));
-    assert.equal(routes.length, expectedCount, `${type} public route count`);
+    assert.equal(routes.length, 0, `${type} stays out of the prerendered catalog`);
   }
-  assert.equal(entityDetailRouteCount, 0);
-  assert.equal(sitemap.match(/<loc>/g)?.length, 14 + entityDetailRouteCount);
-  assert.match(sitemap, /<loc>https:\/\/syrtag\.com\/pricing<\/loc>/);
+  const catalogTypes = [
+    ["theories", seedCorpus.theories],
+    ["scholars", seedCorpus.scholars],
+    ["works", seedCorpus.works],
+  ] as const;
+  let entityDetailRouteCount = 0;
+  for (const [type, records] of catalogTypes) {
+    const allowed = new Set(records.filter((record) => record.status === "published").map((record) => `/${type}/${record.slug}`));
+    const routes = Object.keys(prerenderManifest.routes).filter((route) => route.startsWith(`/${type}/`));
+    assert.ok(routes.length === 0 || routes.length === allowed.size, `${type} prerender count is empty-shell or the published set`);
+    for (const route of routes) assert.equal(allowed.has(route), true, route);
+    entityDetailRouteCount += routes.length;
+  }
+  assert.equal(sitemap.match(/<loc>/g)?.length, 9 + entityDetailRouteCount);
+  assert.doesNotMatch(sitemap, /<loc>https:\/\/syrtag\.com\/pricing<\/loc>/);
+  assert.doesNotMatch(sitemap, /<loc>https:\/\/syrtag\.com\/topics<\/loc>/);
+  assert.doesNotMatch(sitemap, /<loc>https:\/\/syrtag\.com\/concepts<\/loc>/);
+  assert.doesNotMatch(sitemap, /<loc>https:\/\/syrtag\.com\/disciplines<\/loc>/);
+  assert.doesNotMatch(sitemap, /<loc>https:\/\/syrtag\.com\/fields<\/loc>/);
+  assert.doesNotMatch(sitemap, /<loc>https:\/\/syrtag\.com\/search<\/loc>/);
   assert.match(sitemap, /<loc>https:\/\/syrtag\.com\/corrections<\/loc>/);
   const entityCollections: ReadonlyArray<readonly [string, ReadonlyArray<{ slug: string; status: string }>]> = [
     ["disciplines", seedCorpus.disciplines],
@@ -61,7 +69,7 @@ test("production build contains core public route artifacts", {
     counts[record.status] = (counts[record.status] ?? 0) + 1;
     return counts;
   }, {});
-  assert.deepEqual(statusCounts, { published: 8, draft: 7, archived: 74 });
+  assert.deepEqual(statusCounts, { published: 15, draft: 7, archived: 74 });
   const nonPublicRoutes = entityCollections.flatMap(([type, records]) => records
     .filter((record) => record.status !== "published")
     .map((record) => `/${type}/${record.slug}`));

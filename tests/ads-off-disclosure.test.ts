@@ -18,9 +18,10 @@ test("advertising stays off and public ownership signals are absent", () => {
   assert.match(privacy, /does not publish an ads\.txt publisher authorization/);
   assert.match(privacy, /does not publish a google-adsense-account metadata tag/);
   assert.match(adSlot, /enabled = false/);
-  assert.match(adSlot, /if \(!enabled\) return null;/);
+  assert.match(adSlot, /adSlotMayRender/);
+  assert.match(adSlot, /return null/);
   assert.match(clientAdSlot, /enabled = false/);
-  assert.match(contentBlocks, /<ClientAdSlot placement=\{placement\} \/>/);
+  assert.match(contentBlocks, /<ClientAdSlot placement=\{placement\} screen=\{screen\} \/>/);
   assert.doesNotMatch([layout, privacy, adSlot, clientAdSlot, contentBlocks].join("\n"), /adsbygoogle|googlesyndication/);
 });
 

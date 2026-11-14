@@ -150,7 +150,7 @@ const elderRoutledge: ContentSource = {
   supports: [
     "Product page for the 25th anniversary edition",
     "Page statement that the work was first published in 1974",
-    "The opened page does not print a 1974 University of Chicago Press title page",
+    "The opened page does not print a 1974 publisher title page",
   ],
 };
 
@@ -376,7 +376,9 @@ export function createClusterBatch(): ClusterBatch {
       publishedAt: CLUSTER_PUBLISHED_AT,
       content: {
         en: {
-          overview: "Etienne Wenger's 1998 monograph, recorded by Cambridge University Press and by Crossref as issued on 28 July 1998. This page is the book record for that monograph. It is not the 1991 book coauthored with Jean Lave, and it is not a management slogan.",
+          overview: "Etienne Wenger's 1998 monograph, recorded by Cambridge University Press and by Crossref as issued on 28 July 1998. Read this page to confirm you have the 1998 book, not the 1991 book, and to see where the publisher description stops. It is not a management slogan.",
+          card_summary: "1998 sole-authored Cambridge book. The visible description supports learning as participation in an informal community around a shared enterprise, then breaks off. It is not the 1991 book and not a chapter reading.",
+          argument_heading: "What the visible description supports",
           core_question: "What social unit and learning process does the 1998 book put in place, as far as the publisher record and the visible Cambridge description support?",
           central_argument: "The Cambridge page describes learning as something that happens through participation in social practice, and it names informal communities formed around shared enterprises over time as the unit, rather than the isolated person or a formal institution. The public HTML does not carry a full chapter argument. This page stops at that visible description.",
           theoretical_contribution: "The book is the sole-authored 1998 statement used by the communities-of-practice theory page. Its contribution here is that unit and that learning process. It does not replace the 1991 account of legitimate peripheral participation, and it does not license later consulting uses of the phrase.",
@@ -412,8 +414,10 @@ export function createClusterBatch(): ClusterBatch {
       publishedAt: CLUSTER_PUBLISHED_AT,
       content: {
         en: {
-          overview: "The 1991 monograph by Jean Lave and Etienne Wenger, recorded by Cambridge University Press and by Crossref as issued on 27 September 1991. This is a work page. It does not replace a scholar page for Jean Lave, and it is not the 1998 communities-of-practice monograph.",
-          core_question: "How does the 1991 publisher record describe situated learning and legitimate peripheral participation, and who are the recorded authors?",
+          overview: "Confirm the 1991 book before you cite it: two authors, one visible publisher description, and a hard stop where that description breaks off. Jean Lave and Etienne Wenger are the Crossref authors. Cambridge University Press records the issue date as 27 September 1991. This work page does not replace either scholar page, and it is not the 1998 monograph.",
+          card_summary: "1991 book by Jean Lave and Etienne Wenger. The Cambridge description supports legitimate peripheral participation and fuller participation, then breaks off. Read both authors before assigning the book to one person.",
+          argument_heading: "Authors and the visible description",
+          core_question: "Who is on the author record, and what question should you be able to answer before citing the visible description?",
           central_argument: "Crossref names two authors, Jean Lave and Etienne Wenger. The Cambridge page describes situated learning as a social process and legitimate peripheral participation as its central characteristic, with learners moving toward fuller participation in a community's practices. Occupational labels on that page are the publisher's wording. They are not a current CV for either author.",
           theoretical_contribution: "The book is the 1991 source for the situated-learning theory page. Its contribution here is the participation process named on the publisher page. It is not evidence that one coauthor owns the later 1998 framework.",
           reading_focus: [
@@ -442,22 +446,24 @@ export function createClusterBatch(): ClusterBatch {
       title: "Children of the Great Depression",
       authors: [{ name: "Glen H. Elder, Jr." }],
       year: 1974,
-      publisher: "University of Chicago Press (1974 first-edition layer). Later records name a 1999 edition and the 2018 Routledge DOI layer.",
+      publisher: "First-edition publisher not verified from an opened title page. Later opened records include a 1999 layer and the 2018 Routledge DOI.",
       doi: "10.4324/9780429501739",
       status: "published",
       publishedAt: CLUSTER_PUBLISHED_AT,
       content: {
         en: {
-          overview: "Glen H. Elder, Jr.'s Children of the Great Depression, layered by date rather than collapsed into one imprint. The year on this record is 1974, the first-publication year stated on the Routledge 25th-anniversary page. The DOI on this record is the 2018 Routledge layer. Neither 2018 nor 1998 is the origin year.",
-          core_question: "Which dated layers of this book can be told apart from the opened publisher, university, and Crossref records?",
-          central_argument: "The Routledge page says the work was first published in 1974 and describes a longitudinal study of a Depression cohort of 167 people born in 1920-1921, followed from elementary school in Oakland into the 1960s. The same page carries a 1999 copyright line for the anniversary edition and says that edition adds a chapter on the war years. The UNC books page lists a 1999 record marked published 1974. The Carolina Population Center bibliography lists a 1999 Westview Press record. Crossref dates DOI 10.4324/9780429501739 to 8 October 2018 and names Routledge. The approved batch bibliography names University of Chicago Press as the 1974 first-edition publisher. The Routledge HTML opened on 2026-11-11 does not display a 1974 Chicago title page, so that imprint is recorded with that limit.",
-          theoretical_contribution: "The book is the cohort study used by the life-course perspective page. It is not a law, and the 2018 DOI is not a new theory. Printings whose details were not on the opened pages are left unknown.",
+          overview: "Use this page to decide which dated layer of Children of the Great Depression you are citing, and what the opened cohort description can and cannot support. The year on this record is 1974 because the Routledge page says the work was first published then. The DOI is the 2018 Routledge layer. 2018 is not the origin year. The first-edition publisher is unknown on the pages opened for this record.",
+          core_question: "Which questions can this cohort record support, and which edition layer are you actually citing?",
+          central_argument: "The Routledge page says the work was first published in 1974 and describes a longitudinal study of 167 people born in 1920-1921, followed from elementary school in Oakland into the 1960s. The same page carries a 1999 copyright line for the anniversary edition and says that edition adds a chapter on the war years. The UNC books page lists a 1999 record marked published 1974. The Carolina Population Center bibliography lists a 1999 Westview Press record. Crossref dates DOI 10.4324/9780429501739 to 8 October 2018 and names Routledge. No opened page displays a 1974 title page, so the first-edition publisher stays unknown. Editorial reading brief, not a result from the book: this record can anchor a question about one Depression cohort in Oakland across those years. It cannot, from these catalog pages, supply another cohort's outcomes or a general causal law.",
+          theoretical_contribution: "The book is the cohort study used by the life-course perspective page. It is not a law, and the 2018 DOI is not a new theory. Printings whose title pages were not opened stay unresolved, including the first-edition publisher.",
           reading_focus: [
             "Start with the 1974 year on the Routledge page, and do not read 2018 as the origin year.",
             "Keep the 1999 UNC and CPC records distinct from the 2018 Crossref DOI.",
-            "Treat University of Chicago Press as the batch's 1974 imprint layer, not as a title page reproduced from the Routledge HTML.",
-            "Use the publisher, university, and DOI pages. Do not treat the DOI landing page as an open full text of every printing.",
+            "Leave the first-edition publisher unknown until a title page for that printing is opened.",
+            "Ask whether your study is about this Oakland cohort or about a different group. The catalog description does not answer the second question.",
           ],
+          argument_heading: "Version layers and what the cohort record can support",
+          card_summary: "1974 is the first-publication year on the Routledge page. 1999 and the 2018 DOI are later layers. The first-edition publisher is not verified. The cohort is 167 people born in 1920–1921 in Oakland, not a universal result.",
           legal_access: [
             { label: "Routledge 25th-anniversary page", guidance: "Legal publisher page for the anniversary edition. It states first publication in 1974.", source_id: elderRoutledge.id },
             { label: "DOI 10.4324/9780429501739", guidance: "This DOI is the 2018 Routledge layer. It is not a 1974 title page.", source_id: elderDoi.id },
@@ -469,7 +475,7 @@ export function createClusterBatch(): ClusterBatch {
             l1("c11-elder-work-1974", `works[slug="${elderWorkSlug}"].year`, "The Routledge 25th-anniversary page says the work was first published in 1974.", elderRoutledge.id, "Routledge product description, first-published year; URL https://www.routledge.com/Children-Of-The-Great-Depression-25th-Anniversary-Edition/Elder/p/book/9780813333427; type publisher; checked 2026-11-11"),
             l1("c11-elder-work-2018", `works[slug="${elderWorkSlug}"].doi`, "Crossref records DOI 10.4324/9780429501739 as a Routledge book issued 8 October 2018.", elderCrossref.id, "Crossref issued, publisher, type; URL https://api.crossref.org/works/10.4324/9780429501739; type authoritative_web; checked 2026-11-11"),
             l1("c11-elder-work-1999", `works[slug="${elderWorkSlug}"].content.en.central_argument`, "The UNC books page lists a 1999 record marked published 1974, and the CPC bibliography lists a 1999 Westview Press record.", elderCpc.id, "CPC bib 943 together with the UNC books page; URLs https://www.cpc.unc.edu/resources/publications/bib/943/ and https://elder.web.unc.edu/books/; type university; checked 2026-11-11"),
-            l2("c11-elder-work-chicago-limit", `works[slug="${elderWorkSlug}"].publisher`, "University of Chicago Press is the 1974 first-edition imprint required by the approved batch bibliography. The Routledge page opened on 2026-11-11 does not display a 1974 Chicago title page. That limit is editorial synthesis, not a claim that the title page was read."),
+            l2("c11-elder-work-chicago-limit", `works[slug="${elderWorkSlug}"].publisher`, "The first-edition publisher is unknown because no opened page displays a 1974 title page. An internal bibliography is not that title page. Editorial synthesis."),
             l3("c11-elder-work-reading", `works[slug="${elderWorkSlug}"].content.en.reading_focus`, "Keeping the three date layers apart is research guidance for citation practice."),
           ],
         },
@@ -485,20 +491,22 @@ export function createClusterBatch(): ClusterBatch {
       publishedAt: CLUSTER_PUBLISHED_AT,
       content: {
         en: {
-          overview: "A work record for John W. Kingdon's Agendas, Alternatives, and Public Policies. The year on this record is 1984, the first-publication year stated on the University of Michigan political-science bibliography page. That page was opened with WebFetch on 2026-11-11. curl to the same URL returned HTTP 403, a Cloudflare challenge, and is not treated as a successful fetch. The Pearson catalog, opened by curl with HTTP 200 on the same date, is a later layer: the Pearson New International Edition, published 3 October 2013, with a 2014 copyright line and ISBN-13 9781292053875. Neither 2011, 2013, nor 2014 is the origin year. This page is the book record. It is not a scholar page and not the education-policy theory page.",
-          core_question: "Which dated layers of this book can be kept apart, and what does the opened catalog actually place the book in?",
-          central_argument: "The department bibliography page titles the book Agendas, Alternatives, and Public Policies. It says the book was first published in 1984, reissued in 1995, and issued again in 2011 as a Longman Classics edition with a new epilogue on health care reform from the Clinton years to the Obama years. The same page prints Publisher: Longman and Year of Publication: 1984. Some reviews name Little, Brown for that first-edition imprint. Those reviews were not opened on 2026-11-11, so neither Longman nor Little, Brown is recorded here as the sole verified first-edition publisher. The Pearson catalog heading is Agendas, Alternatives, and Public Policies, Update Edition (With an Epilogue on Health Care), Pearson New International Edition. Its visible overview places the research in interviews and documents about the U.S. federal government and frames the book as a study of how issues reach official attention and how a governmental agenda is set. The catalog heading also contains the words 2nd edition. This page does not use that label to replace the 1995 reissue, and it does not read 2013 as a new origin year. No stable book DOI was found, and none is supplied. The department page reprints a publisher description and marks it Pearson. That description is not copied here.",
-          theoretical_contribution: "The book is the federal policy-process record used by the multiple-streams education page. Its contribution on this page is bibliographic: author, title, and the separated edition layers. The education application stays on that theory page, in the 2010 EPAA article. This book is not an education monograph. The catalog is not an open full text.",
+          overview: "Use this page to keep the edition layers of Agendas, Alternatives, and Public Policies apart. The year on this record is 1984, the first-publication year on the University of Michigan political-science bibliography page. The Pearson catalog is a later layer: the Pearson New International Edition, published 3 October 2013, with a 2014 copyright line and ISBN-13 9781292053875. Neither 2011, 2013, nor 2014 is the origin year. This page is the book record. It is not the scholar page and not an education monograph.",
+          core_question: "Which edition are you citing, and what does the opened catalog place the book in?",
+          central_argument: "The department bibliography page says the book was first published in 1984, reissued in 1995, and issued again in 2011 as a Longman Classics edition with a new epilogue on health care reform from the Clinton years to the Obama years. The same page prints Publisher: Longman and Year of Publication: 1984. Some reviews name Little, Brown for that first-edition imprint. Those reviews were not opened, so neither Longman nor Little, Brown is the sole verified first-edition publisher. The Pearson catalog heading is Agendas, Alternatives, and Public Policies, Update Edition (With an Epilogue on Health Care), Pearson New International Edition. Its visible overview places the research in interviews and documents about the U.S. federal government and asks how issues reach official attention and how a governmental agenda is set. The contents list chapters for problems, the policy primeval soup, the political stream, and the policy window. That list is a catalog, not a reading of the 1984 book. The catalog heading also contains the words 2nd edition. This page does not use that label to replace the 1995 reissue, and it does not read 2013 as a new origin year. No stable book DOI was found, and none is supplied.",
+          theoretical_contribution: "This page separates edition layers and states the catalog's scope. It does not summarize a full-book argument. The education application stays on the theory page and was not reread for this revision. The catalog is not an open full text.",
           reading_focus: [
             "Use 1984 as the origin year. Do not cite 2013 or 2014 as the year the book was created.",
             "Keep four layers apart: 1984 first publication, 1995 reissue, 2011 Longman Classics, and the 2013-2014 Pearson New International Edition.",
             "Leave the 1984 publisher unresolved. The bibliography page says Longman. Unopened reviews are not used to pick a different sole imprint.",
             "Do not add a DOI. The missing identifier is a gap, not a license to invent one.",
-            "Read the education application on the theory page multiple-streams-education-policy. Read the author record on the scholar page john-w-kingdon-flagship.",
+            "For an education case, use the theory page. For the author appointment, use the scholar page. This page does not replace either.",
           ],
+          argument_heading: "Version and catalog scope",
+          card_summary: "Separate 1984, 1995, 2011, and the 2013–2014 Pearson update. The first-edition publisher is unresolved. The Pearson chapter list is a federal agenda catalog, not a full-book reading and not an education result.",
           legal_access: [
             { label: "Pearson catalog", guidance: "Legal catalog page for the Pearson New International Edition. It records the 3 October 2013 publication date, the 2014 copyright line, ISBN-13 9781292053875, and the U.S. federal scope. It is not an open copy of the book.", source_id: pearsonKingdon.id },
-            { label: "U-M LSA bibliography page", guidance: "Opened with WebFetch on 2026-11-11 after curl returned HTTP 403. Use it for the 1984, 1995, and 2011 layers. Do not describe that curl as successful.", source_id: lsaKingdonBibliography.id },
+            { label: "U-M LSA bibliography page", guidance: "Use it for the 1984, 1995, and 2011 layers. It is a bibliography page, not an open copy of the book. The first-edition publisher on that page is not treated as the only possible 1984 imprint.", source_id: lsaKingdonBibliography.id },
           ],
           sources: [pearsonKingdon, lsaKingdonBibliography],
           verification: [
@@ -518,7 +526,7 @@ export function createClusterBatch(): ClusterBatch {
       primary: false,
       depth: "D2",
       titleEn: "Multiple streams in education policy",
-      summaryEn: "Multiple streams, on this page, is Kingdon's account of how issues reach a governmental agenda, used here only with an education-policy application. The Pearson catalog page is a book about the U.S. federal policy process, not an education monograph. The education application is Young, Shepley, and Song's 2010 EPAA article at article view 771.",
+      summaryEn: "Use this page when the question is how a subject reaches a governmental agenda. The Pearson catalog supports that U.S. federal question and lists chapters for problems, a policy primeval soup, a political stream, and a policy window. It is not an education monograph. The 2010 education article was not reread for this revision, so no new education result is added.",
       status: "published",
       publishedAt: CLUSTER_PUBLISHED_AT,
       content: {
@@ -526,11 +534,11 @@ export function createClusterBatch(): ClusterBatch {
           theory_nature: {
             kind: "framework",
             label: "Policy-process framework, with one education application",
-            explanation: "This page pairs a federal policy-process book with one education-policy article. It does not turn the book into an education monograph. The book record is the work page kingdon-agendas-alternatives-and-public-policies. The author record is the scholar page john-w-kingdon-flagship. Neither of those pages replaces this theory page.",
+            explanation: "This page pairs a federal policy-process catalog with one previously recorded education-policy article. It does not turn the book into an education monograph. The book, the author, and this theory are three different records. This revision does not add an education finding, because the 2010 article was not reread.",
             source_ids: [pearsonKingdon.id, epaaArticle.id],
           },
-          what_is_it: "This page helps a reader decide whether a study is using Kingdon's multiple-streams vocabulary for a policy agenda, and whether an education case is actually that kind of question. The Pearson catalog describes a book that asks how subjects reach officials and how a governmental agenda is set, from interviews and documents about the U.S. federal government. Its chapter list separates problems, a policy primeval soup, a political stream, and a policy window in which streams are joined. The 2010 EPAA article, at the path ending in 771, applies that model to state reading policy. The two sources do different work. The catalog is not the article, and the article is not the book.",
-          origins: "The Pearson page names John W. Kingdon and dates this Pearson New International update edition to 3 October 2013, with a 2014 copyright line and ISBN 9781292053875. That page is the catalog record opened for the book. It is not treated as the 1984 first edition, and the full book was not read from it. Crossref dates the EPAA article to 10 July 2010, with authors Tamara Viola Young, Thomas V. Shepley, and Mengli Song, in Education Policy Analysis Archives. The DOI resolves to https://epaa.asu.edu/index.php/epaa/article/view/771. A different EPAA path, article view 757, is another article and is not a source on this page.",
+          what_is_it: "Ask whether the study is about how a subject gets onto a governmental agenda, and which of the catalog's separate processes the materials can actually show. The Pearson catalog (ISBN 9781292053875, published 3 October 2013, copyright 2014) describes interviews and documents about the U.S. federal government and asks how subjects reach officials and how a governmental agenda is set. Its contents list separate chapters for problems, the policy primeval soup, the political stream, and the policy window in which streams are joined. Those chapter titles are catalog evidence that the book keeps the processes apart. They are not a reconstruction of the chapters, and they are not education-study results. A 2010 EPAA article at article view 771 was previously recorded as an education application. This revision did not reopen that article, so this page does not add or widen an education conclusion. A different EPAA path, article view 757, is not a source. Editorial prompts, not sentences from the book: what counts as the problem stream in your case, what counts as the policy alternatives, and what counts as the political conditions? If you cannot point to materials for each, you are using the vocabulary as a label.",
+          origins: "The Pearson page names John W. Kingdon and dates this Pearson New International update edition to 3 October 2013, with a 2014 copyright line and ISBN 9781292053875. That page is the catalog opened for this revision. It is not the 1984 first edition, and the book was not read from it. Crossref dates an EPAA article to 10 July 2010, with authors Tamara Viola Young, Thomas V. Shepley, and Mengli Song. The DOI resolves to the article view whose path ends in 771. This revision did not reopen that article, so the education application stays at that previously recorded citation and is not expanded. Article view 757 is a different article and is recorded only so it is not cited by mistake.",
           core_concepts: [
             {
               name: "Governmental agenda",
@@ -549,7 +557,7 @@ export function createClusterBatch(): ClusterBatch {
             },
             {
               name: "Education application, separately sourced",
-              definition: "The EPAA article's title states an application of Kingdon's multiple streams model to how a state reading policy formed. The article page says the study used interviews in California, Michigan, and Texas.",
+              definition: "A previously recorded EPAA article title states an application of Kingdon's multiple streams model to how a state reading policy formed, and that record says the study used interviews in California, Michigan, and Texas. This revision did not reopen the article, so those sentences are not a new education result.",
               relevance: "The education claim on this page depends on that article. The Pearson catalog alone does not establish it.",
             },
           ],
@@ -717,12 +725,12 @@ export function createClusterBatch(): ClusterBatch {
     {
       slug: laveSlug,
       name: "Jean Lave",
-      bioEn: "Coauthor, with Etienne Wenger, of the 1991 book Situated Learning. OpenAlex lists the last known institution as the University of California, Berkeley, and the ORCID field is empty. Institutional pages do not agree on a single department title.",
+      bioEn: "Coauthor, with Etienne Wenger, of the 1991 book Situated Learning. The Berkeley African Studies directory lists Professor Emeritus, Department: Education. A 2011 lecture page uses Department of Geography. Those are different dates, not one current-title dispute.",
       status: "published",
       publishedAt: CLUSTER_PUBLISHED_AT,
       content: {
         en: {
-          overview: "Jean Lave is named by Crossref as a coauthor of the 1991 monograph Situated Learning. OpenAlex author A5061396853 displays Jean Lave, returns an empty ORCID, and lists the University of California, Berkeley as the last known institution. Two Berkeley pages use different department wording. The Center for African Studies directory, checked on 2026-11-11, lists Professor Emeritus, Department: Education, Role Emeritus. The Graduate Lectures page for the 3 November 2011 lecture lists Professor Emerita, Department of Geography, and Affiliate Professor in Geography, Anthropology, and the Energy Resources Group. This page sets those wordings side by side. It does not choose one as the sole verified title. The directory's faculty contact link was not a working page on the verification date, so that URL is not offered as a homepage. No personal academic site at the level of a maintained university about-page was found, and no degree year is stated. A CASBS page records a 2000-01 fellowship in Anthropology at UC Berkeley. That is a fellowship line, not a CV. Citation counts are not used.",
+          overview: "Read this page to keep Jean Lave on the 1991 book, not to settle one current job title. Crossref names her as a coauthor of Situated Learning. OpenAlex author A5061396853 displays Jean Lave, returns an empty ORCID, and lists the University of California, Berkeley as the last known institution. The Center for African Studies directory lists Professor Emeritus, Department: Education, Role Emeritus. The Graduate Lectures page for the 3 November 2011 lecture lists Professor Emerita, Department of Geography, and Affiliate Professor in Geography, Anthropology, and the Energy Resources Group. Those are wordings from different dates. This page does not treat the difference as a present-tense dispute or as an academic controversy, and it does not choose one as the only title. No degree year is stated. The publisher's occupational label on the 1991 book page is not a CV.",
           academic_identity: {
             discipline: "Not one verified department. African Studies directory: Education. 2011 Graduate Lectures page: Geography, with affiliate wording for Geography, Anthropology, and the Energy Resources Group.",
             role: "Side-by-side institutional wording, checked 2026-11-11. African Studies directory: Professor Emeritus, Department: Education, Role Emeritus. 2011 lecture page: Professor Emerita, Department of Geography, and Affiliate Professor, Departments of Geography, Anthropology, and the Energy Resources Group. Neither wording is selected as the sole current title.",
@@ -747,14 +755,14 @@ export function createClusterBatch(): ClusterBatch {
           scholarly_relations: [
             {
               kind: "collaboration",
-              description: "Crossref lists Jean Lave and Etienne Wenger as coauthors of the 1991 book only. The relation does not extend to the 1998 monograph, and it does not merge either person with a later Wenger-Trayner record.",
+              description: "Crossref lists Jean Lave and Etienne Wenger as coauthors of the 1991 book only. The relation does not extend to the 1998 monograph. Another database surname was not checked, so this page does not decide that it names a different person.",
               source_ids: [lppCrossref.id],
             },
           ],
           attribution_boundaries: [
             "Do not treat the 1991 work page as a substitute for this scholar page.",
             "Do not describe Lave as the sole author of the 1991 book or as the author of the 1998 monograph.",
-            "Do not pick Education or Geography as the single verified department. The two Berkeley wordings conflict and stay side by side.",
+            "Read the 2011 lecture wording and the current directory as different dates. Do not treat that difference as a present-tense job dispute.",
             "Do not invent an ORCID, a Ph.D. year, or a CV. The OpenAlex ORCID field is empty.",
             "Do not present the directory's faculty contact URL as a working homepage. It returned 404 on 2026-11-11 and is not a source link.",
             "The CASBS line is a 2000-01 fellowship record only.",
@@ -786,7 +794,7 @@ export function createClusterBatch(): ClusterBatch {
       publishedAt: CLUSTER_PUBLISHED_AT,
       content: {
         en: {
-          overview: "John W. Kingdon is the author named on the Pearson catalog for Agendas, Alternatives, and Public Policies and on the University of Michigan political-science pages. The University of Michigan Press author page, opened by curl with HTTP 200 on 2026-11-11, describes him as a professor emeritus of political science at the University of Michigan. It says he has been a fellow of Stanford University's Center for Advanced Study in Behavioral Sciences and a John Simon Guggenheim Fellow. The book it lists is Congressmen's Voting Decisions. That press page is not a bibliography of Agendas, Alternatives, and Public Policies. The LSA faculty page was opened with WebFetch on 2026-11-11. curl to that URL returned HTTP 403, a Cloudflare challenge, and is not recorded as a successful fetch. That page calls him professor emeritus of political science at the University of Michigan in Ann Arbor. It lists Agendas, Alternatives, and Public Policies (1984, 1995, 2011), America the Unusual (1999), and Congressmen's Voting Decisions (1973, 1981, 1989). Its degree lines are a Ph.D. in political science from the University of Wisconsin-Madison and a B.A. from Oberlin College, with no years. It names the Stanford affiliation as the Center for Advanced Behavioral Studies at Stanford. The two Stanford names are left side by side. OpenAlex author A5063257234, HTTP 200 on the same date, displays John W. Kingdon, returns an empty ORCID, lists the University of Michigan as the last known institution, and has an empty homepage. Citation counts and the h-index on that record are not used. No ORCID is supplied. This page does not stand in for the book or for the education application.",
+          overview: "Read this page for the author of Agendas, Alternatives, and Public Policies and for the political-science appointment, not for an education-study result and not for a full biography. The University of Michigan Press author page describes John W. Kingdon as Professor Emeritus of Political Science at the University of Michigan. It says he has been a fellow of Stanford University's Center for Advanced Study in Behavioral Sciences and a John Simon Guggenheim Fellow. The book that page lists is Congressmen's Voting Decisions, so the page is not a bibliography of Agendas, Alternatives, and Public Policies. The Pearson catalog is the book record's later edition. Education applications stay on the theory page, and the 2010 article was not reread for this revision. Fetch notes for the faculty page stay in the source register rather than in this paragraph.",
           academic_identity: {
             discipline: "Political science. The opened press page and the LSA faculty page place him in political science at the University of Michigan. They do not place him in an education faculty.",
             role: "Professor emeritus of political science, University of Michigan, on both the press page and the LSA faculty page. The faculty page adds Ann Arbor and the two degrees named above. Stanford wording is not collapsed: faculty page, Center for Advanced Behavioral Studies at Stanford; press page, Stanford University's Center for Advanced Study in Behavioral Sciences. Both pages call him a John Simon Guggenheim Fellow.",

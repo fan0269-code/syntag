@@ -25,7 +25,7 @@ test("theory guide hero separates guide depth reading time and page-level source
   assert.match(source, /readingTime\(theory\.summaryEn, presentation\.summary\)/);
   assert.match(source, /<VerificationBadge level="L2_editorial" scope="page"/);
   assert.doesNotMatch(source, /<VerificationBadge level=\{presentation\.sourceItems\[0\]\?\.level/);
-  assert.match(source, /Listed source records do not imply claim-level verification\. Interpretation and research-use guidance remain editorial synthesis unless an approved source-backed fact has a reproducible locator and explicit human-review metadata\./);
+  assert.match(source, /A source link beside a claim is the locator for that claim/);
 });
 
 test("theory relationships retain sourced genealogy and offer one neutral browse-more entry", () => {
@@ -55,10 +55,11 @@ test("disabled Phase 1 ad slots render no reserved space while retaining an enab
   const clientSource = clientAdSlotSource();
 
   assert.match(adSource, /enabled = false/);
-  assert.match(adSource, /if \(!enabled\) return null;/);
+  assert.match(adSource, /adSlotMayRender/);
+  assert.match(adSource, /return null/);
   assert.match(adSource, /minHeight: heights\[placement\]/);
   assert.match(clientSource, /enabled = false/);
-  assert.match(clientSource, /<AdSlot placement=\{placement\} enabled=\{enabled\} \/>/);
+  assert.match(clientSource, /<AdSlot placement=\{placement\} enabled=\{enabled\} screen=\{screen\} \/>/);
   assert.doesNotMatch(clientSource, /useEffect/);
   assert.doesNotMatch(clientSource, /adsbygoogle|cookie/i);
 });

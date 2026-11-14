@@ -39,6 +39,7 @@ export default function PricingPage() {
       eyebrow="Access and roadmap"
       description={description}
       lede="Reading published Syrtag pages does not require an account or a payment. Pro and Scholar are listed so their status is clear: they are not available."
+      adScreen="pricing"
     >
       <JsonLd data={{
         "@context": "https://schema.org",
@@ -59,7 +60,7 @@ export default function PricingPage() {
         ))}
       </div>
       <h2>What stays open</h2>
-      <p>Pages that Syrtag has published stay free to read, including trust pages and any entity page that passes the publication boundary. An empty catalog is still free to read. It is not a paid tier, and it is not a promise that entity pages already exist. Pro and Scholar cannot be purchased.</p>
+      <p>Published pages stay free to read, including trust pages and entity pages that pass the publication boundary. Free is the current access state. It is not a paid tier, and it does not describe the catalog as empty. Pro and Scholar cannot be purchased. This page has no checkout and no registration form.</p>
     </StaticPage>
   );
 }
