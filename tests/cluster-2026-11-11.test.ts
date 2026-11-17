@@ -102,12 +102,14 @@ test("Jean Lave keeps the affiliation conflict and does not invent a CV", () => 
 test("Children of the Great Depression keeps 1974, 1999, and 2018 apart", () => {
   const work = seedCorpus.works.find((entry) => entry.slug === "elder-children-of-the-great-depression");
   assert.equal(work?.year, 1974);
-  assert.match(work?.publisher ?? "", /University of Chicago Press/);
+  assert.match(work?.publisher ?? "", /not verified/);
+  assert.doesNotMatch(work?.publisher ?? "", /University of Chicago Press/);
   assert.equal(work?.doi, "10.4324/9780429501739");
   const serialized = JSON.stringify(work);
   assert.match(serialized, /1999/);
   assert.match(serialized, /2018/);
-  assert.match(serialized, /does not display a 1974 Chicago title page/);
+  assert.match(serialized, /first-edition publisher/);
+  assert.doesNotMatch(serialized, /approved batch/);
   assert.equal(serialized.includes("In this highly acclaimed work first published in 1974"), false);
 });
 

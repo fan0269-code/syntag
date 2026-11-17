@@ -33,12 +33,12 @@ export default async function TopicPage({ params }: PageProps<"/topics/[slug]">)
     const [comparison, internalLinks] = await Promise.all([getTheoryComparison(item.slug), getInternalLinks("topic", item.slug)]);
     return { item, comparison, internalLinks };
   });
-  if (state === DATA_UNAVAILABLE) return <PageFrame><DataUnavailableState /></PageFrame>;
+  if (state === DATA_UNAVAILABLE) return <PageFrame adScreen="empty-type"><DataUnavailableState /></PageFrame>;
   const content = state ? pathwayContentFromPayload(state.item.contentJsonb) : null;
   if (!state || !content) notFound();
 
   const { item, comparison, internalLinks } = state;
-  return <><JsonLdArticle headline={item.questionEn} description="Compare theory pathways for this doctoral research topic." path={`/topics/${item.slug}`} datePublished={item.publishedAt} dateModified={item.updatedAt} /><PageFrame><EntityArticle kind="Research topic" title={item.questionEn} summary="Compare theory pathways for this research question." overview={content.overview} breadcrumb={[{ label: "Topics", href: "/topics" }]} sources={sourceItemsForEntity(content)} links={internalLinks.map(({ label, href, reason }) => ({ label, href, description: reason }))}><PathwayContentSections content={content} /><section className="prose-section theory-comparison"><h2>Published topic-theory relations</h2><div className="responsive-table">{comparison.map((relation) => {
+  return <><JsonLdArticle headline={item.questionEn} description="Compare theory pathways for this doctoral research topic." path={`/topics/${item.slug}`} datePublished={item.publishedAt} dateModified={item.updatedAt} /><PageFrame adScreen="empty-type"><EntityArticle kind="Research topic" title={item.questionEn} summary="Compare theory pathways for this research question." overview={content.overview} breadcrumb={[{ label: "Topics", href: "/topics" }]} sources={sourceItemsForEntity(content)} links={internalLinks.map(({ label, href, reason }) => ({ label, href, description: reason }))}><PathwayContentSections content={content} /><section className="prose-section theory-comparison"><h2>Published topic-theory relations</h2><div className="responsive-table">{comparison.map((relation) => {
     const risk = topicTheoryRiskPresentation(relation.riskNotesEn);
     return <article key={relation.theoryId}><strong>{relation.theory.titleEn}</strong><span><b>Fit</b>{relation.suitability}</span><span><b>Recommendation</b>{relation.recommendation?.replaceAll("_", " ")}</span><span><b>Why this route</b>{relation.suitabilityNotesEn}</span><span><b>{risk.label}</b>{risk.text}</span><span><b>Core scholars</b>{relation.theory.scholars.map(({ scholar }) => scholar.name).join(", ") || "—"}</span></article>;
   })}</div></section></EntityArticle></PageFrame></>;

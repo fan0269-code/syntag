@@ -6,7 +6,7 @@ type ReadingMode = "published" | "demo" | "empty" | "unavailable" | "catalog";
 const modeCopy: Record<ReadingMode, string> = {
   published: "The graph on this page is drawn from published records. Open a linked page for its summary and sources. The graph is a way to move between those pages. It is not itself a scholarly article.",
   demo: "The graph on this page is local development sample data. It is labeled as a demo and is not published scholarship.",
-  empty: "No published graph is available yet. Syrtag only shows records with status published after source-backed human review. An empty catalog means drafts, archived seed, and local demo data are withheld, not that the literature does not exist.",
+  empty: "This render has no published theory, scholar, or work list and no published graph. That is a data state for this page. It is not a statement that the literature does not exist, and draft or archived records are still not published scholarship.",
   unavailable: "The catalog could not be loaded. Please try again shortly. This notice is an availability state. It is not a statement that research has been published or withdrawn.",
   catalog: catalogReadingNote,
 };
@@ -15,13 +15,11 @@ export function SiteReadingGuide({ mode }: { mode: ReadingMode }) {
   return (
     <section className="static-prose site-reading-guide" aria-labelledby="site-reading-guide-title">
       <h2 id="site-reading-guide-title">How to read Syrtag</h2>
-      <p>Syrtag is a source-aware navigation site for doctoral research questions. It is meant to help a reader compare theories, scholars, works, concepts, and topics, then return to the cited sources.</p>
+      <p>Syrtag helps a reader move from a research question to a published theory, and from that theory to the scholar and work records that can be attributed. Concept, topic, discipline, and field indexes are not part of that published catalog.</p>
       <p>{modeCopy[mode]}</p>
       <h2>What a public page includes</h2>
       <p>A public entity page should be readable without the graph: a summary, the limits of that summary, and sources a reader can open. A dated claim should carry a verification date. Syrtag does not treat an unsourced paragraph as a published academic conclusion.</p>
-      <p>{mode === "empty"
-        ? "Public routes list only records whose status is published. The current authored corpus keeps entity records in draft or archived state, so a database seeded from that corpus has no public entity pages. Candidate flagship pages stay unpublished until the operator supplies citable sources."
-        : publishedCatalogBoundary}</p>
+      <p>{publishedCatalogBoundary}</p>
       <h2>Scope</h2>
       <p>The intended public scope is education and sociology. Syrtag does not present psychology, management, or any other discipline as published coverage.</p>
       <h2>Trust and advertising</h2>
@@ -32,11 +30,9 @@ export function SiteReadingGuide({ mode }: { mode: ReadingMode }) {
         <Link href="/privacy">Privacy</Link>
         <Link href="/terms">Terms</Link>
         <Link href="/corrections">Contact and corrections</Link>
-        <Link href="/pricing">Pricing</Link>
-        {(mode === "published" || mode === "demo") && <Link href="/topics">Published topics</Link>}
-        {mode === "catalog" && <Link href="/theories">Theories</Link>}
-        {mode === "catalog" && <Link href="/scholars">Scholars</Link>}
-        {mode === "catalog" && <Link href="/works">Works</Link>}
+        <Link href="/theories">Theories</Link>
+        <Link href="/scholars">Scholars</Link>
+        <Link href="/works">Works</Link>
       </p>
     </section>
   );

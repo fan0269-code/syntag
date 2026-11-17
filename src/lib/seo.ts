@@ -118,23 +118,23 @@ export function generateWorkMeta(work: Pick<WorkSeoEntity, "title" | "publisher"
 
 export function generateTopicMeta(topic: Pick<TopicSeoEntity, "questionEn" | "slug">): Metadata {
   const title = `${topic.questionEn} — Research Theory Selection Guide | Syrtag`;
-  return metadataFor({ title, description: createSeoDescription(topic.questionEn, "research theory selection guide"), path: `/topics/${topic.slug}` });
+  return metadataFor({ title, description: createSeoDescription(topic.questionEn, "research theory selection guide"), path: `/topics/${topic.slug}`, noindex: true });
 }
 
 export function generateDisciplineMeta(discipline: Pick<DisciplineSeoEntity, "titleEn" | "descriptionEn" | "slug">): Metadata {
   const title = `${discipline.titleEn} Research Theories & Frameworks | Syrtag`;
-  return metadataFor({ title, description: createSeoDescription(discipline.titleEn, "discipline research theory guide", discipline.descriptionEn), path: `/disciplines/${discipline.slug}`, type: "website" });
+  return metadataFor({ title, description: createSeoDescription(discipline.titleEn, "discipline research theory guide", discipline.descriptionEn), path: `/disciplines/${discipline.slug}`, type: "website", noindex: true });
 }
 
 export function generateFieldMeta(field: Pick<FieldSeoEntity, "titleEn" | "descriptionEn" | "slug">): Metadata {
   const title = `${field.titleEn} Research Theories & Frameworks | Syrtag`;
-  return metadataFor({ title, description: createSeoDescription(field.titleEn, "research field theory guide", field.descriptionEn), path: `/fields/${field.slug}`, type: "website" });
+  return metadataFor({ title, description: createSeoDescription(field.titleEn, "research field theory guide", field.descriptionEn), path: `/fields/${field.slug}`, type: "website", noindex: true });
 }
 
 export function generateHomeMeta(): Metadata {
   return metadataFor({
     title: "Syrtag — Doctoral theory navigation (education & sociology)",
-    description: "Source-aware navigation for education and sociology. Public pages appear only when published, so the catalog may be empty. Advertising is off.",
+    description: "Source-aware navigation for published education and sociology theories, scholars, and works. Advertising is off.",
     path: "/",
     type: "website",
   });

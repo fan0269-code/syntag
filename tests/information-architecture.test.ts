@@ -37,11 +37,13 @@ test("public navigation and recovery paths avoid search shortcuts and planned fe
   const notFound = readFileSync("src/app/not-found.tsx", "utf8");
 
   assert.doesNotMatch(header, /framework-builder|\/search\?q=/);
-  assert.doesNotMatch(footer, /framework-builder/);
-  assert.match(header, /\/pricing/);
-  assert.match(footer, /STATIC_INTERNAL_LINKS/);
+  assert.doesNotMatch(header, /\/pricing/);
+  assert.doesNotMatch(footer, /\/topics|\/concepts|\/disciplines|\/fields|\/pricing/);
+  assert.match(footer, /\/theories/);
   assert.match(notFound, /\/theories/);
-  assert.match(notFound, /\/disciplines/);
+  assert.match(notFound, /\/scholars/);
+  assert.match(notFound, /\/works/);
+  assert.doesNotMatch(notFound, /\/disciplines/);
 });
 
 test("legacy entity search breadcrumbs resolve to canonical index routes", () => {

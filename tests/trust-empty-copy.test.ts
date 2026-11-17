@@ -23,10 +23,9 @@ test("home metadata matches the empty catalog and keeps advertising off", () => 
   const description = String(metadata.description);
 
   assert.match(String(metadata.title), /Doctoral theory navigation \(education & sociology\)/);
-  assert.match(description, /education and sociology/i);
-  assert.match(description, /Public pages appear only when published/);
-  assert.match(description, /catalog may be empty/);
+  assert.match(description, /published education and sociology theories, scholars, and works/);
   assert.match(description, /Advertising is off/);
+  assert.doesNotMatch(description, /catalog may be empty/);
   assert.ok(description.length <= 160);
   assert.doesNotMatch(description, forbiddenCatalogClaims);
 });
@@ -56,7 +55,10 @@ test("About leaves publisher slots unfinished and states the publication boundar
 
   assert.match(about, /Syrtag is not a journal, a writing service/);
   assert.match(about, /education and sociology only/);
-  assert.match(about, /The entity catalog is empty until records are published/);
+  assert.match(about, /theories, scholars, and works/);
+  assert.doesNotMatch(about, /No entity pages are published/);
+  assert.doesNotMatch(about, /The entity catalog is empty until records are published/);
+  assert.doesNotMatch(about, /While the public catalog is empty/);
   assert.match(about, /<dd>Not published\.<\/dd>/);
   assert.match(about, /stay unfinished until the owner fills them/);
   assert.match(String(metadata.description), /advertising is off/);

@@ -22,7 +22,7 @@ const routeCases: readonly RouteCase[] = [
     path: "/",
     h1: /Syrtag is a source-aware map for doctoral research|Explore theory choices with source-aware guidance|Data temporarily unavailable|The knowledge graph is not published yet|^Published (theories|scholars|works)/i,
     dataDependent: true,
-    primaryAction: { role: "link", name: /Start with a research question|All theories|All scholars|All works/i },
+    primaryAction: { role: "link", name: /Choose a published theory|All theories|All scholars|All works/i },
   },
   {
     name: "search",
@@ -52,11 +52,28 @@ const routeCases: readonly RouteCase[] = [
   },
 ];
 
+async function expectContractedDiscovery(nav: ReturnType<Page["getByRole"]>) {
+  await expect(nav.getByRole("link", { name: "Theories" })).toBeVisible();
+  await expect(nav.getByRole("link", { name: "Scholars" })).toBeVisible();
+  await expect(nav.getByRole("link", { name: "Works" })).toBeVisible();
+  await expect(nav.getByRole("link", { name: "About" })).toBeVisible();
+  for (const removed of ["Topics", "Concepts", "Disciplines", "Fields", "Pricing"]) {
+    await expect(nav.getByRole("link", { name: removed, exact: true })).toHaveCount(0);
+  }
+}
+
 async function expectSharedLandmarks(page: Page) {
   await expect(page.locator("header a[href='/']").first()).toBeVisible();
   await expect(page.getByRole("main")).toBeVisible();
   await expect(page.getByRole("navigation").first()).toBeVisible();
   await expect(page.getByRole("contentinfo")).toBeVisible();
+  const desktop = page.getByRole("navigation", { name: "Primary navigation" });
+  if (await desktop.isVisible()) {
+    await expectContractedDiscovery(desktop);
+    return;
+  }
+  await page.getByRole("button", { name: "Open primary navigation" }).click();
+  await expectContractedDiscovery(page.getByRole("navigation", { name: "Mobile primary navigation" }));
 }
 
 async function expectNoDemoData(page: Page) {
@@ -177,7 +194,7 @@ test("home inline search submits to the search route", async ({ page, baseURL })
     return;
   }
 
-  await page.getByLabel(/Search for a theory, scholar, concept, or research topic/i).fill("teacher identity");
+  await page.getByLabel(/Search published theories, scholars, and works/i).fill("teacher identity");
   await Promise.all([
     page.waitForURL(/\/search\?q=teacher\+identity|\/search\?q=teacher%20identity/),
     page.getByRole("button", { name: /^Search$/i }).click(),

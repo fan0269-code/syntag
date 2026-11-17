@@ -30,7 +30,7 @@ test("EntityArticle describes page-level source semantics without promoting the 
 
   assert.match(source, /Source records available · editorial synthesis · claim-level review pending/);
   assert.match(source, /page-level-source-note/);
-  assert.match(source, /Listed source records do not imply claim-level verification\. Interpretation and research-use guidance remain editorial synthesis unless an approved source-backed fact has a reproducible locator and explicit human-review metadata\./);
+  assert.match(source, /A source link beside a claim is the locator for that claim/);
   assert.doesNotMatch(source, /<VerificationBadge level=\{sourceItems\[0\]\?\.level/, "hero must not use sourceItems[0] as a whole-page verification badge");
 });
 

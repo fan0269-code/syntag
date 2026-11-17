@@ -11,17 +11,19 @@ import { loadHomePageState } from "@/lib/home-page-state";
 import { entityDetailHref, isEntityType } from "@/lib/entity-routes";
 import { JsonLdGraph } from "@/components/seo/JsonLdGraph";
 import { SearchBox } from "@/components/search/SearchBox";
+import { IndexChoiceGuide } from "@/components/content/IndexChoiceGuide";
 import { SiteReadingGuide } from "@/components/content/SiteReadingGuide";
+import { THEORY_READING_ROUTES } from "@/lib/published-reading-routes";
 import { generateHomeMeta } from "@/lib/seo";
 
 function ReadNext() {
   return (
     <nav className="home-catalog-links" aria-label="Read next">
+      <Link href="/theories">Theories</Link>
+      <Link href="/scholars">Scholars</Link>
+      <Link href="/works">Works</Link>
       <Link href="/about">About</Link>
       <Link href="/editorial-policy">Editorial policy</Link>
-      <Link href="/privacy">Privacy</Link>
-      <Link href="/corrections">Contact and corrections</Link>
-      <Link href="/pricing">Pricing</Link>
     </nav>
   );
 }
@@ -47,7 +49,7 @@ export default async function Home() {
       ? "Syrtag is a source-aware map for doctoral research in education and sociology. It is not a journal or a writing service."
       : "The catalog could not be loaded. This is an availability state, not a published finding.";
     return (
-      <PageFrame mainClassName="home-main">
+      <PageFrame mainClassName="home-main" adScreen="navigation">
         <article className="home-reading">
           <header className="home-reading__header" role="status">
             <span className="eyebrow">Education and sociology</span>
@@ -60,14 +62,14 @@ export default async function Home() {
               <p>No published graph is available yet. Syrtag only shows records with status published after source-backed human review.</p>
               <p>An empty catalog means drafts, archived seed, and local demo data are withheld. It does not mean the literature does not exist.</p>
               <p>While the public graph is empty, read <Link href="/about">About</Link> and <Link href="/editorial-policy">Editorial policy</Link> for the education and sociology scope and the sourcing rules.</p>
-              <p>Search and the catalog indexes use that same rule. Each index lists only published records and may be empty.</p>
+              <p>The published catalog is the theory, scholar, and work indexes. Search uses that same rule. Topic, concept, discipline, and field indexes may be empty without becoming articles.</p>
             </section>
           )}
           <div className="home-hero__search">
             <SearchBox
               mode="inline"
-              label="Search for a theory, scholar, concept, or research topic"
-              placeholder="Try a theory, scholar, concept, or research topic"
+              label="Search published theories, scholars, and works"
+              placeholder="Try a theory, scholar, or work"
             />
           </div>
           <h2>Read next</h2>
@@ -80,7 +82,7 @@ export default async function Home() {
 
   if (surface.kind === "catalog") {
     return (
-      <PageFrame mainClassName="home-main">
+      <PageFrame mainClassName="home-main" adScreen="navigation">
         <JsonLdGraph
           description={catalogJsonLdDescriptionFor(surface.catalog)}
           items={catalogSections(surface.catalog).flatMap((section) => section.items.map((item) => ({
@@ -98,7 +100,7 @@ export default async function Home() {
   const graph = surface.graph;
 
   return (
-    <PageFrame mainClassName="home-main">
+    <PageFrame mainClassName="home-main" adScreen="navigation">
       {isDemo && <p className="route-error" role="status">Demo graph: local development sample data only. It is not published content.</p>}
       {!isDemo && <JsonLdGraph items={graph.nodes.map((node) => ({ name: node.label, href: node.data?.articleHref ?? (node.data?.slug && isEntityType(node.type) ? entityDetailHref(node.type, node.data.slug) : undefined), description: node.data?.summary }))} />}
       <section className="home-hero" aria-label="Syrtag theory pathways">
@@ -110,12 +112,12 @@ export default async function Home() {
             <div className="home-hero__search">
               <SearchBox
                 mode="inline"
-                label="Search for a theory, scholar, concept, or research topic"
-                placeholder="Try a theory, scholar, concept, or research topic"
+                label="Search published theories, scholars, and works"
+                placeholder="Try a theory, scholar, or work"
               />
             </div>
             <div className="home-hero__actions">
-              <Link className="btn btn-primary" href="/topics">Start with a research question</Link>
+              <Link className="btn btn-primary" href="/theories">Choose a published theory</Link>
               <Link className="btn" href="#graph">Explore the theory graph</Link>
             </div>
           </div>
@@ -136,7 +138,18 @@ export default async function Home() {
           <KnowledgeGraphExperience initialGraph={graph} />
         </section>
       </section>
-      {surface.kind === "graph" && <HomePublishedLists catalog={surface.catalog} />}
+      {surface.kind === "graph" && (
+        <>
+          <IndexChoiceGuide
+            routes={THEORY_READING_ROUTES}
+            items={surface.catalog.theories}
+            hrefForSlug={(slug) => `/theories/${slug}`}
+            title="Start from the question, not from an empty index"
+            intro="Four questions cover the published theories: classroom identity, participation in a practice, a life trajectory, and a policy agenda. Each link is an existing theory page."
+          />
+          <HomePublishedLists catalog={surface.catalog} />
+        </>
+      )}
       <SiteReadingGuide mode={isDemo ? "demo" : "published"} />
     </PageFrame>
   );

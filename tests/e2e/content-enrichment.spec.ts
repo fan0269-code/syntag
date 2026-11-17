@@ -65,9 +65,14 @@ async function expectNoSeriousOrCriticalA11yViolations(page: Page) {
   expect(seriousOrCritical).toEqual([]);
 }
 
-async function expectNoDraftKingdon(page: Page) {
-  await expect(page.getByText(/John W\. Kingdon/i)).toHaveCount(0);
-  await expect(page.locator("a[href*='john-w-kingdon']")).toHaveCount(0);
+async function expectOldKingdonSlugHidden(page: Page) {
+  await expect(page.locator('a[href="/scholars/john-w-kingdon"]')).toHaveCount(0);
+  await expect(page.getByText("candidate profile remains draft")).toHaveCount(0);
+  await expect(page.getByText("edition metadata remains under review")).toHaveCount(0);
+}
+
+function exactLoc(path: string) {
+  return `<loc>https://syrtag.com${path}</loc>`;
 }
 
 for (const topic of topicCases) {
@@ -89,7 +94,9 @@ for (const topic of topicCases) {
 
     const sitemap = await request.get("/sitemap.xml");
     expect(sitemap.status()).toBe(200);
-    await expect(await sitemap.text()).not.toContain(`/topics/${topic.slug}`);
+    const sitemapText = await sitemap.text();
+    expect(sitemapText).not.toContain(`/topics/${topic.slug}`);
+    expect(sitemapText).not.toContain("<loc>https://syrtag.com/topics</loc>");
     assertBrowserHealth();
 
     const detailResponse = await page.goto(`/topics/${topic.slug}`, { waitUntil: "domcontentloaded" });
@@ -133,23 +140,33 @@ test("draft Kingdon scholar is absent from public index, search, sitemap, and de
 
   await page.goto("/scholars", { waitUntil: "domcontentloaded" });
   await expect(page.getByRole("heading", { level: 1, name: "Scholars" })).toBeVisible();
-  await expectNoDraftKingdon(page);
+  await expectOldKingdonSlugHidden(page);
+  await expect(page.locator('a[href="/scholars/john-w-kingdon-flagship"]').first()).toBeVisible();
   await page.waitForLoadState("networkidle");
 
   await page.goto("/search?q=kingdon", { waitUntil: "domcontentloaded" });
   await expect(page.getByRole("heading", { level: 1, name: /Results for “kingdon”/i })).toBeVisible();
   await expect(page.getByRole("heading", { level: 1, name: "Search is temporarily unavailable" })).toHaveCount(0);
-  await expectNoDraftKingdon(page);
+  await expectOldKingdonSlugHidden(page);
+  await expect(page.locator('a[href="/scholars/john-w-kingdon-flagship"]').first()).toBeVisible();
   await page.waitForLoadState("networkidle");
 
   const sitemap = await request.get("/sitemap.xml");
   expect(sitemap.status()).toBe(200);
-  await expect(await sitemap.text()).not.toContain("/scholars/john-w-kingdon");
+  const sitemapText = await sitemap.text();
+  expect(sitemapText).not.toContain(exactLoc("/scholars/john-w-kingdon"));
+  expect(sitemapText).toContain(exactLoc("/scholars/john-w-kingdon-flagship"));
   assertBrowserHealth();
 
   const detailResponse = await page.goto("/scholars/john-w-kingdon", { waitUntil: "domcontentloaded" });
   expect(detailResponse?.status()).toBe(404);
   await expect(page.getByRole("heading", { level: 1, name: /That entry is not available/i })).toBeVisible();
+  await expect(page.locator('meta[name="robots"]').first()).toHaveAttribute("content", /noindex/);
+
+  const flagshipResponse = await page.goto("/scholars/john-w-kingdon-flagship", { waitUntil: "domcontentloaded" });
+  expect(flagshipResponse?.status()).toBe(200);
+  await expect(page.getByRole("heading", { level: 1, name: "John W. Kingdon" })).toBeVisible();
+  await expect(page.locator('a[href="https://press.umich.edu/Contributors/K/Kingdon-John-W"]')).toBeVisible();
 });
 
 for (const searchCase of searchCases) {
@@ -161,7 +178,7 @@ for (const searchCase of searchCases) {
     await expect(page.getByRole("heading", { level: 1, name: new RegExp(`Results for .${searchCase.query}.`, "i") })).toBeVisible();
     const scholarResult = page.locator(`a[href="/scholars/${searchCase.slug}"]`);
     await expect(scholarResult).toHaveCount(0);
-    await expectNoDraftKingdon(page);
+    await expectOldKingdonSlugHidden(page);
     await page.waitForLoadState("networkidle");
     assertBrowserHealth();
   });

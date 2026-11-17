@@ -44,10 +44,10 @@ test("home metadata and OG URLs resolve to Syrtag's production domain", () => {
   const description = String(metadata.description);
   assert.equal(metadata.alternates?.canonical, "https://syrtag.com/");
   assert.match(String(metadata.title), /Doctoral theory navigation \(education & sociology\)/);
-  assert.match(description, /Public pages appear only when published/);
-  assert.match(description, /catalog may be empty/);
+  assert.match(description, /published education and sociology theories, scholars, and works/);
   assert.match(description, /education and sociology/i);
   assert.match(description, /Advertising is off/);
+  assert.doesNotMatch(description, /catalog may be empty/);
   assert.doesNotMatch(description, /AdSense|Explore this|74 published|all disciplines/i);
   assert.ok(description.length <= 160);
   assert.match(ogImageUrl("Life Course Theory", "Research guide"), /^https:\/\/syrtag\.com\/api\/og\?/);
@@ -77,7 +77,8 @@ test("work detail, index, fallback, SEO, and graph copy stay research-work neutr
   assert.doesNotMatch(detailSource, /JsonLdBook|components\/seo\/JsonLdBook/);
   assert.match(detailSource, /kind="Research work"/);
   assert.match(indexSource, /published research works/);
-  assert.match(indexDataSource, /publisher \|\| "Published research work\."/);
+  assert.match(indexDataSource, /A publisher name alone is not the reason to choose it/);
+  assert.doesNotMatch(indexDataSource, /publisher \|\| "Published research work\."/);
   assert.match(indexDataSource, /\["Research work"\]/);
   assert.match(graphSource, /research works/);
 });
