@@ -34,7 +34,7 @@ export const THEORY_READING_ROUTES: readonly ReadingRoute[] = [
   {
     slug: "multiple-streams-education-policy",
     heading: "Policy agenda",
-    prompt: "Start here when the question is how a subject reaches officials and how a governmental agenda is set. The Pearson catalog lists separate chapters for problems, the policy primeval soup, the political stream, and the policy window. This route does not add education-application findings: the 2010 article was not reread for this revision.",
+    prompt: "Start here when the question is how a subject reaches officials and how a governmental agenda is set. The Pearson catalog lists separate chapters for problems, the policy primeval soup, the political stream, and the policy window. As of 2026-11-21 the official EPAA 771 PDF full text has been obtained (23 pages; DOI 10.14507/epaa.v18n15.2010). Education-application claims stay on the theory page. This route does not add a new education result.",
   },
 ];
 
