@@ -15,6 +15,7 @@ import type {
  * Archived slugs stay archived. Advertising stays off.
  */
 export const CLUSTER_VERIFIED_AT = "2026-11-11T00:00:00.000Z";
+export const EPAA_771_FULLTEXT_VERIFIED_AT = "2026-11-21T00:00:00.000Z";
 export const CLUSTER_PUBLISHED_AT = "2026-11-11T00:00:00.000Z";
 
 export const CLUSTER_WORK_SLUGS = [
@@ -39,7 +40,7 @@ const publicationReview = {
   reviewDecision: "approved" as const,
 };
 
-function l1(claimId: string, fieldPath: string, claim: string, sourceId: string, locator: string): VerificationEntry {
+function l1(claimId: string, fieldPath: string, claim: string, sourceId: string, locator: string, checkedAt: string = verifiedAt): VerificationEntry {
   return {
     claimId,
     fieldPath,
@@ -50,7 +51,7 @@ function l1(claimId: string, fieldPath: string, claim: string, sourceId: string,
     locator,
     contentNature: "source_backed_fact",
     evidenceStatus: "source_verified",
-    verifiedAt,
+    verifiedAt: checkedAt,
     ...publicationReview,
   };
 }
@@ -214,7 +215,7 @@ const epaaDoi: ContentSource = {
   evidence_level: "L1",
   supports: [
     "DOI for the 2010 education-policy article",
-    "Resolved on 2026-11-11 to the EPAA article path /article/view/771",
+    "Resolved on 2026-11-21 to the EPAA article path /article/view/771. That landing is the article record, not the PDF",
   ],
 };
 
@@ -227,6 +228,7 @@ const epaaArticle: ContentSource = {
   supports: [
     "Article view 771: title, authors Tamara Viola Young, Thomas V. Shepley, and Mengli Song, published 2010-07-10",
     "Education-policy application of Kingdon's multiple streams model to state reading policy",
+    "Official PDF full text obtained 2026-11-21: 23 pages; DOI 10.14507/epaa.v18n15.2010; landing /article/view/771; download article/download/771/842",
     "This path is not article view 757",
   ],
 };
@@ -494,7 +496,7 @@ export function createClusterBatch(): ClusterBatch {
           overview: "Use this page to keep the edition layers of Agendas, Alternatives, and Public Policies apart. The year on this record is 1984, the first-publication year on the University of Michigan political-science bibliography page. The Pearson catalog is a later layer: the Pearson New International Edition, published 3 October 2013, with a 2014 copyright line and ISBN-13 9781292053875. Neither 2011, 2013, nor 2014 is the origin year. This page is the book record. It is not the scholar page and not an education monograph.",
           core_question: "Which edition are you citing, and what does the opened catalog place the book in?",
           central_argument: "The department bibliography page says the book was first published in 1984, reissued in 1995, and issued again in 2011 as a Longman Classics edition with a new epilogue on health care reform from the Clinton years to the Obama years. The same page prints Publisher: Longman and Year of Publication: 1984. Some reviews name Little, Brown for that first-edition imprint. Those reviews were not opened, so neither Longman nor Little, Brown is the sole verified first-edition publisher. The Pearson catalog heading is Agendas, Alternatives, and Public Policies, Update Edition (With an Epilogue on Health Care), Pearson New International Edition. Its visible overview places the research in interviews and documents about the U.S. federal government and asks how issues reach official attention and how a governmental agenda is set. The contents list chapters for problems, the policy primeval soup, the political stream, and the policy window. That list is a catalog, not a reading of the 1984 book. The catalog heading also contains the words 2nd edition. This page does not use that label to replace the 1995 reissue, and it does not read 2013 as a new origin year. No stable book DOI was found, and none is supplied.",
-          theoretical_contribution: "This page separates edition layers and states the catalog's scope. It does not summarize a full-book argument. The education application stays on the theory page and was not reread for this revision. The catalog is not an open full text.",
+          theoretical_contribution: "This page separates edition layers and states the catalog's scope. It does not summarize a full-book argument. The education application stays on the theory page. As of 2026-11-21 the official EPAA 771 PDF full text has been obtained (23 pages; DOI 10.14507/epaa.v18n15.2010; landing /article/view/771; download article/download/771/842). This book page does not add a new education result from that text. The catalog is not an open full text.",
           reading_focus: [
             "Use 1984 as the origin year. Do not cite 2013 or 2014 as the year the book was created.",
             "Keep four layers apart: 1984 first publication, 1995 reissue, 2011 Longman Classics, and the 2013-2014 Pearson New International Edition.",
@@ -526,7 +528,7 @@ export function createClusterBatch(): ClusterBatch {
       primary: false,
       depth: "D2",
       titleEn: "Multiple streams in education policy",
-      summaryEn: "Use this page when the question is how a subject reaches a governmental agenda. The Pearson catalog supports that U.S. federal question and lists chapters for problems, a policy primeval soup, a political stream, and a policy window. It is not an education monograph. The 2010 education article was not reread for this revision, so no new education result is added.",
+      summaryEn: "Use this page when the question is how a subject reaches a governmental agenda. The Pearson catalog supports that U.S. federal question and lists chapters for problems, a policy primeval soup, a political stream, and a policy window. It is not an education monograph. As of 2026-11-21 the official EPAA 771 PDF full text has been obtained (23 pages; DOI 10.14507/epaa.v18n15.2010; landing /article/view/771; download article/download/771/842). No new education result is added.",
       status: "published",
       publishedAt: CLUSTER_PUBLISHED_AT,
       content: {
@@ -534,11 +536,11 @@ export function createClusterBatch(): ClusterBatch {
           theory_nature: {
             kind: "framework",
             label: "Policy-process framework, with one education application",
-            explanation: "This page pairs a federal policy-process catalog with one previously recorded education-policy article. It does not turn the book into an education monograph. The book, the author, and this theory are three different records. This revision does not add an education finding, because the 2010 article was not reread.",
+            explanation: "This page pairs a federal policy-process catalog with the 2010 EPAA education-policy article at view 771. It does not turn the book into an education monograph. The book, the author, and this theory are three different records. As of 2026-11-21 the official PDF full text of that article has been obtained. This revision checks the existing education-application sentences against that text and does not add an education finding.",
             source_ids: [pearsonKingdon.id, epaaArticle.id],
           },
-          what_is_it: "Ask whether the study is about how a subject gets onto a governmental agenda, and which of the catalog's separate processes the materials can actually show. The Pearson catalog (ISBN 9781292053875, published 3 October 2013, copyright 2014) describes interviews and documents about the U.S. federal government and asks how subjects reach officials and how a governmental agenda is set. Its contents list separate chapters for problems, the policy primeval soup, the political stream, and the policy window in which streams are joined. Those chapter titles are catalog evidence that the book keeps the processes apart. They are not a reconstruction of the chapters, and they are not education-study results. A 2010 EPAA article at article view 771 was previously recorded as an education application. This revision did not reopen that article, so this page does not add or widen an education conclusion. A different EPAA path, article view 757, is not a source. Editorial prompts, not sentences from the book: what counts as the problem stream in your case, what counts as the policy alternatives, and what counts as the political conditions? If you cannot point to materials for each, you are using the vocabulary as a label.",
-          origins: "The Pearson page names John W. Kingdon and dates this Pearson New International update edition to 3 October 2013, with a 2014 copyright line and ISBN 9781292053875. That page is the catalog opened for this revision. It is not the 1984 first edition, and the book was not read from it. Crossref dates an EPAA article to 10 July 2010, with authors Tamara Viola Young, Thomas V. Shepley, and Mengli Song. The DOI resolves to the article view whose path ends in 771. This revision did not reopen that article, so the education application stays at that previously recorded citation and is not expanded. Article view 757 is a different article and is recorded only so it is not cited by mistake.",
+          what_is_it: "Ask whether the study is about how a subject gets onto a governmental agenda, and which of the catalog's separate processes the materials can actually show. The Pearson catalog (ISBN 9781292053875, published 3 October 2013, copyright 2014) describes interviews and documents about the U.S. federal government and asks how subjects reach officials and how a governmental agenda is set. Its contents list separate chapters for problems, the policy primeval soup, the political stream, and the policy window in which streams are joined. Those chapter titles are catalog evidence that the book keeps the processes apart. They are not a reconstruction of the chapters, and they are not education-study results. The education application is the 2010 EPAA article at article view 771. As of 2026-11-21 the official PDF full text has been obtained (23 pages; DOI 10.14507/epaa.v18n15.2010; landing /article/view/771; download article/download/771/842). Existing education-application sentences were checked against that text. This page does not add or widen an education conclusion beyond them. A different EPAA path, article view 757, is not a source. Editorial prompts, not sentences from the book: what counts as the problem stream in your case, what counts as the policy alternatives, and what counts as the political conditions? If you cannot point to materials for each, you are using the vocabulary as a label.",
+          origins: "The Pearson page names John W. Kingdon and dates this Pearson New International update edition to 3 October 2013, with a 2014 copyright line and ISBN 9781292053875. That page is the catalog opened for this revision. It is not the 1984 first edition, and the book was not read from it. Crossref dates an EPAA article to 10 July 2010, with authors Tamara Viola Young, Thomas V. Shepley, and Mengli Song. The DOI resolves to the article view whose path ends in 771. The official PDF full text of that article was obtained on 2026-11-21. The education application on this page was checked against that text and is not expanded. Article view 757 is a different article and is recorded only so it is not cited by mistake.",
           core_concepts: [
             {
               name: "Governmental agenda",
@@ -557,7 +559,7 @@ export function createClusterBatch(): ClusterBatch {
             },
             {
               name: "Education application, separately sourced",
-              definition: "A previously recorded EPAA article title states an application of Kingdon's multiple streams model to how a state reading policy formed, and that record says the study used interviews in California, Michigan, and Texas. This revision did not reopen the article, so those sentences are not a new education result.",
+              definition: "The EPAA article at view 771 applies Kingdon's multiple streams model to how a state reading policy formed. Checked against the official PDF full text obtained on 2026-11-21, that account says the study used interviews in California, Michigan, and Texas. Those sentences stay at that abstract-level account. They are not a new education result taken from later sections.",
               relevance: "The education claim on this page depends on that article. The Pearson catalog alone does not establish it.",
             },
           ],
@@ -664,7 +666,7 @@ export function createClusterBatch(): ClusterBatch {
             },
             {
               mechanism: "Joining at a policy window",
-              process: "The contents name a policy window and the joining of streams as a distinct chapter. The EPAA article uses the model for state reading agendas. Its abstract treats state-level use of Kingdon's national-level model as conditional: applicability may depend on the issue being examined and on whether the state executive branch takes part. This page keeps that limit conditional. It is not a settled finding that the model cannot travel to a state unchanged.",
+              process: "The contents name a policy window and the joining of streams as a distinct chapter. The EPAA article uses the model for state reading agendas. Checked against the official PDF full text obtained on 2026-11-21, its abstract treats state-level use of Kingdon's national-level model as conditional: applicability may depend on the issue being examined and on whether the state executive branch takes part. This page keeps that limit conditional. It is not a settled finding that the model cannot travel to a state unchanged.",
               evidence_focus: "A timing claim plus the streams that are said to have joined, with the education claim tied to the article rather than the catalog.",
               source_ids: [pearsonKingdon.id, epaaArticle.id],
             },
@@ -690,7 +692,7 @@ export function createClusterBatch(): ClusterBatch {
           ],
           boundary_conditions: [
             {
-              condition: "The education application is not supported by the EPAA article at view 771.",
+              condition: "The education application is the EPAA article at view 771. The Pearson catalog alone does not support that application.",
               implication: "Do not publish or cite an education multiple-streams claim from the Pearson catalog alone.",
               source_ids: [epaaArticle.id, pearsonKingdon.id],
             },
@@ -703,15 +705,15 @@ export function createClusterBatch(): ClusterBatch {
           sources: [pearsonKingdon, epaaDoi, epaaArticle, epaaCrossref],
           reading_path: [
             { order: 1, level: "Level 1 · Book catalog", title: "Pearson catalog page", purpose: "Check the author, the 2013 update edition, the U.S. federal scope, and the chapter titles. Do not treat the page as the book.", source_id: pearsonKingdon.id },
-            { order: 2, level: "Level 1 · Education article", title: "EPAA article view 771", purpose: "Check authors, the 10 July 2010 date, and the state reading-policy application. Do not open article view 757 for this claim.", source_id: epaaArticle.id },
+            { order: 2, level: "Level 1 · Education article", title: "EPAA article view 771", purpose: "Check authors, the 10 July 2010 date, and the state reading-policy application against the official PDF obtained on 2026-11-21. Do not open article view 757 for this claim.", source_id: epaaArticle.id },
             { order: 3, level: "Level 2 · Page boundary", title: "Not a media tradition", purpose: "Keep multiple streams distinct from McCombs media agenda-setting. No McCombs source was opened. The book page is kingdon-agendas-alternatives-and-public-policies and the author page is john-w-kingdon-flagship. An unpublished draft scholar record is not that author page.", source_id: pearsonKingdon.id },
             { order: 4, level: "Level 3 · Design", title: "Streams before joining", purpose: "Collect separate evidence for problems, alternatives, and politics before claiming a window.", source_id: epaaArticle.id },
           ],
           verification: [
             l1("c11-msa-pearson", `theories[slug="${msaSlug}"].content.en.origins`, "The Pearson catalog names John W. Kingdon as author of Agendas, Alternatives, and Public Policies, Update Edition, and places the book in research on the U.S. federal government. The page date is 3 October 2013.", pearsonKingdon.id, "Pearson catalog title, author, published date, and title overview; URL https://www.pearson.com/en-gb/subject-catalog/p/agendas-alternatives-and-public-policies-update-edition-with-an-epilogue-on-health-care-pearson-new-international-edition/P200000004628/9781292053875; type publisher; checked 2026-11-11"),
-            l1("c11-msa-epaa", `theories[slug="${msaSlug}"].content.en.what_is_it`, "Young, Shepley, and Song's 2010 EPAA article applies Kingdon's multiple streams model to state reading policy. The article view is path 771, issued 10 July 2010.", epaaArticle.id, "EPAA article view 771 title, authors, and publication date; URL https://epaa.asu.edu/index.php/epaa/article/view/771; type journal; DOI https://doi.org/10.14507/epaa.v18n15.2010; checked 2026-11-11"),
-            l1("c11-msa-crossref", `theories[slug="${msaSlug}"].content.en.origins`, "Crossref records the EPAA item as a journal article issued 10 July 2010 by Young, Shepley, and Song.", epaaCrossref.id, "Crossref title, author, issued, container-title; URL https://api.crossref.org/works/10.14507/epaa.v18n15.2010; type authoritative_web; checked 2026-11-11"),
-            l1("c11-msa-state-applicability", `theories[slug="${msaSlug}"].content.en.explanatory_mechanisms[1].process`, "The EPAA abstract says applicability of Kingdon's national-level model at the state level may depend on the issue being examined and on participation by the state executive branch. The tightened sentence does not turn that into a settled finding that the model cannot travel unchanged.", epaaArticle.id, "EPAA article view 771 abstract, closing applicability sentence; URL https://epaa.asu.edu/index.php/epaa/article/view/771; type journal; DOI https://doi.org/10.14507/epaa.v18n15.2010 resolved to the same path; checked 2026-11-11"),
+            l1("c11-msa-epaa", `theories[slug="${msaSlug}"].content.en.what_is_it`, "Young, Shepley, and Song's 2010 EPAA article applies Kingdon's multiple streams model to state reading policy. The article view is path 771, issued 10 July 2010. The official PDF full text, 23 pages, was obtained on 2026-11-21.", epaaArticle.id, "EPAA article view 771 title, authors, publication date, and official PDF; URL https://epaa.asu.edu/index.php/epaa/article/view/771; download https://epaa.asu.edu/index.php/epaa/article/download/771/842; type journal; DOI https://doi.org/10.14507/epaa.v18n15.2010; 23 pages; checked 2026-11-21", EPAA_771_FULLTEXT_VERIFIED_AT),
+            l1("c11-msa-crossref", `theories[slug="${msaSlug}"].content.en.origins`, "Crossref records the EPAA item as a journal article issued 10 July 2010 by Young, Shepley, and Song.", epaaCrossref.id, "Crossref title, author, issued, container-title; URL https://api.crossref.org/works/10.14507/epaa.v18n15.2010; type authoritative_web; checked 2026-11-21", EPAA_771_FULLTEXT_VERIFIED_AT),
+            l1("c11-msa-state-applicability", `theories[slug="${msaSlug}"].content.en.explanatory_mechanisms[1].process`, "Checked against the official PDF full text obtained on 2026-11-21, the EPAA abstract says applicability of Kingdon's national-level model at the state level may depend on the issue being examined and on participation by the state executive branch. The sentence does not turn that into a settled finding that the model cannot travel unchanged.", epaaArticle.id, "EPAA article view 771 official PDF, abstract closing applicability sentence; URL https://epaa.asu.edu/index.php/epaa/article/view/771; download https://epaa.asu.edu/index.php/epaa/article/download/771/842; type journal; DOI https://doi.org/10.14507/epaa.v18n15.2010; 23 pages; checked 2026-11-21", EPAA_771_FULLTEXT_VERIFIED_AT),
             l2("c11-msa-not-mcombs", `theories[slug="${msaSlug}"].content.en.misuse_risks`, "The misuse boundary with the McCombs media agenda-setting tradition is editorial synthesis. No McCombs source was opened. The boundary is a naming limit, not a finding from that literature."),
             l2("c11-msa-not-education-monograph", `theories[slug="${msaSlug}"].content.en.theory_nature`, "Calling the Pearson book a federal policy-process book rather than an education monograph is editorial synthesis grounded in the catalog's own scope statement."),
             l3("c11-msa-guidance", `theories[slug="${msaSlug}"].content.en.fit_writing`, "Requiring separate stream evidence before a coupling claim is research guidance. It is not a method chapter from the book."),
@@ -794,7 +796,7 @@ export function createClusterBatch(): ClusterBatch {
       publishedAt: CLUSTER_PUBLISHED_AT,
       content: {
         en: {
-          overview: "Read this page for the author of Agendas, Alternatives, and Public Policies and for the political-science appointment, not for an education-study result and not for a full biography. The University of Michigan Press author page describes John W. Kingdon as Professor Emeritus of Political Science at the University of Michigan. It says he has been a fellow of Stanford University's Center for Advanced Study in Behavioral Sciences and a John Simon Guggenheim Fellow. The book that page lists is Congressmen's Voting Decisions, so the page is not a bibliography of Agendas, Alternatives, and Public Policies. The Pearson catalog is the book record's later edition. Education applications stay on the theory page, and the 2010 article was not reread for this revision. Fetch notes for the faculty page stay in the source register rather than in this paragraph.",
+          overview: "Read this page for the author of Agendas, Alternatives, and Public Policies and for the political-science appointment, not for an education-study result and not for a full biography. The University of Michigan Press author page describes John W. Kingdon as Professor Emeritus of Political Science at the University of Michigan. It says he has been a fellow of Stanford University's Center for Advanced Study in Behavioral Sciences and a John Simon Guggenheim Fellow. The book that page lists is Congressmen's Voting Decisions, so the page is not a bibliography of Agendas, Alternatives, and Public Policies. The Pearson catalog is the book record's later edition. Education applications stay on the theory page. As of 2026-11-21 the official EPAA 771 PDF full text has been obtained (23 pages; DOI 10.14507/epaa.v18n15.2010; landing /article/view/771; download article/download/771/842). This author page does not add a new education result from that text. Fetch notes for the faculty page stay in the source register rather than in this paragraph.",
           academic_identity: {
             discipline: "Political science. The opened press page and the LSA faculty page place him in political science at the University of Michigan. They do not place him in an education faculty.",
             role: "Professor emeritus of political science, University of Michigan, on the University of Michigan Press page. Stanford wording is not collapsed: the faculty page says Center for Advanced Behavioral Studies at Stanford; the press page says Stanford University's Center for Advanced Study in Behavioral Sciences. Both pages call him a John Simon Guggenheim Fellow.",

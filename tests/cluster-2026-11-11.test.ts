@@ -7,9 +7,11 @@ import {
   CLUSTER_THEORY_SLUG,
   CLUSTER_VERIFIED_AT,
   CLUSTER_WORK_SLUGS,
+  EPAA_771_FULLTEXT_VERIFIED_AT,
   KINGDON_SCHOLAR_SLUG,
   KINGDON_WORK_SLUG,
 } from "../src/data/corpus/content-batches/2026-11-11-cluster-deepening.ts";
+import { THEORY_READING_ROUTES } from "../src/lib/published-reading-routes.ts";
 import { isClosedClaimLedger } from "../src/lib/claim-ledger.ts";
 import { publishedIndexIntro } from "../src/lib/published-index-intro.ts";
 import {
@@ -77,11 +79,25 @@ test("multiple streams cites the Pearson catalog and EPAA 771, not article 757",
   assert.match(serialized, /john-w-kingdon-flagship/);
   assert.equal(/john-w-kingdon(?!-flagship)/.test(serialized), false);
   const applicability = theory?.content.en.verification?.find((entry) => entry.claimId === "c11-msa-state-applicability");
-  assert.equal(applicability?.verifiedAt, "2026-11-11T00:00:00.000Z");
+  assert.equal(applicability?.verifiedAt, EPAA_771_FULLTEXT_VERIFIED_AT);
   assert.equal(applicability?.evidence_level === "L1" ? applicability.source_id : undefined, "c11-young-shepley-song-2010-epaa");
-  const unchangedClaims = theory?.content.en.verification?.filter((entry) => entry.claimId !== "c11-msa-state-applicability") ?? [];
-  assert.ok(unchangedClaims.every((entry) => entry.verifiedAt === CLUSTER_VERIFIED_AT));
-  assert.ok(theory?.content.en.verification?.every((entry) => entry.verifiedAt === CLUSTER_VERIFIED_AT));
+  const fullTextClaimIds = new Set(["c11-msa-epaa", "c11-msa-crossref", "c11-msa-state-applicability"]);
+  for (const entry of theory?.content.en.verification ?? []) {
+    const expected = fullTextClaimIds.has(entry.claimId ?? "") ? EPAA_771_FULLTEXT_VERIFIED_AT : CLUSTER_VERIFIED_AT;
+    assert.equal(entry.verifiedAt, expected, entry.claimId);
+  }
+  assert.match(serialized, /2026-11-21/);
+  assert.match(serialized, /23 pages/);
+  assert.match(serialized, /article\/download\/771\/842/);
+  assert.match(serialized, /interviews in California, Michigan, and Texas/);
+  assert.match(serialized, /The education application is the EPAA article at view 771/);
+  assert.match(serialized, /Pearson catalog alone does not support that application/);
+  assert.doesNotMatch(serialized, /not reread|did not reopen|was not reread/i);
+  assert.doesNotMatch(serialized, /education application is not supported by the EPAA article/i);
+  assert.equal(serialized.includes("/article/view/757"), false);
+  const route = THEORY_READING_ROUTES.find((entry) => entry.slug === CLUSTER_THEORY_SLUG);
+  assert.match(route?.prompt ?? "", /2026-11-21/);
+  assert.doesNotMatch(route?.prompt ?? "", /not reread|did not reopen/i);
   assert.ok(theory?.content.en.verification?.filter((entry) => entry.evidence_level === "L2").every((entry) => entry.contentNature === "editorial_synthesis"));
 });
 
@@ -151,6 +167,14 @@ test("Kingdon work and scholar pages keep edition layers, access limits, and the
   assert.equal(/john-w-kingdon(?!-flagship)/.test(scholarText), false);
   assert.equal(workText.includes("/article/view/757"), false);
   assert.equal(scholarText.includes("/article/view/757"), false);
+  assert.match(workText, /2026-11-21/);
+  assert.match(workText, /article\/download\/771\/842/);
+  assert.match(scholarText, /2026-11-21/);
+  assert.match(scholarText, /article\/download\/771\/842/);
+  assert.doesNotMatch(workText, /not reread|did not reopen/i);
+  assert.doesNotMatch(scholarText, /not reread|did not reopen/i);
+  assert.match(work?.publisher ?? "", /1984 first-edition imprint not settled/);
+  assert.doesNotMatch(`${workText} ${scholarText}`, /colophon has been obtained|first-edition title page was obtained/i);
   assert.ok(seedCorpus.theoryWorks.some((relation) => relation.theorySlug === CLUSTER_THEORY_SLUG && relation.workSlug === KINGDON_WORK_SLUG));
   assert.ok(seedCorpus.theoryScholars.some((relation) => relation.theorySlug === CLUSTER_THEORY_SLUG && relation.scholarSlug === KINGDON_SCHOLAR_SLUG));
   assert.equal(seedCorpus.concepts.some((entry) => entry.slug === KINGDON_WORK_SLUG || entry.slug === KINGDON_SCHOLAR_SLUG), false);
