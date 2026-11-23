@@ -24,6 +24,8 @@ flowchart LR
 
 ## 2. 当前基线（必须在每轮开始前复核）
 
+2026-11-23（Kingdon 学者页 AAAS 个人页，分方法限度，语料仅）：只改学者 `john-w-kingdon-flagship` 的归因边界、对应 L2，以及该页 AAAS 个人页的方法记录。2026-11-23 WebFetch 打开了 https://www.amacad.org/person/john-wells-kingdon 正文；同 URL 的 curl 仍是 HTTP 403「Just a moment」挑战壳，不是普通访问已通。奖项页与 Brookings 页仍未打开，继续作为教员页陈述，不标已核。Guggenheim 官方 Fellows 条目仍未打开。未改 Lave / CASBS，未改相邻著作页与理论页，未解开 `/scholars/john-w-kingdon`。未运行 seed，未跑 `db:reset`，未执行 `db:import-published`。广告保持关闭。这不是广告申请，也不是合入或部署。
+
 2026-11-07 复核：FAN-247 之后，authored seed 中没有 `published` 实体（本工作树计数为 published 0 / draft 7 / archived 74）。下表里“12 个主理论已公开”和“线上 200”是 2026-07 的历史记录，不是本轮事实。广告保持关闭；`public/ads.txt` 与 `google-adsense-account` meta 已从公开信号中移除，以便与 Privacy「未启用广告」一致。旗舰学术页仍是未发布模板，未写入 seed。同日审计见 `docs/SITE_AUDIT_2026-11-07.md`：首页与 About 改为空目录叙事，描述不再追加关键词句。该审计不表示现网已更新，也不表示可以申请广告。
 
 2026-11-14（AdSense 实质整改，语料与代码，未部署）：审计包 sha256 `21b7642f350d36758afd2135bdb892997942b5c274218d7dd8a53701c2bee58a`。当前语料 published 计数为 15（理论 5、学者 5、著作 5），draft 7，archived 74。About 改为按当次数据库计数陈述这 15 条，不再写空目录现态。`/topics` `/concepts` `/disciplines` `/fields` 退出主导航与 sitemap 并 noindex，路由保留诚实空态。`/pricing` 退出主导航与 sitemap。`/search` 保留为操作入口，noindex 且不进 sitemap。屏级广告闸保持全局关闭，空/导航/搜索/定价/政策/错误屏在全局开关打开时也拒绝广告容器。五条旧 slug 仍非 published。本轮未导生产库、未 seed/reset、未申请广告。验收矩阵见 `docs/audits/2026-11-14-url-acceptance-matrix.md`。合并不等于现网已改；现网要等另行授权的导入与部署。

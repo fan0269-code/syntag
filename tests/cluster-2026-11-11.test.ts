@@ -5,6 +5,7 @@ import { seedCorpus } from "../src/data/seed-content.ts";
 import {
   CLUSTER_SCHOLAR_SLUG,
   CLUSTER_THEORY_SLUG,
+  AAAS_KINGDON_PERSON_VERIFIED_AT,
   CLUSTER_VERIFIED_AT,
   CLUSTER_WORK_SLUGS,
   EPAA_771_FULLTEXT_VERIFIED_AT,
@@ -153,6 +154,7 @@ test("Kingdon work and scholar pages keep edition layers, access limits, and the
   assert.equal(workText.includes("10.978.129205"), false);
   assert.match(scholarText, /A5063257234/);
   assert.equal(scholarText.includes("A5010328750"), false);
+  assert.equal(scholarText.includes("Mario Riverol"), false);
   assert.match(scholarText, /empty ORCID/);
   assert.equal(scholarText.includes("orcid.org"), false);
   assert.match(scholarText, /Center for Advanced Behavioral Studies at Stanford/);
@@ -160,11 +162,42 @@ test("Kingdon work and scholar pages keep edition layers, access limits, and the
   assert.match(scholarText, /WebFetch/);
   assert.match(scholarText, /HTTP 403/);
   assert.equal(scholarText.includes("curl succeeded"), false);
-  assert.equal(scholarText.includes("amacad.org"), false);
+  assert.doesNotMatch(scholarText, /ordinary access (now )?works/i);
+  assert.match(scholarText, /https:\/\/www\.amacad\.org\/person\/john-wells-kingdon/);
+  assert.match(scholarText, /Elected 1991/);
+  assert.match(scholarText, /Political scientist; Educator/);
+  assert.match(scholarText, /Area Social and Behavioral Sciences/);
+  assert.match(scholarText, /Specialty Political Science/);
+  assert.match(scholarText, /Just a moment/);
+  assert.match(scholarText, /2026-11-21 and 2026-11-22, when WebFetch timed out/);
+  assert.doesNotMatch(scholarText, /Academy person page was not opened/);
+  assert.doesNotMatch(scholarText, /unopened Academy/);
+  assert.match(scholarText, /not a verified 1984 first-edition title-page record/);
+  assert.match(scholarText, /heading does not override the body/);
+  assert.match(scholarText, /not combined into a single title/);
+  assert.match(scholarText, /https:\/\/www\.gf\.org\/fellows\/john-w-kingdon\//);
+  assert.match(scholarText, /No awards page and no Brookings page were opened/);
+  assert.doesNotMatch(scholarText, /\/scholars\/john-w-kingdon(?!-flagship)/);
+  const scholarWithoutFellowsUrl = scholarText.replaceAll("https://www.gf.org/fellows/john-w-kingdon/", "");
+  assert.equal(/john-w-kingdon(?!-flagship)/.test(scholarWithoutFellowsUrl), false);
+  const aaasClaim = scholar?.content.en.verification?.find((entry) => entry.claimId === "c11-kingdon-aaas-person");
+  assert.equal(aaasClaim?.evidence_level, "L1");
+  assert.equal(aaasClaim?.verifiedAt, AAAS_KINGDON_PERSON_VERIFIED_AT);
+  assert.equal(aaasClaim?.evidence_level === "L1" ? aaasClaim.source_id : undefined, "c11-kingdon-aaas-person");
+  const nameLimit = scholar?.content.en.verification?.find((entry) => entry.claimId === "c11-kingdon-name-limit");
+  assert.equal(nameLimit?.evidence_level, "L2");
+  assert.equal(nameLimit?.verifiedAt, AAAS_KINGDON_PERSON_VERIFIED_AT);
+  assert.match(nameLimit?.claim ?? "", /two Stanford names unresolved/);
+  assert.match(nameLimit?.claim ?? "", /invented ORCID/);
+  assert.match(nameLimit?.claim ?? "", /unopened award or Brookings pages/);
+  assert.doesNotMatch(nameLimit?.claim ?? "", /unopened Academy/);
+  for (const entry of scholar?.content.en.verification ?? []) {
+    if (entry.claimId === "c11-kingdon-aaas-person" || entry.claimId === "c11-kingdon-name-limit") continue;
+    assert.equal(entry.verifiedAt, CLUSTER_VERIFIED_AT, entry.claimId);
+  }
   assert.match(scholarText, /multiple-streams-education-policy/);
   assert.match(scholarText, new RegExp(KINGDON_WORK_SLUG));
   assert.equal(/john-w-kingdon(?!-flagship)/.test(workText), false);
-  assert.equal(/john-w-kingdon(?!-flagship)/.test(scholarText), false);
   assert.equal(workText.includes("/article/view/757"), false);
   assert.equal(scholarText.includes("/article/view/757"), false);
   assert.match(workText, /2026-11-21/);

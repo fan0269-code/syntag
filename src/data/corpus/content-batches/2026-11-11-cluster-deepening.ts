@@ -16,6 +16,7 @@ import type {
  */
 export const CLUSTER_VERIFIED_AT = "2026-11-11T00:00:00.000Z";
 export const EPAA_771_FULLTEXT_VERIFIED_AT = "2026-11-21T00:00:00.000Z";
+export const AAAS_KINGDON_PERSON_VERIFIED_AT = "2026-11-23T00:00:00.000Z";
 export const CLUSTER_PUBLISHED_AT = "2026-11-11T00:00:00.000Z";
 
 export const CLUSTER_WORK_SLUGS = [
@@ -56,7 +57,7 @@ function l1(claimId: string, fieldPath: string, claim: string, sourceId: string,
   };
 }
 
-function l2(claimId: string, fieldPath: string, claim: string): VerificationEntry {
+function l2(claimId: string, fieldPath: string, claim: string, checkedAt: string = verifiedAt): VerificationEntry {
   return {
     claimId,
     fieldPath,
@@ -64,7 +65,7 @@ function l2(claimId: string, fieldPath: string, claim: string): VerificationEntr
     evidence_level: "L2",
     status: "editorial",
     contentNature: "editorial_synthesis",
-    verifiedAt,
+    verifiedAt: checkedAt,
     ...publicationReview,
   };
 }
@@ -319,7 +320,22 @@ const lsaKingdonFaculty: ContentSource = {
     "Lists Agendas, Alternatives, and Public Policies (1984, 1995, 2011), America the Unusual (1999), and Congressmen's Voting Decisions (1973, 1981, 1989)",
     "Education/Degree lines: Ph.D., Political Science, University of Wisconsin - Madison, and B.A., Oberlin College. No degree years are printed",
     "Names the Stanford affiliation as the Center for Advanced Behavioral Studies at Stanford, which is not the same English name as the press page",
-    "Also states an American Academy fellowship, a 1994 Aaron Wildavsky Award, department chair, Midwest Political Science Association presidency, and Brookings guest-scholar visits. Those sentences are faculty-page statements. The Academy person page, an awards page, and a Brookings page were not opened",
+    "Also states an American Academy fellowship, a 1994 Aaron Wildavsky Award, department chair, Midwest Political Science Association presidency, and Brookings guest-scholar visits. The award page and the Brookings page were not opened, so those lines stay faculty-page statements and are not marked verified. The Academy person page is a separate record: WebFetch opened its body on 2026-11-23, and curl of that URL remains an HTTP 403 challenge shell",
+  ],
+};
+
+const aaasKingdon: ContentSource = {
+  id: "c11-kingdon-aaas-person",
+  citation: "American Academy of Arts and Sciences. John Wells Kingdon.",
+  url: "https://www.amacad.org/person/john-wells-kingdon",
+  source_kind: "authoritative_web",
+  evidence_level: "L1",
+  supports: [
+    "On 2026-11-23 WebFetch opened the person-page body. curl of the same URL is still an HTTP 403 challenge shell titled Just a moment. curl did not succeed. On 2026-11-21 and 2026-11-22 WebFetch timed out on this URL",
+    "Fields read from that WebFetch excerpt: John Wells Kingdon; University of Michigan; Political scientist; Educator; Area Social and Behavioral Sciences; Specialty Political Science; Elected 1991",
+    "Body text read: John W. Kingdon is Professor Emeritus of Political Science at the University of Michigan in Ann Arbor. The page heading shows Professor. The heading does not override the body, and the two are not combined into a single title",
+    "Bibliographic mentions read: Agendas, Alternatives, and Public Policies (1984, 1995, 2011), America the Unusual (1999), and Congressmen's Voting Decisions (1973, 1981, and 1989). That list is biographical and bibliographic. It is not a verified 1984 first-edition title-page record",
+    "Guggenheim wording on this page does not stand in for the still-unopened official Fellows entry https://www.gf.org/fellows/john-w-kingdon/",
   ],
 };
 
@@ -841,7 +857,7 @@ export function createClusterBatch(): ClusterBatch {
             "Do not invent an ORCID. The OpenAlex ORCID field is empty.",
             "Do not collapse the two Stanford center names into one verified official title.",
             "Do not treat citation counts or the h-index as a conclusion about the work.",
-            "The faculty page states an American Academy fellowship, a 1994 Aaron Wildavsky Award, service as department chair and as president of the Midwest Political Science Association, and guest-scholar visits at the Brookings Institution. The Academy person page was not opened on 2026-11-11: curl returned HTTP 403 and WebFetch timed out. No awards page and no Brookings page were opened. Those lines stay faculty-page statements.",
+            "The faculty page states an American Academy fellowship, a 1994 Aaron Wildavsky Award, service as department chair and as president of the Midwest Political Science Association, and guest-scholar visits at the Brookings Institution. On 2026-11-23, WebFetch opened the body of https://www.amacad.org/person/john-wells-kingdon. Fields read from that day's WebFetch excerpt are John Wells Kingdon; University of Michigan; Political scientist; Educator; Area Social and Behavioral Sciences; Specialty Political Science; Elected 1991; body text that John W. Kingdon is Professor Emeritus of Political Science at the University of Michigan in Ann Arbor; and bibliographic mentions of Agendas, Alternatives, and Public Policies (1984, 1995, 2011), America the Unusual (1999), and Congressmen's Voting Decisions (1973, 1981, and 1989). curl of the same URL is still an HTTP 403 challenge shell titled Just a moment. That is not ordinary access, and curl did not succeed. This differs from 2026-11-21 and 2026-11-22, when WebFetch timed out on that URL. The 1984, 1995, and 2011 book list on that Academy page is biographical and bibliographic. It is not a verified 1984 first-edition title-page record. The page heading shows Professor alongside body text that he is Professor Emeritus. The heading does not override the body, and the two are not combined into a single title. Guggenheim wording on the Academy page, the LSA faculty page, and the University of Michigan Press page does not stand in for the still-unopened official Fellows entry https://www.gf.org/fellows/john-w-kingdon/. No awards page and no Brookings page were opened. Those award and Brookings lines stay faculty-page statements and are not marked verified.",
             "The press page's book entry is Congressmen's Voting Decisions. It does not replace the edition layers on the Agendas work page.",
             "An unpublished draft scholar record is not this page.",
           ],
@@ -851,12 +867,13 @@ export function createClusterBatch(): ClusterBatch {
             { order: 3, title: "OpenAlex author A5063257234", purpose: "Check the display name, the empty ORCID, the Michigan institution, and the empty homepage. Stop there. A human-readable page is at https://openalex.org/authors/A5063257234.", source_id: openAlexKingdon.id },
             { order: 4, title: "Book page, then theory page", purpose: "Use kingdon-agendas-alternatives-and-public-policies for edition layers. Use multiple-streams-education-policy when the question is the education application.", source_id: pearsonKingdon.id },
           ],
-          sources: [umPressKingdon, lsaKingdonFaculty, lsaKingdonBibliography, openAlexKingdon, pearsonKingdon],
+          sources: [umPressKingdon, lsaKingdonFaculty, lsaKingdonBibliography, openAlexKingdon, pearsonKingdon, aaasKingdon],
           verification: [
             l1("c11-kingdon-press-title", `scholars[slug="${kingdonScholarSlug}"].content.en.academic_identity.role`, "The University of Michigan Press author page describes John W. Kingdon as Professor Emeritus of Political Science at the University of Michigan, and it names a Stanford Center for Advanced Study in Behavioral Sciences fellowship and a John Simon Guggenheim Fellowship.", umPressKingdon.id, "Press author page identity paragraph; URL https://press.umich.edu/Contributors/K/Kingdon-John-W; type publisher; curl HTTP 200 on 2026-11-11"),
             l1("c11-kingdon-faculty-degrees", `scholars[slug="${kingdonScholarSlug}"].content.en.overview`, "The LSA faculty page lists a Ph.D. in political science from the University of Wisconsin-Madison, a B.A. from Oberlin College, and the books Agendas, Alternatives, and Public Policies (1984, 1995, 2011), America the Unusual (1999), and Congressmen's Voting Decisions (1973, 1981, 1989). It names the Stanford center as the Center for Advanced Behavioral Studies at Stanford.", lsaKingdonFaculty.id, "Faculty page Education/Degree, About, and Selected Publications; URL https://lsa.umich.edu/polisci/people/emeriti/kingdon.html; type university; WebFetch opened the page on 2026-11-11; curl HTTP 403"),
             l1("c11-kingdon-openalex", `scholars[slug="${kingdonScholarSlug}"].content.en.overview`, "OpenAlex A5063257234 displays John W. Kingdon, has an empty ORCID, lists the University of Michigan as the last known institution, and has an empty homepage.", openAlexKingdon.id, "Author JSON display_name, orcid, last_known_institutions, and homepage; URL https://api.openalex.org/authors/A5063257234; type authoritative_web; HTTP 200 on 2026-11-11"),
-            l2("c11-kingdon-name-limit", `scholars[slug="${kingdonScholarSlug}"].content.en.attribution_boundaries`, "Leaving the two Stanford names unresolved, refusing an invented ORCID, and refusing to treat unopened Academy, award, or Brookings pages as verified are editorial limits."),
+            l1("c11-kingdon-aaas-person", `scholars[slug="${kingdonScholarSlug}"].content.en.attribution_boundaries`, "On 2026-11-23 WebFetch opened the body of https://www.amacad.org/person/john-wells-kingdon and read John Wells Kingdon; University of Michigan; Political scientist; Educator; Area Social and Behavioral Sciences; Specialty Political Science; Elected 1991; body text that John W. Kingdon is Professor Emeritus of Political Science at the University of Michigan in Ann Arbor; a heading Professor; and bibliographic mentions of Agendas, Alternatives, and Public Policies (1984, 1995, 2011), America the Unusual (1999), and Congressmen's Voting Decisions (1973, 1981, and 1989). curl of the same URL returned an HTTP 403 challenge shell titled Just a moment.", aaasKingdon.id, "WebFetch body excerpt on 2026-11-23; URL https://www.amacad.org/person/john-wells-kingdon; type authoritative_web. curl of the same URL on 2026-11-23 returned HTTP 403, a challenge shell titled Just a moment; curl did not succeed. On 2026-11-21 and 2026-11-22 WebFetch timed out on this URL.", AAAS_KINGDON_PERSON_VERIFIED_AT),
+            l2("c11-kingdon-name-limit", `scholars[slug="${kingdonScholarSlug}"].content.en.attribution_boundaries`, "Leaving the two Stanford names unresolved, refusing an invented ORCID, and refusing to treat unopened award or Brookings pages as verified are editorial limits. The Academy person page is not in that unopened group: on 2026-11-23 WebFetch opened its body, while curl of the same URL remains an HTTP 403 challenge shell titled Just a moment.", AAAS_KINGDON_PERSON_VERIFIED_AT),
             l3("c11-kingdon-reading", `scholars[slug="${kingdonScholarSlug}"].content.en.reading_path`, "Reading the press page, the faculty page, and the OpenAlex row before the book and theory pages is research guidance, not a biographical fact."),
           ],
         },
